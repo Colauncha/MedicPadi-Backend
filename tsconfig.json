@@ -21,6 +21,14 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {}
+    "noUnusedLocals": false,
+    "paths": {
+      "@app/contracts": [
+        "libs/contracts/src/*/index.ts"
+      ],
+      "@app/contracts/*": [
+        "libs/contracts/src/*"
+      ]
+    }
   }
 }
