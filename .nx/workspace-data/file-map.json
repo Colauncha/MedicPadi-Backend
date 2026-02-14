@@ -1,217 +1,784 @@
 {
   "version": "6.0",
   "nxVersion": "22.5.0",
-  "pathMappings": {},
-  "nxJsonPlugins": [],
+  "pathMappings": {
+    "@medicpadi-backend/contracts": [
+      "contracts/src/index.ts"
+    ],
+    "@medicpadi-backend/config": [
+      "config/src/index.ts"
+    ]
+  },
+  "nxJsonPlugins": [
+    {
+      "name": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps",
+        "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
+      "name": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "name": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
+    }
+  ],
   "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": ".editorconfig",
+        "hash": "5443105041930014821"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "6147899740314209172"
+      },
+      {
+        "file": ".prettierignore",
+        "hash": "14688272390704683536"
+      },
+      {
+        "file": ".prettierrc",
+        "hash": "16267754514737964994"
+      },
+      {
+        "file": ".vscode/extensions.json",
+        "hash": "4637156562308165301"
+      },
+      {
+        "file": ".vscode/launch.json",
+        "hash": "12088544848175470422"
+      },
+      {
+        "file": "README.md",
+        "hash": "2007288639635885952"
+      },
+      {
+        "file": "eslint.config.mjs",
+        "hash": "2888230526972910808"
+      },
+      {
+        "file": "jest.config.ts",
+        "hash": "6870352021923392442"
+      },
+      {
+        "file": "jest.preset.js",
+        "hash": "9430166341120122740"
+      },
+      {
+        "file": "nx.json",
+        "hash": "15910178368312388845"
+      },
+      {
+        "file": "package.json",
+        "hash": "303188168417461071"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "hash": "17285982875663130436"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "hash": "6682635867443504162"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "9599202570670286453"
+      }
+    ],
     "projectFileMap": {
-      "users": [
+      "profile": [
         {
-          "file": "medicpadi-backend/apps/users/project.json",
-          "hash": "4667240062396442854"
+          "file": "apps/profile/.env.development",
+          "hash": "10865243768366817963"
         },
         {
-          "file": "medicpadi-backend/apps/users/src/app/app.controller.ts",
-          "hash": "15276891910009544695"
+          "file": "apps/profile/.env.production",
+          "hash": "1110564516265570591"
         },
         {
-          "file": "medicpadi-backend/apps/users/src/app/app.module.ts",
-          "hash": "11673476679848632172"
+          "file": "apps/profile/project.json",
+          "hash": "4454540028484312840"
         },
         {
-          "file": "medicpadi-backend/apps/users/src/app/app.service.ts",
-          "hash": "9967902337593410053"
+          "file": "apps/profile/src/admin/admin.controller.ts",
+          "hash": "8863363676141967337",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/users/src/assets/.gitkeep",
+          "file": "apps/profile/src/admin/admin.module.ts",
+          "hash": "47898887394398729",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/admin/admin.service.ts",
+          "hash": "14511191659886495680",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/admin/dto/create-admin.dto.ts",
+          "hash": "10934797400817481040"
+        },
+        {
+          "file": "apps/profile/src/admin/dto/update-admin.dto.ts",
+          "hash": "8697059455521899097",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "apps/profile/src/admin/entities/admin.entity.ts",
+          "hash": "6739233276252081200"
+        },
+        {
+          "file": "apps/profile/src/app/admin/admin.controller.ts",
+          "hash": "8863363676141967337",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/admin/admin.module.ts",
+          "hash": "47898887394398729",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/admin/admin.service.ts",
+          "hash": "14511191659886495680",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/admin/dto/create-admin.dto.ts",
+          "hash": "10934797400817481040"
+        },
+        {
+          "file": "apps/profile/src/app/admin/dto/update-admin.dto.ts",
+          "hash": "8697059455521899097",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/admin/entities/admin.entity.ts",
+          "hash": "6739233276252081200"
+        },
+        {
+          "file": "apps/profile/src/app/app.controller.ts",
+          "hash": "15276891910009544695",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/app.module.ts",
+          "hash": "14973308190625018969",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/config",
+            "config",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/app.service.ts",
+          "hash": "9967902337593410053",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/doctors/doctors.controller.ts",
+          "hash": "8680252824929970386",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/doctors/doctors.module.ts",
+          "hash": "535935456823354573",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/doctors/doctors.service.ts",
+          "hash": "17451769758012660406",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/doctors/dto/create-doctor.dto.ts",
+          "hash": "5018865793245526065"
+        },
+        {
+          "file": "apps/profile/src/app/doctors/dto/update-doctor.dto.ts",
+          "hash": "2940844567052682492",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/doctors/entities/doctor.entity.ts",
+          "hash": "6967948892525740195"
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/dto/create-laboratory.dto.ts",
+          "hash": "10513407783199363917"
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/dto/update-laboratory.dto.ts",
+          "hash": "311006021786566377",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/entities/laboratory.entity.ts",
+          "hash": "12732104619185776999"
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/laboratory.controller.ts",
+          "hash": "11862512586841134237",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/laboratory.module.ts",
+          "hash": "16183012417648233297",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/laboratory.service.ts",
+          "hash": "11803241474529509895",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/patient/dto/create-patient.dto.ts",
+          "hash": "11944610726930581836"
+        },
+        {
+          "file": "apps/profile/src/app/patient/dto/update-patient.dto.ts",
+          "hash": "7414030446381761965",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/patient/entities/patient.entity.ts",
+          "hash": "2671406018250349214"
+        },
+        {
+          "file": "apps/profile/src/app/patient/patient.controller.ts",
+          "hash": "8756197652524221423",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/patient/patient.module.ts",
+          "hash": "14865769232266732379",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/patient/patient.service.ts",
+          "hash": "17398525025793310583",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/dto/create-pharmacy.dto.ts",
+          "hash": "5726439910484823959"
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/dto/update-pharmacy.dto.ts",
+          "hash": "4336544724891452303",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/entities/pharmacy.entity.ts",
+          "hash": "18068349905316435319"
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/pharmacy.controller.ts",
+          "hash": "292886891449673539",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/pharmacy.module.ts",
+          "hash": "10144745954803196461",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/pharmacy.service.ts",
+          "hash": "18080358833739410684",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/assets/.gitkeep",
           "hash": "3244421341483603138"
         },
         {
-          "file": "medicpadi-backend/apps/users/src/main.ts",
-          "hash": "14244403322143362372"
+          "file": "apps/profile/src/config/app.config.ts",
+          "hash": "11335831815817690290",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/users/tsconfig.app.json",
+          "file": "apps/profile/src/config/db.config.ts",
+          "hash": "18299653011364505018",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "apps/profile/src/main.ts",
+          "hash": "3367579997480660443",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/core",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/profile/tsconfig.app.json",
           "hash": "14721380886453079150"
         },
         {
-          "file": "medicpadi-backend/apps/users/tsconfig.json",
+          "file": "apps/profile/tsconfig.json",
           "hash": "3025378044812449119"
         },
         {
-          "file": "medicpadi-backend/apps/users/webpack.config.js",
-          "hash": "8806508196518693069"
-        }
-      ],
-      "contracts": [
-        {
-          "file": "medicpadi-backend/apps/contracts/README.md",
-          "hash": "4011451930185005975"
-        },
-        {
-          "file": "medicpadi-backend/apps/contracts/project.json",
-          "hash": "10196719585854466852"
-        },
-        {
-          "file": "medicpadi-backend/apps/contracts/src/index.ts",
-          "hash": "9560415729767040831"
-        },
-        {
-          "file": "medicpadi-backend/apps/contracts/src/lib/contracts.module.ts",
-          "hash": "16555806858563721676"
-        },
-        {
-          "file": "medicpadi-backend/apps/contracts/tsconfig.json",
-          "hash": "6159797437362864955"
-        },
-        {
-          "file": "medicpadi-backend/apps/contracts/tsconfig.lib.json",
-          "hash": "16124842583401578655"
+          "file": "apps/profile/webpack.config.js",
+          "hash": "731446248088685336",
+          "deps": [
+            "npm:@nx/webpack"
+          ]
         }
       ],
       "gateway": [
         {
-          "file": "medicpadi-backend/apps/gateway/eslint.config.mjs",
+          "file": "apps/gateway/.env.development",
+          "hash": "15149483211297508758"
+        },
+        {
+          "file": "apps/gateway/.env.production",
+          "hash": "1110564516265570591"
+        },
+        {
+          "file": "apps/gateway/eslint.config.mjs",
           "hash": "2624537849564014525"
         },
         {
-          "file": "medicpadi-backend/apps/gateway/project.json",
+          "file": "apps/gateway/project.json",
           "hash": "372285126730933850"
         },
         {
-          "file": "medicpadi-backend/apps/gateway/src/app/app.controller.ts",
-          "hash": "15276891910009544695"
+          "file": "apps/gateway/src/app/app.controller.ts",
+          "hash": "15276891910009544695",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/gateway/src/app/app.module.ts",
-          "hash": "11673476679848632172"
+          "file": "apps/gateway/src/app/app.module.ts",
+          "hash": "8273304800268153988",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/config"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/gateway/src/app/app.service.ts",
-          "hash": "9967902337593410053"
+          "file": "apps/gateway/src/app/app.service.ts",
+          "hash": "9967902337593410053",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/gateway/src/assets/.gitkeep",
+          "file": "apps/gateway/src/assets/.gitkeep",
           "hash": "3244421341483603138"
         },
         {
-          "file": "medicpadi-backend/apps/gateway/src/main.ts",
-          "hash": "14244403322143362372"
+          "file": "apps/gateway/src/auth/auth.controller.ts",
+          "hash": "4928300293434389705",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:express",
+            "contracts",
+            "npm:rxjs"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/gateway/tsconfig.app.json",
+          "file": "apps/gateway/src/auth/auth.module.ts",
+          "hash": "12067629953986664458",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices",
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/auth/auth.service.ts",
+          "hash": "1623350967393722087",
+          "deps": [
+            "npm:@nestjs/common",
+            "contracts",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/auth/dto/create-auth.dto.ts",
+          "hash": "10509584747274167003"
+        },
+        {
+          "file": "apps/gateway/src/auth/dto/update-auth.dto.ts",
+          "hash": "2756830368572715385",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/config/app.config.ts",
+          "hash": "776517261786571900",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/guards/auth/auth.guard.ts",
+          "hash": "7933316752119984471",
+          "deps": [
+            "npm:@nestjs/common",
+            "contracts",
+            "npm:@nestjs/microservices",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/main.ts",
+          "hash": "789449136443350693",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/core",
+            "npm:cookie-parser"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/profile/dto/create-profile.dto.ts",
+          "hash": "12969192542925651548"
+        },
+        {
+          "file": "apps/gateway/src/profile/dto/update-profile.dto.ts",
+          "hash": "2363621587898647809",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/profile/profile.controller.ts",
+          "hash": "6597469992458596167",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/profile/profile.module.ts",
+          "hash": "2274876730698924533",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/gateway/src/profile/profile.service.ts",
+          "hash": "16512429437030103320",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/gateway/tsconfig.app.json",
           "hash": "14721380886453079150"
         },
         {
-          "file": "medicpadi-backend/apps/gateway/tsconfig.json",
+          "file": "apps/gateway/tsconfig.json",
           "hash": "3025378044812449119"
         },
         {
-          "file": "medicpadi-backend/apps/gateway/webpack.config.js",
-          "hash": "14706854521783256222"
+          "file": "apps/gateway/webpack.config.js",
+          "hash": "14706854521783256222",
+          "deps": [
+            "npm:@nx/webpack"
+          ]
         }
       ],
       "auth": [
         {
-          "file": "medicpadi-backend/apps/auth/project.json",
+          "file": "apps/auth/.env.development",
+          "hash": "1957729131669756196"
+        },
+        {
+          "file": "apps/auth/.env.production",
+          "hash": "11313868630234764103"
+        },
+        {
+          "file": "apps/auth/project.json",
           "hash": "2803196804937024357"
         },
         {
-          "file": "medicpadi-backend/apps/auth/src/app/app.controller.ts",
-          "hash": "15276891910009544695"
+          "file": "apps/auth/src/app/app.controller.ts",
+          "hash": "10911141093652312346",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/auth/src/app/app.module.ts",
-          "hash": "11673476679848632172"
+          "file": "apps/auth/src/app/app.module.ts",
+          "hash": "6427523166709074226",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/config",
+            "config",
+            "npm:@nestjs/typeorm"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/auth/src/app/app.service.ts",
-          "hash": "9967902337593410053"
+          "file": "apps/auth/src/app/app.service.ts",
+          "hash": "13763017428496414084",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/auth/src/assets/.gitkeep",
+          "file": "apps/auth/src/app/auth/auth.controller.ts",
+          "hash": "15632856248842715483",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/auth/src/app/auth/auth.module.ts",
+          "hash": "1140732253789814791",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm",
+            "npm:@nestjs/jwt",
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "apps/auth/src/app/auth/auth.service.ts",
+          "hash": "9797039404497055225",
+          "deps": [
+            "npm:@nestjs/common",
+            "contracts",
+            "npm:typeorm",
+            "npm:@nestjs/typeorm",
+            "npm:bcryptjs",
+            "npm:@nestjs/jwt"
+          ]
+        },
+        {
+          "file": "apps/auth/src/app/auth/entities/auth.entity.ts",
+          "hash": "6711137719251111256",
+          "deps": [
+            "npm:typeorm",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/auth/src/assets/.gitkeep",
           "hash": "3244421341483603138"
         },
         {
-          "file": "medicpadi-backend/apps/auth/src/main.ts",
-          "hash": "14244403322143362372"
+          "file": "apps/auth/src/config/app.config.ts",
+          "hash": "11335831815817690290",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
         },
         {
-          "file": "medicpadi-backend/apps/auth/tsconfig.app.json",
+          "file": "apps/auth/src/config/db.config.ts",
+          "hash": "18299653011364505018",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "apps/auth/src/main.ts",
+          "hash": "5477408547070104240",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/core",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/auth/tsconfig.app.json",
           "hash": "14721380886453079150"
         },
         {
-          "file": "medicpadi-backend/apps/auth/tsconfig.json",
+          "file": "apps/auth/tsconfig.json",
           "hash": "3025378044812449119"
         },
         {
-          "file": "medicpadi-backend/apps/auth/webpack.config.js",
-          "hash": "3557258237693313156"
+          "file": "apps/auth/webpack.config.js",
+          "hash": "3557258237693313156",
+          "deps": [
+            "npm:@nx/webpack"
+          ]
+        }
+      ],
+      "config": [
+        {
+          "file": "config/README.md",
+          "hash": "13605896793050400708"
+        },
+        {
+          "file": "config/project.json",
+          "hash": "7377085430954990100"
+        },
+        {
+          "file": "config/src/app.config.ts",
+          "hash": "10753239579575615644",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "config/src/db.config.ts",
+          "hash": "8851301968968686342",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "config/src/index.ts",
+          "hash": "12811845458911827273"
+        },
+        {
+          "file": "config/src/service.config.ts",
+          "hash": "4047331711310494876",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "config/tsconfig.json",
+          "hash": "14348528073521137485"
+        },
+        {
+          "file": "config/tsconfig.lib.json",
+          "hash": "16683304389690061378"
+        }
+      ],
+      "contracts": [
+        {
+          "file": "contracts/README.md",
+          "hash": "4011451930185005975"
+        },
+        {
+          "file": "contracts/project.json",
+          "hash": "13452012466217828125"
+        },
+        {
+          "file": "contracts/src/index.ts",
+          "hash": "17144290724115246589"
+        },
+        {
+          "file": "contracts/src/lib/dtos/auth/create-auth.dto.ts",
+          "hash": "14551961571898216872",
+          "deps": [
+            "npm:class-transformer",
+            "npm:class-validator"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/auth/get-auth.dto.ts",
+          "hash": "6671831397859584184",
+          "deps": [
+            "npm:class-validator"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/auth/login.dto.ts",
+          "hash": "7980932386811402203",
+          "deps": [
+            "npm:class-validator"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/auth/update-auth.dto.ts",
+          "hash": "2756830368572715385",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/enums/auth.enum.ts",
+          "hash": "17629846520555925384"
+        },
+        {
+          "file": "contracts/src/lib/patterns/auth.patterns.ts",
+          "hash": "17501415009523993767"
+        },
+        {
+          "file": "contracts/tsconfig.json",
+          "hash": "14348528073521137485"
+        },
+        {
+          "file": "contracts/tsconfig.lib.json",
+          "hash": "16683304389690061378"
         }
       ]
-    },
-    "nonProjectFiles": [
-      {
-        "file": "medicpadi-backend/.editorconfig",
-        "hash": "5443105041930014821"
-      },
-      {
-        "file": "medicpadi-backend/.gitignore",
-        "hash": "6147899740314209172"
-      },
-      {
-        "file": "medicpadi-backend/.prettierignore",
-        "hash": "14688272390704683536"
-      },
-      {
-        "file": "medicpadi-backend/.prettierrc",
-        "hash": "16267754514737964994"
-      },
-      {
-        "file": "medicpadi-backend/.vscode/extensions.json",
-        "hash": "4637156562308165301"
-      },
-      {
-        "file": "medicpadi-backend/.vscode/launch.json",
-        "hash": "16081836052502692687"
-      },
-      {
-        "file": "medicpadi-backend/README.md",
-        "hash": "2007288639635885952"
-      },
-      {
-        "file": "medicpadi-backend/eslint.config.mjs",
-        "hash": "12926286793420397906"
-      },
-      {
-        "file": "medicpadi-backend/jest.config.ts",
-        "hash": "6870352021923392442"
-      },
-      {
-        "file": "medicpadi-backend/jest.preset.js",
-        "hash": "9430166341120122740"
-      },
-      {
-        "file": "medicpadi-backend/nx.json",
-        "hash": "11588637778166895783"
-      },
-      {
-        "file": "medicpadi-backend/package.json",
-        "hash": "16078086244164396107"
-      },
-      {
-        "file": "medicpadi-backend/pnpm-lock.yaml",
-        "hash": "1227915265168767778"
-      },
-      {
-        "file": "medicpadi-backend/pnpm-workspace.yaml",
-        "hash": "6682635867443504162"
-      },
-      {
-        "file": "medicpadi-backend/tsconfig.base.json",
-        "hash": "9735539947599280708"
-      }
-    ]
+    }
   },
-  "externalNodesHash": "3244421341483603138"
+  "externalNodesHash": "13535925993202629483"
 }

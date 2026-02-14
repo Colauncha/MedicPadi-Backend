@@ -1,593 +1,1323 @@
 {
-  "medicpadi-backend/apps/auth": {
+  "apps/auth": {
     "root": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
-    ],
-    "name": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
-    ],
-    "$schema": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
-    ],
-    "sourceRoot": [
-      "medicpadi-backend/apps/auth/project.json",
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
     "projectType": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
-    ],
-    "tags": [
-      "medicpadi-backend/apps/auth/project.json",
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
     "targets": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
     "targets.build": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.executor": [
-      "medicpadi-backend/apps/auth/project.json",
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
     "targets.build.options": [
-      "medicpadi-backend/apps/auth/project.json",
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
-    "targets.build.configurations": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build.cache": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.build.options.command": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build.dependsOn": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.build.options.args": [
-      "medicpadi-backend/apps/auth/project.json",
+    "targets.build.inputs": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.outputs": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.executor": [
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
     "targets.build.options.cwd": [
-      "medicpadi-backend/apps/auth/project.json",
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
-    "targets.build.configurations.development": [
-      "medicpadi-backend/apps/auth/project.json",
+    "targets.build.options.args": [
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
-    "targets.build.configurations.development.args": [
-      "medicpadi-backend/apps/auth/project.json",
+    "targets.build.options.command": [
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
-    "targets.prune-lockfile": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build.metadata.technologies": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune-lockfile.dependsOn": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build.metadata.technologies.0": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune-lockfile.cache": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build.metadata.description": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune-lockfile.executor": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build.metadata.help": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune-lockfile.outputs": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build.metadata.help.command": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune-lockfile.options": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build.metadata.help.example": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune-lockfile.options.buildTarget": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.copy-workspace-modules": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.continuous": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.copy-workspace-modules.dependsOn": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.options": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.copy-workspace-modules.cache": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.metadata": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.copy-workspace-modules.outputs": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.executor": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.copy-workspace-modules.executor": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.options.cwd": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.copy-workspace-modules.options": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.options.args": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.copy-workspace-modules.options.buildTarget": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.options.command": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.metadata.technologies": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune.dependsOn": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.metadata.technologies.0": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.prune.executor": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.metadata.description": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.metadata.help": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.continuous": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.metadata.help.command": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.executor": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.preview.metadata.help.example": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.defaultConfiguration": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build-deps": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.dependsOn": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.build-deps.dependsOn": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.options": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.watch-deps": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.configurations": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.watch-deps.continuous": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.options.buildTarget": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.watch-deps.dependsOn": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.options.runBuildTargetDependencies": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.watch-deps.executor": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.configurations.development": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.watch-deps.options": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.configurations.development.buildTarget": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.watch-deps.options.command": [
+      "apps/auth/webpack.config.js",
+      "@nx/webpack/plugin"
     ],
-    "targets.serve.configurations.production": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
+    "targets.lint": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.serve.configurations.production.buildTarget": [
-      "medicpadi-backend/apps/auth/project.json",
-      "nx/core/project-json"
-    ]
-  },
-  "medicpadi-backend/apps/contracts": {
-    "root": [
-      "medicpadi-backend/apps/contracts/project.json",
-      "nx/core/project-json"
+    "targets.lint.cache": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.inputs": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.outputs": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.executor": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.cwd": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.command": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies.0": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.description": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.command": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.example": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
     "name": [
-      "medicpadi-backend/apps/contracts/project.json",
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
     "$schema": [
-      "medicpadi-backend/apps/contracts/project.json",
+      "apps/auth/project.json",
       "nx/core/project-json"
     ],
     "sourceRoot": [
-      "medicpadi-backend/apps/contracts/project.json",
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.args": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.dependsOn": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.cache": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.executor": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.outputs": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options.buildTarget": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.dependsOn": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.cache": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.outputs": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.executor": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options.buildTarget": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.dependsOn": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.executor": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.continuous": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.defaultConfiguration": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.dependsOn": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.buildTarget": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.runBuildTargetDependencies": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.buildTarget": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.buildTarget": [
+      "apps/auth/project.json",
+      "nx/core/project-json"
+    ]
+  },
+  "apps/gateway": {
+    "root": [
+      "apps/gateway/project.json",
       "nx/core/project-json"
     ],
     "projectType": [
-      "medicpadi-backend/apps/contracts/project.json",
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.cache": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.dependsOn": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.inputs": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.outputs": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.executor": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.cwd": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.args": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.command": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.metadata.technologies": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.technologies.0": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.description": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.help": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.help.command": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.help.example": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.continuous": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.options": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.executor": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.options.cwd": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.options.args": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.options.command": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.technologies": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.technologies.0": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.description": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.help": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.help.command": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.help.example": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build-deps": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build-deps.dependsOn": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.continuous": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.dependsOn": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.executor": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.options": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.options.command": [
+      "apps/gateway/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.lint": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.cache": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.inputs": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.outputs": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.executor": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.cwd": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.command": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies.0": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.description": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.command": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.example": [
+      "apps/gateway/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "name": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.args": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.dependsOn": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.cache": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.executor": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.outputs": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options.buildTarget": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.dependsOn": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.cache": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.outputs": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.executor": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options.buildTarget": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.dependsOn": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.executor": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.continuous": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.defaultConfiguration": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.dependsOn": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.buildTarget": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.runBuildTargetDependencies": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.buildTarget": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.buildTarget": [
+      "apps/gateway/project.json",
+      "nx/core/project-json"
+    ]
+  },
+  "apps/profile": {
+    "root": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.cache": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.dependsOn": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.inputs": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.outputs": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.executor": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.cwd": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.args": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.command": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.metadata.technologies": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.technologies.0": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.description": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.help": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.help.command": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build.metadata.help.example": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.continuous": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.options": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.executor": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.options.cwd": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.options.args": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.options.command": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.technologies": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.technologies.0": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.description": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.help": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.help.command": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.preview.metadata.help.example": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build-deps": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.build-deps.dependsOn": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.continuous": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.dependsOn": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.executor": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.options": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.watch-deps.options.command": [
+      "apps/profile/webpack.config.js",
+      "@nx/webpack/plugin"
+    ],
+    "targets.lint": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.cache": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.inputs": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.outputs": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.executor": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.cwd": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.command": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies.0": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.description": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.command": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.example": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "name": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.args": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.dependsOn": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.cache": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.executor": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.outputs": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options.buildTarget": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.dependsOn": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.cache": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.outputs": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.executor": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options.buildTarget": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.dependsOn": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.executor": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.continuous": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.defaultConfiguration": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.dependsOn": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.buildTarget": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.runBuildTargetDependencies": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.buildTarget": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.buildTarget": [
+      "apps/profile/project.json",
+      "nx/core/project-json"
+    ]
+  },
+  "config": {
+    "root": [
+      "config/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.cache": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.inputs": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.outputs": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.executor": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.cwd": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.options.command": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.technologies.0": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.description": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.command": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "targets.lint.metadata.help.example": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "name": [
+      "config/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "config/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "config/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "config/project.json",
       "nx/core/project-json"
     ],
     "// targets": [
-      "medicpadi-backend/apps/contracts/project.json",
+      "config/project.json",
       "nx/core/project-json"
     ],
     "tags": [
-      "medicpadi-backend/apps/contracts/project.json",
-      "nx/core/project-json"
-    ],
-    "targets": [
-      "medicpadi-backend/apps/contracts/project.json",
+      "config/project.json",
       "nx/core/project-json"
     ]
   },
-  "medicpadi-backend/apps/gateway": {
+  "contracts": {
     "root": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "name": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "$schema": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "sourceRoot": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "projectType": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "tags": [
-      "medicpadi-backend/apps/gateway/project.json",
+      "contracts/project.json",
       "nx/core/project-json"
     ],
     "targets": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build.executor": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.cache": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build.options": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.options": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build.configurations": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.inputs": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build.options.command": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.outputs": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build.options.args": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.metadata": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build.options.cwd": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.executor": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build.configurations.development": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.options.cwd": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.build.configurations.development.args": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.options.command": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.prune-lockfile": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.metadata.technologies": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.prune-lockfile.dependsOn": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.metadata.technologies.0": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.prune-lockfile.cache": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.metadata.description": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.prune-lockfile.executor": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.metadata.help": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.prune-lockfile.outputs": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
+    "targets.lint.metadata.help.command": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
-    "targets.prune-lockfile.options": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune-lockfile.options.buildTarget": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.dependsOn": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.cache": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.outputs": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.executor": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.options": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.options.buildTarget": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune.dependsOn": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune.executor": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.continuous": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.executor": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.defaultConfiguration": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.dependsOn": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.options": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.options.buildTarget": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.options.runBuildTargetDependencies": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations.development": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations.development.buildTarget": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations.production": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations.production.buildTarget": [
-      "medicpadi-backend/apps/gateway/project.json",
-      "nx/core/project-json"
-    ]
-  },
-  "medicpadi-backend/apps/users": {
-    "root": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
+    "targets.lint.metadata.help.example": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
     ],
     "name": [
-      "medicpadi-backend/apps/users/project.json",
+      "contracts/project.json",
       "nx/core/project-json"
     ],
     "$schema": [
-      "medicpadi-backend/apps/users/project.json",
+      "contracts/project.json",
       "nx/core/project-json"
     ],
     "sourceRoot": [
-      "medicpadi-backend/apps/users/project.json",
+      "contracts/project.json",
       "nx/core/project-json"
     ],
     "projectType": [
-      "medicpadi-backend/apps/users/project.json",
+      "contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "// targets": [
+      "contracts/project.json",
       "nx/core/project-json"
     ],
     "tags": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.executor": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.options": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.configurations": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.options.command": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.options.args": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.options.cwd": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.configurations.development": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.build.configurations.development.args": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune-lockfile": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune-lockfile.dependsOn": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune-lockfile.cache": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune-lockfile.executor": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune-lockfile.outputs": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune-lockfile.options": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune-lockfile.options.buildTarget": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.dependsOn": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.cache": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.outputs": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.executor": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.options": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.copy-workspace-modules.options.buildTarget": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune.dependsOn": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.prune.executor": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.continuous": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.executor": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.defaultConfiguration": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.dependsOn": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.options": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.options.buildTarget": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.options.runBuildTargetDependencies": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations.development": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations.development.buildTarget": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations.production": [
-      "medicpadi-backend/apps/users/project.json",
-      "nx/core/project-json"
-    ],
-    "targets.serve.configurations.production.buildTarget": [
-      "medicpadi-backend/apps/users/project.json",
+      "contracts/project.json",
       "nx/core/project-json"
     ]
   }
