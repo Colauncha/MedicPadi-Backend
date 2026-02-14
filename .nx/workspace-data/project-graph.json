@@ -13343,6 +13343,11 @@
       },
       {
         "source": "profile",
+        "target": "npm:@nestjs/typeorm",
+        "type": "static"
+      },
+      {
+        "source": "profile",
         "target": "npm:@nestjs/mapped-types",
         "type": "static"
       },
@@ -13354,11 +13359,6 @@
       {
         "source": "profile",
         "target": "config",
-        "type": "static"
-      },
-      {
-        "source": "profile",
-        "target": "npm:@nestjs/typeorm",
         "type": "static"
       },
       {
@@ -30703,5 +30703,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1771063035701
+  "computedAt": 1771066069532
 }
