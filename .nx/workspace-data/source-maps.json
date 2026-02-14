@@ -1,0 +1,594 @@
+{
+  "medicpadi-backend/apps/auth": {
+    "root": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.executor": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.command": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.args": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.cwd": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.args": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.dependsOn": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.cache": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.executor": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.outputs": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options.buildTarget": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.dependsOn": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.cache": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.outputs": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.executor": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options.buildTarget": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.dependsOn": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.executor": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.continuous": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.defaultConfiguration": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.dependsOn": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.buildTarget": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.runBuildTargetDependencies": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.buildTarget": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.buildTarget": [
+      "medicpadi-backend/apps/auth/project.json",
+      "nx/core/project-json"
+    ]
+  },
+  "medicpadi-backend/apps/contracts": {
+    "root": [
+      "medicpadi-backend/apps/contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "medicpadi-backend/apps/contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "medicpadi-backend/apps/contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "medicpadi-backend/apps/contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "medicpadi-backend/apps/contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "// targets": [
+      "medicpadi-backend/apps/contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "medicpadi-backend/apps/contracts/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "medicpadi-backend/apps/contracts/project.json",
+      "nx/core/project-json"
+    ]
+  },
+  "medicpadi-backend/apps/gateway": {
+    "root": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.executor": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.command": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.args": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.cwd": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.args": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.dependsOn": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.cache": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.executor": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.outputs": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options.buildTarget": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.dependsOn": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.cache": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.outputs": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.executor": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options.buildTarget": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.dependsOn": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.executor": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.continuous": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.defaultConfiguration": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.dependsOn": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.buildTarget": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.runBuildTargetDependencies": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.buildTarget": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.buildTarget": [
+      "medicpadi-backend/apps/gateway/project.json",
+      "nx/core/project-json"
+    ]
+  },
+  "medicpadi-backend/apps/users": {
+    "root": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "name": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.executor": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.command": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.args": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.cwd": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.configurations.development.args": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.dependsOn": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.cache": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.executor": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.outputs": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune-lockfile.options.buildTarget": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.dependsOn": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.cache": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.outputs": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.executor": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.copy-workspace-modules.options.buildTarget": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.dependsOn": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.prune.executor": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.continuous": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.executor": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.defaultConfiguration": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.dependsOn": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.buildTarget": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.options.runBuildTargetDependencies": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.development.buildTarget": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.serve.configurations.production.buildTarget": [
+      "medicpadi-backend/apps/users/project.json",
+      "nx/core/project-json"
+    ]
+  }
+}

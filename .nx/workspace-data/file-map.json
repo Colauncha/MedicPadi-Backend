@@ -1,0 +1,217 @@
+{
+  "version": "6.0",
+  "nxVersion": "22.5.0",
+  "pathMappings": {},
+  "nxJsonPlugins": [],
+  "fileMap": {
+    "projectFileMap": {
+      "users": [
+        {
+          "file": "medicpadi-backend/apps/users/project.json",
+          "hash": "4667240062396442854"
+        },
+        {
+          "file": "medicpadi-backend/apps/users/src/app/app.controller.ts",
+          "hash": "15276891910009544695"
+        },
+        {
+          "file": "medicpadi-backend/apps/users/src/app/app.module.ts",
+          "hash": "11673476679848632172"
+        },
+        {
+          "file": "medicpadi-backend/apps/users/src/app/app.service.ts",
+          "hash": "9967902337593410053"
+        },
+        {
+          "file": "medicpadi-backend/apps/users/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "medicpadi-backend/apps/users/src/main.ts",
+          "hash": "14244403322143362372"
+        },
+        {
+          "file": "medicpadi-backend/apps/users/tsconfig.app.json",
+          "hash": "14721380886453079150"
+        },
+        {
+          "file": "medicpadi-backend/apps/users/tsconfig.json",
+          "hash": "3025378044812449119"
+        },
+        {
+          "file": "medicpadi-backend/apps/users/webpack.config.js",
+          "hash": "8806508196518693069"
+        }
+      ],
+      "contracts": [
+        {
+          "file": "medicpadi-backend/apps/contracts/README.md",
+          "hash": "4011451930185005975"
+        },
+        {
+          "file": "medicpadi-backend/apps/contracts/project.json",
+          "hash": "10196719585854466852"
+        },
+        {
+          "file": "medicpadi-backend/apps/contracts/src/index.ts",
+          "hash": "9560415729767040831"
+        },
+        {
+          "file": "medicpadi-backend/apps/contracts/src/lib/contracts.module.ts",
+          "hash": "16555806858563721676"
+        },
+        {
+          "file": "medicpadi-backend/apps/contracts/tsconfig.json",
+          "hash": "6159797437362864955"
+        },
+        {
+          "file": "medicpadi-backend/apps/contracts/tsconfig.lib.json",
+          "hash": "16124842583401578655"
+        }
+      ],
+      "gateway": [
+        {
+          "file": "medicpadi-backend/apps/gateway/eslint.config.mjs",
+          "hash": "2624537849564014525"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/project.json",
+          "hash": "372285126730933850"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/src/app/app.controller.ts",
+          "hash": "15276891910009544695"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/src/app/app.module.ts",
+          "hash": "11673476679848632172"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/src/app/app.service.ts",
+          "hash": "9967902337593410053"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/src/main.ts",
+          "hash": "14244403322143362372"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/tsconfig.app.json",
+          "hash": "14721380886453079150"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/tsconfig.json",
+          "hash": "3025378044812449119"
+        },
+        {
+          "file": "medicpadi-backend/apps/gateway/webpack.config.js",
+          "hash": "14706854521783256222"
+        }
+      ],
+      "auth": [
+        {
+          "file": "medicpadi-backend/apps/auth/project.json",
+          "hash": "2803196804937024357"
+        },
+        {
+          "file": "medicpadi-backend/apps/auth/src/app/app.controller.ts",
+          "hash": "15276891910009544695"
+        },
+        {
+          "file": "medicpadi-backend/apps/auth/src/app/app.module.ts",
+          "hash": "11673476679848632172"
+        },
+        {
+          "file": "medicpadi-backend/apps/auth/src/app/app.service.ts",
+          "hash": "9967902337593410053"
+        },
+        {
+          "file": "medicpadi-backend/apps/auth/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "medicpadi-backend/apps/auth/src/main.ts",
+          "hash": "14244403322143362372"
+        },
+        {
+          "file": "medicpadi-backend/apps/auth/tsconfig.app.json",
+          "hash": "14721380886453079150"
+        },
+        {
+          "file": "medicpadi-backend/apps/auth/tsconfig.json",
+          "hash": "3025378044812449119"
+        },
+        {
+          "file": "medicpadi-backend/apps/auth/webpack.config.js",
+          "hash": "3557258237693313156"
+        }
+      ]
+    },
+    "nonProjectFiles": [
+      {
+        "file": "medicpadi-backend/.editorconfig",
+        "hash": "5443105041930014821"
+      },
+      {
+        "file": "medicpadi-backend/.gitignore",
+        "hash": "6147899740314209172"
+      },
+      {
+        "file": "medicpadi-backend/.prettierignore",
+        "hash": "14688272390704683536"
+      },
+      {
+        "file": "medicpadi-backend/.prettierrc",
+        "hash": "16267754514737964994"
+      },
+      {
+        "file": "medicpadi-backend/.vscode/extensions.json",
+        "hash": "4637156562308165301"
+      },
+      {
+        "file": "medicpadi-backend/.vscode/launch.json",
+        "hash": "16081836052502692687"
+      },
+      {
+        "file": "medicpadi-backend/README.md",
+        "hash": "2007288639635885952"
+      },
+      {
+        "file": "medicpadi-backend/eslint.config.mjs",
+        "hash": "12926286793420397906"
+      },
+      {
+        "file": "medicpadi-backend/jest.config.ts",
+        "hash": "6870352021923392442"
+      },
+      {
+        "file": "medicpadi-backend/jest.preset.js",
+        "hash": "9430166341120122740"
+      },
+      {
+        "file": "medicpadi-backend/nx.json",
+        "hash": "11588637778166895783"
+      },
+      {
+        "file": "medicpadi-backend/package.json",
+        "hash": "16078086244164396107"
+      },
+      {
+        "file": "medicpadi-backend/pnpm-lock.yaml",
+        "hash": "1227915265168767778"
+      },
+      {
+        "file": "medicpadi-backend/pnpm-workspace.yaml",
+        "hash": "6682635867443504162"
+      },
+      {
+        "file": "medicpadi-backend/tsconfig.base.json",
+        "hash": "9735539947599280708"
+      }
+    ]
+  },
+  "externalNodesHash": "3244421341483603138"
+}
