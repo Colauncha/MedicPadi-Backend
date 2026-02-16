@@ -38,7 +38,7 @@ export class AuthService {
           dto: new CreateAdminDto(),
         };
 
-      case 'doctor':
+      case 'consultant':
         return {
           pattern: DoctorPatterns.CREATE,
           dto: new CreateDoctorDto(),
@@ -56,7 +56,7 @@ export class AuthService {
           dto: new CreatePharmacyDto(),
         };
 
-      case 'laboratory':
+      case 'lab':
         return {
           pattern: LaboratoryPatterns.CREATE,
           dto: new CreateLaboratoryDto(),

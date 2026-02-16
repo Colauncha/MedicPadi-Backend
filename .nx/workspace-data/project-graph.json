@@ -799,6 +799,59 @@
         "tags": [],
         "implicitDependencies": []
       }
+    },
+    "utils": {
+      "name": "utils",
+      "type": "lib",
+      "data": {
+        "root": "utils",
+        "targets": {
+          "lint": {
+            "cache": true,
+            "options": {
+              "cwd": "utils",
+              "command": "eslint ."
+            },
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*",
+              {
+                "externalDependencies": [
+                  "eslint"
+                ]
+              }
+            ],
+            "outputs": [
+              "{options.outputFile}"
+            ],
+            "metadata": {
+              "technologies": [
+                "eslint"
+              ],
+              "description": "Runs ESLint on project",
+              "help": {
+                "command": "pnpm exec eslint --help",
+                "example": {
+                  "options": {
+                    "max-warnings": 0
+                  }
+                }
+              }
+            },
+            "executor": "nx:run-commands",
+            "configurations": {},
+            "parallelism": true
+          }
+        },
+        "name": "utils",
+        "$schema": "../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "utils/src",
+        "projectType": "library",
+        "tags": [],
+        "implicitDependencies": []
+      }
     }
   },
   "externalNodes": {
@@ -13373,6 +13426,11 @@
       },
       {
         "source": "profile",
+        "target": "utils",
+        "type": "static"
+      },
+      {
+        "source": "profile",
         "target": "npm:@nx/webpack",
         "type": "static"
       }
@@ -13430,6 +13488,11 @@
       },
       {
         "source": "auth",
+        "target": "utils",
+        "type": "static"
+      },
+      {
+        "source": "auth",
         "target": "npm:@nx/webpack",
         "type": "static"
       }
@@ -13460,6 +13523,18 @@
       {
         "source": "config",
         "target": "npm:@nestjs/config",
+        "type": "static"
+      }
+    ],
+    "utils": [
+      {
+        "source": "utils",
+        "target": "npm:@nestjs/common",
+        "type": "static"
+      },
+      {
+        "source": "utils",
+        "target": "npm:rxjs",
         "type": "static"
       }
     ],
@@ -30713,5 +30788,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1771241877655
+  "computedAt": 1771255277176
 }

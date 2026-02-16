@@ -7,6 +7,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceLoggingInterceptor } from '@medicpadi-backend/utils';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -18,6 +19,7 @@ async function bootstrap() {
       },
     },
   );
+  app.useGlobalInterceptors(new MicroserviceLoggingInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Strips properties that do not have any decorators

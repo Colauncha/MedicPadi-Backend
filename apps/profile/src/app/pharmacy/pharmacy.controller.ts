@@ -11,7 +11,7 @@ import {
 export class PharmacyController {
   constructor(private readonly pharmacyService: PharmacyService) {}
 
-  @MessagePattern(PharmacyPatterns)
+  @MessagePattern(PharmacyPatterns.CREATE)
   create(@Payload() createPharmacyDto: CreatePharmacyDto) {
     return this.pharmacyService.create(createPharmacyDto);
   }

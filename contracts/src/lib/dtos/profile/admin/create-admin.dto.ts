@@ -24,5 +24,5 @@ export class CreateAdminDto {
   @IsArray()
   @MinLength(3, { each: true })
   @IsString({ each: true })
-  permissions?: string[];
+  permissions?: string[] = ['auth', 'profile.patients'];
 }
