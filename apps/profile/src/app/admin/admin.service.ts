@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAdminDto } from './dto/create-admin.dto';
-import { UpdateAdminDto } from './dto/update-admin.dto';
+import { CreateAdminDto, UpdateAdminDto } from '@medicpadi-backend/contracts';
 
 @Injectable()
 export class AdminService {

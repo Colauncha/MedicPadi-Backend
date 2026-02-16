@@ -1,8 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PharmacyService } from './pharmacy.service';
-import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
-import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
+import {
+  CreatePharmacyDto,
+  UpdatePharmacyDto,
+} from '@medicpadi-backend/contracts';
 
 @Controller()
 export class PharmacyController {

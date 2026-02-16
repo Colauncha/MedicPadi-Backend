@@ -13343,12 +13343,12 @@
       },
       {
         "source": "profile",
-        "target": "npm:@nestjs/typeorm",
+        "target": "contracts",
         "type": "static"
       },
       {
         "source": "profile",
-        "target": "npm:@nestjs/mapped-types",
+        "target": "npm:@nestjs/typeorm",
         "type": "static"
       },
       {
@@ -13359,6 +13359,11 @@
       {
         "source": "profile",
         "target": "config",
+        "type": "static"
+      },
+      {
+        "source": "profile",
+        "target": "npm:typeorm",
         "type": "static"
       },
       {
@@ -13443,6 +13448,11 @@
       {
         "source": "contracts",
         "target": "npm:@nestjs/mapped-types",
+        "type": "static"
+      },
+      {
+        "source": "contracts",
+        "target": "npm:typeorm",
         "type": "static"
       }
     ],
@@ -30703,5 +30713,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1771066069532
+  "computedAt": 1771225557738
 }

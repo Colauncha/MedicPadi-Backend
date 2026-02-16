@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
+import {
+  CreatePatientDto,
+  UpdatePatientDto,
+} from '@medicpadi-backend/contracts';
 
 @Injectable()
 export class PatientService {

@@ -35,61 +35,244 @@
     }
   ],
   "fileMap": {
-    "nonProjectFiles": [
-      {
-        "file": ".editorconfig",
-        "hash": "5443105041930014821"
-      },
-      {
-        "file": "jest.config.ts",
-        "hash": "6870352021923392442"
-      },
-      {
-        "file": "pnpm-workspace.yaml",
-        "hash": "6682635867443504162"
-      },
-      {
-        "file": "jest.preset.js",
-        "hash": "9430166341120122740"
-      },
-      {
-        "file": "README.md",
-        "hash": "2007288639635885952"
-      },
-      {
-        "file": "nx.json",
-        "hash": "15910178368312388845"
-      },
-      {
-        "file": "eslint.config.mjs",
-        "hash": "2888230526972910808"
-      },
-      {
-        "file": "package.json",
-        "hash": "303188168417461071"
-      },
-      {
-        "file": ".prettierrc",
-        "hash": "16267754514737964994"
-      },
-      {
-        "file": ".prettierignore",
-        "hash": "14688272390704683536"
-      },
-      {
-        "file": "pnpm-lock.yaml",
-        "hash": "17285982875663130436"
-      },
-      {
-        "file": "tsconfig.base.json",
-        "hash": "9599202570670286453"
-      },
-      {
-        "file": ".gitignore",
-        "hash": "11790399749014605616"
-      }
-    ],
     "projectFileMap": {
+      "profile": [
+        {
+          "file": "apps/profile/project.json",
+          "hash": "4454540028484312840"
+        },
+        {
+          "file": "apps/profile/src/app/admin/admin.controller.ts",
+          "hash": "4023969052373999493",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/admin/admin.module.ts",
+          "hash": "15799178206468750547",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/admin/admin.service.ts",
+          "hash": "2915924511846038997",
+          "deps": [
+            "npm:@nestjs/common",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/app.controller.ts",
+          "hash": "15276891910009544695",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/app.module.ts",
+          "hash": "17355283789250105221",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/config",
+            "config",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/app.service.ts",
+          "hash": "9967902337593410053",
+          "deps": [
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/doctors/doctors.controller.ts",
+          "hash": "11187167442118156126",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/doctors/doctors.module.ts",
+          "hash": "6222070350784116525",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/doctors/doctors.service.ts",
+          "hash": "2672111556553382436",
+          "deps": [
+            "npm:@nestjs/common",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/laboratory.controller.ts",
+          "hash": "3766404985952466944",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/laboratory.module.ts",
+          "hash": "4520876539040654793",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/laboratory/laboratory.service.ts",
+          "hash": "8402697244636181658",
+          "deps": [
+            "npm:@nestjs/common",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/patient/patient.controller.ts",
+          "hash": "17649738606198086956",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/patient/patient.module.ts",
+          "hash": "7046958112727190943",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/patient/patient.service.ts",
+          "hash": "11566449729692402812",
+          "deps": [
+            "npm:@nestjs/common",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/pharmacy.controller.ts",
+          "hash": "1208028300113380570",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/microservices",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/pharmacy.module.ts",
+          "hash": "15481492436579889529",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/app/pharmacy/pharmacy.service.ts",
+          "hash": "15419959540143311758",
+          "deps": [
+            "npm:@nestjs/common",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/profile/src/config/app.config.ts",
+          "hash": "11335831815817690290",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "apps/profile/src/config/db.config.ts",
+          "hash": "18299653011364505018",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "apps/profile/src/entities/admin.entity.ts",
+          "hash": "3736921448972671625",
+          "deps": [
+            "npm:typeorm",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/entities/doctor.entity.ts",
+          "hash": "499267766101087048",
+          "deps": [
+            "npm:typeorm",
+            "contracts"
+          ]
+        },
+        {
+          "file": "apps/profile/src/entities/laboratory.entity.ts",
+          "hash": "4657434388941399741",
+          "deps": [
+            "contracts",
+            "npm:typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/entities/patient.entity.ts",
+          "hash": "9871604910134149654",
+          "deps": [
+            "contracts",
+            "npm:typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/entities/pharmacy.entity.ts",
+          "hash": "18302684588739043061",
+          "deps": [
+            "contracts",
+            "npm:typeorm"
+          ]
+        },
+        {
+          "file": "apps/profile/src/main.ts",
+          "hash": "3367579997480660443",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:@nestjs/core",
+            "npm:@nestjs/microservices"
+          ]
+        },
+        {
+          "file": "apps/profile/tsconfig.app.json",
+          "hash": "17910172633856618305"
+        },
+        {
+          "file": "apps/profile/tsconfig.json",
+          "hash": "3025378044812449119"
+        },
+        {
+          "file": "apps/profile/webpack.config.js",
+          "hash": "731446248088685336",
+          "deps": [
+            "npm:@nx/webpack"
+          ]
+        }
+      ],
       "contracts": [
         {
           "file": "contracts/README.md",
@@ -101,7 +284,7 @@
         },
         {
           "file": "contracts/src/index.ts",
-          "hash": "17144290724115246589"
+          "hash": "9774371691082794913"
         },
         {
           "file": "contracts/src/lib/dtos/auth/create-auth.dto.ts",
@@ -133,12 +316,92 @@
           ]
         },
         {
+          "file": "contracts/src/lib/dtos/profile/admin/create-admin.dto.ts",
+          "hash": "9003397891163848863",
+          "deps": [
+            "npm:class-validator"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/admin/update-admin.dto.ts",
+          "hash": "8697059455521899097",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/doctor/create-doctor.dto.ts",
+          "hash": "7322404924479931669",
+          "deps": [
+            "npm:class-validator"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/doctor/update-doctor.dto.ts",
+          "hash": "2940844567052682492",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/laboratory/create-laboratory.dto.ts",
+          "hash": "10513407783199363917"
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/laboratory/update-laboratory.dto.ts",
+          "hash": "311006021786566377",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/patient/create-patient.dto.ts",
+          "hash": "11944610726930581836"
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/patient/update-patient.dto.ts",
+          "hash": "7414030446381761965",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/pharmacy/create-pharmacy.dto.ts",
+          "hash": "5726439910484823959"
+        },
+        {
+          "file": "contracts/src/lib/dtos/profile/pharmacy/update-pharmacy.dto.ts",
+          "hash": "4336544724891452303",
+          "deps": [
+            "npm:@nestjs/mapped-types"
+          ]
+        },
+        {
+          "file": "contracts/src/lib/entity/base.entity.ts",
+          "hash": "6950288604305934359",
+          "deps": [
+            "npm:typeorm"
+          ]
+        },
+        {
           "file": "contracts/src/lib/enums/auth.enum.ts",
           "hash": "17629846520555925384"
         },
         {
+          "file": "contracts/src/lib/enums/doctor.enum.ts",
+          "hash": "6691200983917756388"
+        },
+        {
+          "file": "contracts/src/lib/enums/patient.enum.ts",
+          "hash": "6357415836750176416"
+        },
+        {
           "file": "contracts/src/lib/patterns/auth.patterns.ts",
           "hash": "17501415009523993767"
+        },
+        {
+          "file": "contracts/src/lib/patterns/profile.patterns.ts",
+          "hash": "14508532684422596500"
         },
         {
           "file": "contracts/tsconfig.json",
@@ -147,268 +410,6 @@
         {
           "file": "contracts/tsconfig.lib.json",
           "hash": "16683304389690061378"
-        }
-      ],
-      "profile": [
-        {
-          "file": "apps/profile/project.json",
-          "hash": "4454540028484312840"
-        },
-        {
-          "file": "apps/profile/src/app/admin/admin.controller.ts",
-          "hash": "8863363676141967337",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/microservices"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/admin/admin.module.ts",
-          "hash": "15799178206468750547",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/typeorm"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/admin/admin.service.ts",
-          "hash": "14511191659886495680",
-          "deps": [
-            "npm:@nestjs/common"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/admin/dto/create-admin.dto.ts",
-          "hash": "10934797400817481040"
-        },
-        {
-          "file": "apps/profile/src/app/admin/dto/update-admin.dto.ts",
-          "hash": "8697059455521899097",
-          "deps": [
-            "npm:@nestjs/mapped-types"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/app.controller.ts",
-          "hash": "15276891910009544695",
-          "deps": [
-            "npm:@nestjs/common"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/app.module.ts",
-          "hash": "17355283789250105221",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/config",
-            "config",
-            "npm:@nestjs/typeorm"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/app.service.ts",
-          "hash": "9967902337593410053",
-          "deps": [
-            "npm:@nestjs/common"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/doctors/doctors.controller.ts",
-          "hash": "8680252824929970386",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/microservices"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/doctors/doctors.module.ts",
-          "hash": "6222070350784116525",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/typeorm"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/doctors/doctors.service.ts",
-          "hash": "17451769758012660406",
-          "deps": [
-            "npm:@nestjs/common"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/doctors/dto/create-doctor.dto.ts",
-          "hash": "5018865793245526065"
-        },
-        {
-          "file": "apps/profile/src/app/doctors/dto/update-doctor.dto.ts",
-          "hash": "2940844567052682492",
-          "deps": [
-            "npm:@nestjs/mapped-types"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/laboratory/dto/create-laboratory.dto.ts",
-          "hash": "10513407783199363917"
-        },
-        {
-          "file": "apps/profile/src/app/laboratory/dto/update-laboratory.dto.ts",
-          "hash": "311006021786566377",
-          "deps": [
-            "npm:@nestjs/mapped-types"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/laboratory/laboratory.controller.ts",
-          "hash": "11862512586841134237",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/microservices"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/laboratory/laboratory.module.ts",
-          "hash": "4520876539040654793",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/typeorm"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/laboratory/laboratory.service.ts",
-          "hash": "11803241474529509895",
-          "deps": [
-            "npm:@nestjs/common"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/patient/dto/create-patient.dto.ts",
-          "hash": "11944610726930581836"
-        },
-        {
-          "file": "apps/profile/src/app/patient/dto/update-patient.dto.ts",
-          "hash": "7414030446381761965",
-          "deps": [
-            "npm:@nestjs/mapped-types"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/patient/patient.controller.ts",
-          "hash": "8756197652524221423",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/microservices"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/patient/patient.module.ts",
-          "hash": "7046958112727190943",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/typeorm"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/patient/patient.service.ts",
-          "hash": "17398525025793310583",
-          "deps": [
-            "npm:@nestjs/common"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/pharmacy/dto/create-pharmacy.dto.ts",
-          "hash": "5726439910484823959"
-        },
-        {
-          "file": "apps/profile/src/app/pharmacy/dto/update-pharmacy.dto.ts",
-          "hash": "4336544724891452303",
-          "deps": [
-            "npm:@nestjs/mapped-types"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/pharmacy/pharmacy.controller.ts",
-          "hash": "292886891449673539",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/microservices"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/pharmacy/pharmacy.module.ts",
-          "hash": "15481492436579889529",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/typeorm"
-          ]
-        },
-        {
-          "file": "apps/profile/src/app/pharmacy/pharmacy.service.ts",
-          "hash": "18080358833739410684",
-          "deps": [
-            "npm:@nestjs/common"
-          ]
-        },
-        {
-          "file": "apps/profile/src/assets/.gitkeep",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/profile/src/config/app.config.ts",
-          "hash": "11335831815817690290",
-          "deps": [
-            "npm:@nestjs/config"
-          ]
-        },
-        {
-          "file": "apps/profile/src/config/db.config.ts",
-          "hash": "18299653011364505018",
-          "deps": [
-            "npm:@nestjs/config"
-          ]
-        },
-        {
-          "file": "apps/profile/src/entities/admin.entity.ts",
-          "hash": "6739233276252081200"
-        },
-        {
-          "file": "apps/profile/src/entities/doctor.entity.ts",
-          "hash": "6967948892525740195"
-        },
-        {
-          "file": "apps/profile/src/entities/laboratory.entity.ts",
-          "hash": "12732104619185776999"
-        },
-        {
-          "file": "apps/profile/src/entities/patient.entity.ts",
-          "hash": "2671406018250349214"
-        },
-        {
-          "file": "apps/profile/src/entities/pharmacy.entity.ts",
-          "hash": "18068349905316435319"
-        },
-        {
-          "file": "apps/profile/src/main.ts",
-          "hash": "3367579997480660443",
-          "deps": [
-            "npm:@nestjs/common",
-            "npm:@nestjs/core",
-            "npm:@nestjs/microservices"
-          ]
-        },
-        {
-          "file": "apps/profile/tsconfig.app.json",
-          "hash": "14721380886453079150"
-        },
-        {
-          "file": "apps/profile/tsconfig.json",
-          "hash": "3025378044812449119"
-        },
-        {
-          "file": "apps/profile/webpack.config.js",
-          "hash": "731446248088685336",
-          "deps": [
-            "npm:@nx/webpack"
-          ]
         }
       ],
       "gateway": [
@@ -448,7 +449,7 @@
         },
         {
           "file": "apps/gateway/src/auth/auth.controller.ts",
-          "hash": "4928300293434389705",
+          "hash": "13356949953460173460",
           "deps": [
             "npm:@nestjs/common",
             "npm:express",
@@ -467,7 +468,7 @@
         },
         {
           "file": "apps/gateway/src/auth/auth.service.ts",
-          "hash": "1623350967393722087",
+          "hash": "12657312038660709002",
           "deps": [
             "npm:@nestjs/common",
             "contracts",
@@ -665,7 +666,7 @@
         },
         {
           "file": "apps/auth/src/app/auth/entities/auth.entity.ts",
-          "hash": "6711137719251111256",
+          "hash": "17724625400304245247",
           "deps": [
             "npm:typeorm",
             "contracts"
@@ -714,7 +715,61 @@
           ]
         }
       ]
-    }
+    },
+    "nonProjectFiles": [
+      {
+        "file": ".editorconfig",
+        "hash": "5443105041930014821"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "11790399749014605616"
+      },
+      {
+        "file": ".prettierignore",
+        "hash": "14688272390704683536"
+      },
+      {
+        "file": ".prettierrc",
+        "hash": "16267754514737964994"
+      },
+      {
+        "file": "README.md",
+        "hash": "2007288639635885952"
+      },
+      {
+        "file": "eslint.config.mjs",
+        "hash": "2888230526972910808"
+      },
+      {
+        "file": "jest.config.ts",
+        "hash": "6870352021923392442"
+      },
+      {
+        "file": "jest.preset.js",
+        "hash": "9430166341120122740"
+      },
+      {
+        "file": "nx.json",
+        "hash": "15910178368312388845"
+      },
+      {
+        "file": "package.json",
+        "hash": "303188168417461071"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "hash": "17285982875663130436"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "hash": "6682635867443504162"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "9599202570670286453"
+      }
+    ]
   },
   "externalNodesHash": "13535925993202629483"
 }

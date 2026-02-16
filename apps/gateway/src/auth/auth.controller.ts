@@ -33,7 +33,7 @@ export class AuthController {
     const token = await firstValueFrom(token$);
     response.cookie('auth_token', token, {
       httpOnly: true,
-    }); // Expires in 1 hour
+    });
     return response.send({ message: 'Login successful', token });
   }
 

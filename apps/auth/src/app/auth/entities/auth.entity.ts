@@ -14,20 +14,6 @@ export class Auth {
   })
   email: string;
 
-  // @Column({
-  //   type: 'varchar',
-  //   nullable: false,
-  //   length: 50,
-  // })
-  // firstName: string;
-
-  // @Column({
-  //   type: 'varchar',
-  //   nullable: false,
-  //   length: 50,
-  // })
-  // lastName: string;
-
   @Column({
     type: 'varchar',
     nullable: false,
@@ -48,13 +34,6 @@ export class Auth {
     length: 14,
   })
   phoneNumber: string;
-
-  // @Column({
-  //   type: 'varchar',
-  //   nullable: false,
-  //   length: 14,
-  // })
-  // emergencyContact: string;
 
   @Column({
     type: 'boolean',
