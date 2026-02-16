@@ -7,7 +7,7 @@ import {
 @Injectable()
 export class PatientService {
   create(createPatientDto: CreatePatientDto) {
-    return 'This action adds a new patient';
+    return createPatientDto;
   }
 
   findAll() {
@@ -19,7 +19,7 @@ export class PatientService {
   }
 
   update(id: number, updatePatientDto: UpdatePatientDto) {
-    return `This action updates a #${id} patient`;
+    return updatePatientDto;
   }
 
   remove(id: number) {

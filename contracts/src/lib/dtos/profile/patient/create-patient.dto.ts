@@ -5,6 +5,7 @@ import {
   MinLength,
   IsEnum,
   MaxLength,
+  IsArray,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import {
@@ -29,12 +30,21 @@ export class CreatePatientDto {
   lastName?: string;
 
   @IsEnum(PatientGender)
+  @IsOptional()
   gender?: PatientGender = PatientGender.Male;
 
-  bloodGroup?: BloodGroup;
+  @IsEnum(BloodGroup)
+  @IsOptional()
+  bloodGroup?: BloodGroup = BloodGroup.O_POSITIVE;
 
-  genotype?: Genotype;
+  @IsEnum(Genotype)
+  @IsOptional()
+  genotype?: Genotype = Genotype.AA;
 
+  @IsArray()
+  @IsString({ each: true })
+  @MinLength(3, {each: true})
+  @IsOptional()
   allergies?: string[];
 
   @IsString()

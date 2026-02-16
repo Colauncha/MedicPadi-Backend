@@ -1,13 +1,17 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { DoctorsService } from './doctors.service';
-import { CreateDoctorDto, UpdateDoctorDto } from '@medicpadi-backend/contracts';
+import {
+  CreateDoctorDto,
+  DoctorPatterns,
+  UpdateDoctorDto,
+} from '@medicpadi-backend/contracts';
 
 @Controller()
 export class DoctorsController {
   constructor(private readonly doctorsService: DoctorsService) {}
 
-  @MessagePattern('createDoctor')
+  @MessagePattern(DoctorPatterns.CREATE)
   create(@Payload() createDoctorDto: CreateDoctorDto) {
     return this.doctorsService.create(createDoctorDto);
   }

@@ -13,18 +13,6 @@ import {
 } from 'class-validator';
 
 export class CreateAuthDto {
-  // @IsString()
-  // @IsNotEmpty()
-  // @MinLength(3)
-  // @MaxLength(50)
-  // firstName!: string;
-
-  // @IsString()
-  // @IsOptional()
-  // @MinLength(3)
-  // @MaxLength(50)
-  // lastName?: string;
-
   @IsEmail()
   @IsNotEmpty()
   @MinLength(3)
@@ -56,10 +44,6 @@ export class CreateAuthDto {
     return value;
   })
   phoneNumber = '+2340000000000';
-
-  // @IsString()
-  // @IsNotEmpty()
-  // emergencyContact!: string;
 
   @IsBoolean()
   @IsOptional()

@@ -4,13 +4,14 @@ import { PatientService } from './patient.service';
 import {
   CreatePatientDto,
   UpdatePatientDto,
+  PatientPatterns,
 } from '@medicpadi-backend/contracts';
 
 @Controller()
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
-  @MessagePattern('createPatient')
+  @MessagePattern(PatientPatterns.CREATE)
   create(@Payload() createPatientDto: CreatePatientDto) {
     return this.patientService.create(createPatientDto);
   }

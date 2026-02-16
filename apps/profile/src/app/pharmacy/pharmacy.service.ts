@@ -7,7 +7,7 @@ import {
 @Injectable()
 export class PharmacyService {
   create(createPharmacyDto: CreatePharmacyDto) {
-    return 'This action adds a new pharmacy';
+    return createPharmacyDto;
   }
 
   findAll() {

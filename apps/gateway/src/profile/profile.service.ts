@@ -5,7 +5,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 @Injectable()
 export class ProfileService {
   create(createProfileDto: CreateProfileDto) {
-    return 'This action adds a new profile';
+    return createProfileDto;
   }
 
   findAll() {
@@ -17,7 +17,7 @@ export class ProfileService {
   }
 
   update(id: number, updateProfileDto: UpdateProfileDto) {
-    return `This action updates a #${id} profile`;
+    return updateProfileDto;
   }
 
   remove(id: number) {

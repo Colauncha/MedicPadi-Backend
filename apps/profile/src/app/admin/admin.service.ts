@@ -4,7 +4,7 @@ import { CreateAdminDto, UpdateAdminDto } from '@medicpadi-backend/contracts';
 @Injectable()
 export class AdminService {
   create(createAdminDto: CreateAdminDto) {
-    return 'This action adds a new admin';
+    return createAdminDto;
   }
 
   findAll() {
@@ -16,7 +16,7 @@ export class AdminService {
   }
 
   update(id: number, updateAdminDto: UpdateAdminDto) {
-    return `This action updates a #${id} admin`;
+    return updateAdminDto;
   }
 
   remove(id: number) {

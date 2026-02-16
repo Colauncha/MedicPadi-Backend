@@ -1,13 +1,17 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AdminService } from './admin.service';
-import { CreateAdminDto, UpdateAdminDto } from '@medicpadi-backend/contracts';
+import {
+  AdminPatterns,
+  CreateAdminDto,
+  UpdateAdminDto,
+} from '@medicpadi-backend/contracts';
 
 @Controller()
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @MessagePattern('createAdmin')
+  @MessagePattern(AdminPatterns.CREATE)
   create(@Payload() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }

@@ -3,6 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PharmacyService } from './pharmacy.service';
 import {
   CreatePharmacyDto,
+  PharmacyPatterns,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
 
@@ -10,7 +11,7 @@ import {
 export class PharmacyController {
   constructor(private readonly pharmacyService: PharmacyService) {}
 
-  @MessagePattern('createPharmacy')
+  @MessagePattern(PharmacyPatterns)
   create(@Payload() createPharmacyDto: CreatePharmacyDto) {
     return this.pharmacyService.create(createPharmacyDto);
   }

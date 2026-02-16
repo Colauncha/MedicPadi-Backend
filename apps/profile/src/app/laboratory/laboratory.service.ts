@@ -7,7 +7,7 @@ import {
 @Injectable()
 export class LaboratoryService {
   create(createLaboratoryDto: CreateLaboratoryDto) {
-    return 'This action adds a new laboratory';
+    return createLaboratoryDto;
   }
 
   findAll() {

@@ -4,7 +4,7 @@ import { CreateDoctorDto, UpdateDoctorDto } from '@medicpadi-backend/contracts';
 @Injectable()
 export class DoctorsService {
   create(createDoctorDto: CreateDoctorDto) {
-    return 'This action adds a new doctor';
+    return createDoctorDto;
   }
 
   findAll() {

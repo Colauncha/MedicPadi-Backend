@@ -3,6 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { LaboratoryService } from './laboratory.service';
 import {
   CreateLaboratoryDto,
+  LaboratoryPatterns,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
 
@@ -10,7 +11,7 @@ import {
 export class LaboratoryController {
   constructor(private readonly laboratoryService: LaboratoryService) {}
 
-  @MessagePattern('createLaboratory')
+  @MessagePattern(LaboratoryPatterns.CREATE)
   create(@Payload() createLaboratoryDto: CreateLaboratoryDto) {
     return this.laboratoryService.create(createLaboratoryDto);
   }
@@ -27,7 +28,10 @@ export class LaboratoryController {
 
   @MessagePattern('updateLaboratory')
   update(@Payload() updateLaboratoryDto: UpdateLaboratoryDto) {
-    return this.laboratoryService.update(updateLaboratoryDto.id, updateLaboratoryDto);
+    return this.laboratoryService.update(
+      updateLaboratoryDto.id,
+      updateLaboratoryDto,
+    );
   }
 
   @MessagePattern('removeLaboratory')

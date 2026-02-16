@@ -20,8 +20,8 @@ export class AuthController {
 
   @Post()
   create(@Body() createAuthDto: CreateAuthDto) {
-    const response$ = this.authService.create(createAuthDto);
-    return firstValueFrom(response$);
+    const response = this.authService.create(createAuthDto);
+    return response;
   }
 
   @Post('login')
