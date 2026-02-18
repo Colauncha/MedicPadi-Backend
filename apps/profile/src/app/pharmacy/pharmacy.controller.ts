@@ -26,8 +26,8 @@ export class PharmacyController {
     return this.pharmacyService.findOne(id);
   }
 
-  @MessagePattern('updatePharmacy')
-  update(@Payload() updatePharmacyDto: UpdatePharmacyDto) {
+  @MessagePattern(PharmacyPatterns.UPDATE)
+  async update(@Payload() updatePharmacyDto: UpdatePharmacyDto) {
     return this.pharmacyService.update(updatePharmacyDto.id, updatePharmacyDto);
   }
 

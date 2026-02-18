@@ -26,9 +26,12 @@ export class DoctorsController {
     return this.doctorsService.findOne(id);
   }
 
-  @MessagePattern('updateDoctor')
-  update(@Payload() updateDoctorDto: UpdateDoctorDto) {
-    return this.doctorsService.update(updateDoctorDto.id, updateDoctorDto);
+  @MessagePattern(DoctorPatterns.UPDATE)
+  async update(@Payload() updateDoctorDto: UpdateDoctorDto) {
+    return await this.doctorsService.update(
+      updateDoctorDto.id,
+      updateDoctorDto,
+    );
   }
 
   @MessagePattern('removeDoctor')

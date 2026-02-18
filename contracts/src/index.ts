@@ -29,5 +29,8 @@ export * from './lib/dtos/profile/laboratory/update-laboratory.dto'
 export const AuthPatterns = authPatterns;
 export * from './lib/patterns/profile.patterns';
 
+// Types and Interfaces
+export * from './lib/interfaces/profile.types'
+
 // Entity
 export * from './lib/entity/base.entity'

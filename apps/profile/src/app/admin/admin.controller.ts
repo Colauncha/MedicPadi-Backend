@@ -22,17 +22,17 @@ export class AdminController {
   }
 
   @MessagePattern('findOneAdmin')
-  findOne(@Payload() id: number) {
+  findOne(@Payload() id: string) {
     return this.adminService.findOne(id);
   }
 
-  @MessagePattern('updateAdmin')
-  update(@Payload() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(updateAdminDto.id, updateAdminDto);
+  @MessagePattern(AdminPatterns.UPDATE)
+  async update(@Payload() updateAdminDto: UpdateAdminDto) {
+    return await this.adminService.update(updateAdminDto.id, updateAdminDto);
   }
 
   @MessagePattern('removeAdmin')
-  remove(@Payload() id: number) {
+  remove(@Payload() id: string) {
     return this.adminService.remove(id);
   }
 }

@@ -26,8 +26,8 @@ export class LaboratoryController {
     return this.laboratoryService.findOne(id);
   }
 
-  @MessagePattern('updateLaboratory')
-  update(@Payload() updateLaboratoryDto: UpdateLaboratoryDto) {
+  @MessagePattern(LaboratoryPatterns.UPDATE)
+  async update(@Payload() updateLaboratoryDto: UpdateLaboratoryDto) {
     return this.laboratoryService.update(
       updateLaboratoryDto.id,
       updateLaboratoryDto,

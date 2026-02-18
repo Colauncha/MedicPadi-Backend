@@ -26,8 +26,8 @@ export class PatientController {
     return this.patientService.findOne(id);
   }
 
-  @MessagePattern('updatePatient')
-  update(@Payload() updatePatientDto: UpdatePatientDto) {
+  @MessagePattern(PatientPatterns.UPDATE)
+  async update(@Payload() updatePatientDto: UpdatePatientDto) {
     return this.patientService.update(updatePatientDto.id, updatePatientDto);
   }
 

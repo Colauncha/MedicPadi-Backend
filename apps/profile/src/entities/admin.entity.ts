@@ -23,7 +23,7 @@ export class Admin extends BaseClass {
   lastName: string;
 
   @Column({
-    type: 'json',
+    type: 'text',
     array: true,
     nullable: false,
   })

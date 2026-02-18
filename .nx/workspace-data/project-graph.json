@@ -13379,6 +13379,11 @@
       },
       {
         "source": "gateway",
+        "target": "utils",
+        "type": "static"
+      },
+      {
+        "source": "gateway",
         "target": "npm:@nx/webpack",
         "type": "static"
       }
@@ -13406,17 +13411,17 @@
       },
       {
         "source": "profile",
+        "target": "npm:typeorm",
+        "type": "static"
+      },
+      {
+        "source": "profile",
         "target": "npm:@nestjs/config",
         "type": "static"
       },
       {
         "source": "profile",
         "target": "config",
-        "type": "static"
-      },
-      {
-        "source": "profile",
-        "target": "npm:typeorm",
         "type": "static"
       },
       {
@@ -13535,6 +13540,11 @@
       {
         "source": "utils",
         "target": "npm:rxjs",
+        "type": "static"
+      },
+      {
+        "source": "utils",
+        "target": "contracts",
         "type": "static"
       }
     ],
@@ -30788,5 +30798,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1771255277176
+  "computedAt": 1771376320276
 }
