@@ -1,14 +1,17 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AdminService } from './admin.service';
-import { CreateAdminDto } from './dto/create-admin.dto';
-import { UpdateAdminDto } from './dto/update-admin.dto';
+import {
+  AdminPatterns,
+  CreateAdminDto,
+  UpdateAdminDto,
+} from '@medicpadi-backend/contracts';
 
 @Controller()
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @MessagePattern('createAdmin')
+  @MessagePattern(AdminPatterns.CREATE)
   create(@Payload() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
@@ -19,17 +22,17 @@ export class AdminController {
   }
 
   @MessagePattern('findOneAdmin')
-  findOne(@Payload() id: number) {
+  findOne(@Payload() id: string) {
     return this.adminService.findOne(id);
   }
 
-  @MessagePattern('updateAdmin')
-  update(@Payload() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(updateAdminDto.id, updateAdminDto);
+  @MessagePattern(AdminPatterns.UPDATE)
+  async update(@Payload() updateAdminDto: UpdateAdminDto) {
+    return await this.adminService.update(updateAdminDto.id, updateAdminDto);
   }
 
   @MessagePattern('removeAdmin')
-  remove(@Payload() id: number) {
+  remove(@Payload() id: string) {
     return this.adminService.remove(id);
   }
 }

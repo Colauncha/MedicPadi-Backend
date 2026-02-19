@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   RequestTimeoutException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -83,11 +84,23 @@ export class AuthService {
       }
       return { valid: true, user };
     } catch (error) {
+      console.log(error);
       throw new BadRequestException('Invalid token', { cause: error });
     }
   }
 
   update(updateAuthDto: UpdateAuthDto) {
     return { data: updateAuthDto };
+  }
+
+  async findById(id: string) {
+    try {
+      const user = await this.authRepository.findOneBy({
+        id: id,
+      });
+      return user;
+    } catch (error) {
+      throw new NotFoundException('User Not found');
+    }
   }
 }

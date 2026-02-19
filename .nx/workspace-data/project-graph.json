@@ -799,6 +799,59 @@
         "tags": [],
         "implicitDependencies": []
       }
+    },
+    "utils": {
+      "name": "utils",
+      "type": "lib",
+      "data": {
+        "root": "utils",
+        "targets": {
+          "lint": {
+            "cache": true,
+            "options": {
+              "cwd": "utils",
+              "command": "eslint ."
+            },
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*",
+              {
+                "externalDependencies": [
+                  "eslint"
+                ]
+              }
+            ],
+            "outputs": [
+              "{options.outputFile}"
+            ],
+            "metadata": {
+              "technologies": [
+                "eslint"
+              ],
+              "description": "Runs ESLint on project",
+              "help": {
+                "command": "pnpm exec eslint --help",
+                "example": {
+                  "options": {
+                    "max-warnings": 0
+                  }
+                }
+              }
+            },
+            "executor": "nx:run-commands",
+            "configurations": {},
+            "parallelism": true
+          }
+        },
+        "name": "utils",
+        "$schema": "../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "utils/src",
+        "projectType": "library",
+        "tags": [],
+        "implicitDependencies": []
+      }
     }
   },
   "externalNodes": {
@@ -2575,6 +2628,15 @@
         "hash": "sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA=="
       }
     },
+    "npm:@microsoft/tsdoc": {
+      "type": "npm",
+      "name": "npm:@microsoft/tsdoc",
+      "data": {
+        "version": "0.16.0",
+        "packageName": "@microsoft/tsdoc",
+        "hash": "sha512-xgAyonlVVS+q7Vc7qLW0UrJU7rSFcETRWsqdXZtjzRU8dF+6CkozTK4V4y1LwOX7j8r/vHphjDeMeGI4tNGeGA=="
+      }
+    },
     "npm:@napi-rs/wasm-runtime@0.2.12": {
       "type": "npm",
       "name": "npm:@napi-rs/wasm-runtime@0.2.12",
@@ -2690,6 +2752,15 @@
         "version": "11.0.9",
         "packageName": "@nestjs/schematics",
         "hash": "sha512-0NfPbPlEaGwIT8/TCThxLzrlz3yzDNkfRNpbL7FiplKq3w4qXpJg0JYwqgMEJnLQZm3L/L/5XjoyfJHUO3qX9g=="
+      }
+    },
+    "npm:@nestjs/swagger": {
+      "type": "npm",
+      "name": "npm:@nestjs/swagger",
+      "data": {
+        "version": "11.2.6",
+        "packageName": "@nestjs/swagger",
+        "hash": "sha512-oiXOxMQqDFyv1AKAqFzSo6JPvMEs4uA36Eyz/s2aloZLxUjcLfUMELSLSNQunr61xCPTpwEOShfmO7NIufKXdA=="
       }
     },
     "npm:@nestjs/terminus": {
@@ -3743,6 +3814,15 @@
         "version": "1.1.0",
         "packageName": "@protobufjs/utf8",
         "hash": "sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw=="
+      }
+    },
+    "npm:@scarf/scarf": {
+      "type": "npm",
+      "name": "npm:@scarf/scarf",
+      "data": {
+        "version": "1.4.0",
+        "packageName": "@scarf/scarf",
+        "hash": "sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ=="
       }
     },
     "npm:@sinclair/typebox@0.27.10": {
@@ -12295,6 +12375,15 @@
         "hash": "sha512-OoohrmuUlBs8B8o6MB2Aevn+pRIH9zDALSR+6hhqVfa6fRwG/Qw9VUMSMW9VNg2CFc/MTIfabtdOVl9ODIJjpw=="
       }
     },
+    "npm:swagger-ui-dist": {
+      "type": "npm",
+      "name": "npm:swagger-ui-dist",
+      "data": {
+        "version": "5.31.0",
+        "packageName": "swagger-ui-dist",
+        "hash": "sha512-zSUTIck02fSga6rc0RZP3b7J7wgHXwLea8ZjgLA3Vgnb8QeOl3Wou2/j5QkzSGeoz6HusP/coYuJl33aQxQZpg=="
+      }
+    },
     "npm:sync-child-process": {
       "type": "npm",
       "name": "npm:sync-child-process",
@@ -13311,6 +13400,11 @@
       },
       {
         "source": "gateway",
+        "target": "utils",
+        "type": "static"
+      },
+      {
+        "source": "gateway",
         "target": "npm:@nestjs/mapped-types",
         "type": "static"
       },
@@ -13322,6 +13416,11 @@
       {
         "source": "gateway",
         "target": "npm:cookie-parser",
+        "type": "static"
+      },
+      {
+        "source": "gateway",
+        "target": "npm:@nestjs/swagger",
         "type": "static"
       },
       {
@@ -13343,7 +13442,17 @@
       },
       {
         "source": "profile",
-        "target": "npm:@nestjs/mapped-types",
+        "target": "contracts",
+        "type": "static"
+      },
+      {
+        "source": "profile",
+        "target": "npm:@nestjs/typeorm",
+        "type": "static"
+      },
+      {
+        "source": "profile",
+        "target": "npm:typeorm",
         "type": "static"
       },
       {
@@ -13358,12 +13467,12 @@
       },
       {
         "source": "profile",
-        "target": "npm:@nestjs/typeorm",
+        "target": "npm:@nestjs/core",
         "type": "static"
       },
       {
         "source": "profile",
-        "target": "npm:@nestjs/core",
+        "target": "utils",
         "type": "static"
       },
       {
@@ -13425,6 +13534,11 @@
       },
       {
         "source": "auth",
+        "target": "utils",
+        "type": "static"
+      },
+      {
+        "source": "auth",
         "target": "npm:@nx/webpack",
         "type": "static"
       }
@@ -13437,6 +13551,11 @@
       },
       {
         "source": "contracts",
+        "target": "npm:@nestjs/swagger",
+        "type": "static"
+      },
+      {
+        "source": "contracts",
         "target": "npm:class-validator",
         "type": "static"
       },
@@ -13444,12 +13563,34 @@
         "source": "contracts",
         "target": "npm:@nestjs/mapped-types",
         "type": "static"
+      },
+      {
+        "source": "contracts",
+        "target": "npm:typeorm",
+        "type": "static"
       }
     ],
     "config": [
       {
         "source": "config",
         "target": "npm:@nestjs/config",
+        "type": "static"
+      }
+    ],
+    "utils": [
+      {
+        "source": "utils",
+        "target": "npm:@nestjs/common",
+        "type": "static"
+      },
+      {
+        "source": "utils",
+        "target": "npm:rxjs",
+        "type": "static"
+      },
+      {
+        "source": "utils",
+        "target": "contracts",
         "type": "static"
       }
     ],
@@ -17370,6 +17511,63 @@
       {
         "source": "npm:@nestjs/schematics",
         "target": "npm:typescript",
+        "type": "static"
+      }
+    ],
+    "npm:@nestjs/swagger": [
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:@microsoft/tsdoc",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:@nestjs/common",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:@nestjs/core",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:@nestjs/mapped-types",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:js-yaml@4.1.1",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:lodash",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:path-to-regexp@8.3.0",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:reflect-metadata",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:swagger-ui-dist",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:class-transformer",
+        "type": "static"
+      },
+      {
+        "source": "npm:@nestjs/swagger",
+        "target": "npm:class-validator",
         "type": "static"
       }
     ],
@@ -29246,6 +29444,13 @@
         "type": "static"
       }
     ],
+    "npm:swagger-ui-dist": [
+      {
+        "source": "npm:swagger-ui-dist",
+        "target": "npm:@scarf/scarf",
+        "type": "static"
+      }
+    ],
     "npm:sync-child-process": [
       {
         "source": "npm:sync-child-process",
@@ -30703,5 +30908,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1771063035701
+  "computedAt": 1771543064304
 }

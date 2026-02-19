@@ -7,6 +7,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceLoggingInterceptor } from '@medicpadi-backend/utils';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -25,6 +26,7 @@ async function bootstrap() {
       transform: true, // Automatically transforms payloads to be objects typed according to their DTO classes
     }),
   );
+  app.useGlobalInterceptors(new MicroserviceLoggingInterceptor());
   await app.listen();
   Logger.log(`🚀 Application is running on port 3001`);
 }

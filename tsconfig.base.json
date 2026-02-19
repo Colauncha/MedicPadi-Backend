@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@medicpadi-backend/contracts": ["contracts/src/index.ts"],
-      "@medicpadi-backend/config": ["config/src/index.ts"]
+      "@medicpadi-backend/config": ["config/src/index.ts"],
+      "@medicpadi-backend/utils": ["utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

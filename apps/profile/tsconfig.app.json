@@ -9,5 +9,5 @@
     "target": "es2021",
     "moduleResolution": "node"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "../../contracts/src/lib/dtos/profile/doctor/create-doctor.dto.ts", "../../contracts/src/lib/dtos/profile/doctor/update-doctor.dto.ts", "../../contracts/src/lib/dtos/profile/laboratory/create-laboratory.dto.ts", "../../contracts/src/lib/dtos/profile/laboratory/update-laboratory.dto.ts", "../../contracts/src/lib/dtos/profile/patient/update-patient.dto.ts", "../../contracts/src/lib/dtos/profile/patient/create-patient.dto.ts", "../../contracts/src/lib/dtos/profile/pharmacy/update-pharmacy.dto.ts", "../../contracts/src/lib/dtos/profile/pharmacy/create-pharmacy.dto.ts"]
 }

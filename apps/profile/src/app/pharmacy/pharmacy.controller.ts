@@ -1,14 +1,17 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PharmacyService } from './pharmacy.service';
-import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
-import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
+import {
+  CreatePharmacyDto,
+  PharmacyPatterns,
+  UpdatePharmacyDto,
+} from '@medicpadi-backend/contracts';
 
 @Controller()
 export class PharmacyController {
   constructor(private readonly pharmacyService: PharmacyService) {}
 
-  @MessagePattern('createPharmacy')
+  @MessagePattern(PharmacyPatterns.CREATE)
   create(@Payload() createPharmacyDto: CreatePharmacyDto) {
     return this.pharmacyService.create(createPharmacyDto);
   }
@@ -23,8 +26,8 @@ export class PharmacyController {
     return this.pharmacyService.findOne(id);
   }
 
-  @MessagePattern('updatePharmacy')
-  update(@Payload() updatePharmacyDto: UpdatePharmacyDto) {
+  @MessagePattern(PharmacyPatterns.UPDATE)
+  async update(@Payload() updatePharmacyDto: UpdatePharmacyDto) {
     return this.pharmacyService.update(updatePharmacyDto.id, updatePharmacyDto);
   }
 

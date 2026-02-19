@@ -1,11 +1,29 @@
-import { Injectable } from '@nestjs/common';
-import { CreateLaboratoryDto } from './dto/create-laboratory.dto';
-import { UpdateLaboratoryDto } from './dto/update-laboratory.dto';
+import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import {
+  CreateLaboratoryDto,
+  UpdateLaboratoryDto,
+} from '@medicpadi-backend/contracts';
+import { Laboratory } from '../../entities/laboratory.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class LaboratoryService {
+  constructor(
+    @InjectRepository(Laboratory)
+    private readonly labRepository: Repository<Laboratory>,
+  ) {}
+
   create(createLaboratoryDto: CreateLaboratoryDto) {
-    return 'This action adds a new laboratory';
+    try {
+      const adminProfile = this.labRepository.create({
+        ...createLaboratoryDto,
+      });
+      this.labRepository.save(adminProfile);
+      return adminProfile;
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to create Labs profile');
+    }
   }
 
   findAll() {
@@ -16,8 +34,22 @@ export class LaboratoryService {
     return `This action returns a #${id} laboratory`;
   }
 
-  update(id: number, updateLaboratoryDto: UpdateLaboratoryDto) {
-    return `This action updates a #${id} laboratory`;
+  async update(id: string, updateLaboratoryDto: UpdateLaboratoryDto) {
+    let existingLaboratoryProfile: Laboratory;
+    try {
+      existingLaboratoryProfile = await this.labRepository.findOne({
+        where: { user_id: id },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException(
+        "Unable to update Laboratory's profile",
+      );
+    }
+    const labProfile = await this.labRepository.update(
+      { user_id: id },
+      { ...updateLaboratoryDto },
+    );
+    return labProfile;
   }
 
   remove(id: number) {

@@ -1,14 +1,16 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import {
+  ProfileDtoType,
+  UpdateProfileDtoType,
+} from '@medicpadi-backend/contracts';
 
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Post()
-  create(@Body() createProfileDto: CreateProfileDto) {
+  create(@Body() createProfileDto: ProfileDtoType) {
     return this.profileService.create(createProfileDto);
   }
 
@@ -23,8 +25,11 @@ export class ProfileController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.profileService.update(+id, updateProfileDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateProfileDto: UpdateProfileDtoType,
+  ) {
+    return this.profileService.update(id, updateProfileDto);
   }
 
   @Delete(':id')

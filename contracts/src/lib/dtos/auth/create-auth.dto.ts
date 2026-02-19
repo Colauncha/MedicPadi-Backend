@@ -1,4 +1,5 @@
 import { Transform } from 'class-transformer';
+import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 import { AuthRole } from '../../enums/auth.enum';
 import {
   IsString,
@@ -13,35 +14,27 @@ import {
 } from 'class-validator';
 
 export class CreateAuthDto {
-  // @IsString()
-  // @IsNotEmpty()
-  // @MinLength(3)
-  // @MaxLength(50)
-  // firstName!: string;
-
-  // @IsString()
-  // @IsOptional()
-  // @MinLength(3)
-  // @MaxLength(50)
-  // lastName?: string;
-
+  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(50)
   email!: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
   @MaxLength(100)
   password!: string;
 
+  @ApiPropertyOptional()
   @IsEnum(AuthRole)
   @IsOptional()
   @IsNotEmpty()
   role: AuthRole = AuthRole.PATIENT;
 
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   @IsNotEmpty()
@@ -57,15 +50,13 @@ export class CreateAuthDto {
   })
   phoneNumber = '+2340000000000';
 
-  // @IsString()
-  // @IsNotEmpty()
-  // emergencyContact!: string;
-
+  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
   @IsNotEmpty()
   isVerified = false;
 
+  @ApiPropertyOptional()
   @IsDateString()
   @IsOptional()
   @IsNotEmpty()

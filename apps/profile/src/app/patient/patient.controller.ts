@@ -1,14 +1,17 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PatientService } from './patient.service';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
+import {
+  CreatePatientDto,
+  UpdatePatientDto,
+  PatientPatterns,
+} from '@medicpadi-backend/contracts';
 
 @Controller()
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
-  @MessagePattern('createPatient')
+  @MessagePattern(PatientPatterns.CREATE)
   create(@Payload() createPatientDto: CreatePatientDto) {
     return this.patientService.create(createPatientDto);
   }
@@ -23,8 +26,8 @@ export class PatientController {
     return this.patientService.findOne(id);
   }
 
-  @MessagePattern('updatePatient')
-  update(@Payload() updatePatientDto: UpdatePatientDto) {
+  @MessagePattern(PatientPatterns.UPDATE)
+  async update(@Payload() updatePatientDto: UpdatePatientDto) {
     return this.patientService.update(updatePatientDto.id, updatePatientDto);
   }
 

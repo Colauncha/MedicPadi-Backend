@@ -23,6 +23,7 @@ export class AuthGuard implements CanActivate {
       token = req.cookies['auth_token'];
     } else if (req.headers && req.headers.authorization) {
       const authHeader = req.headers.authorization;
+      console.log(authHeader);
       if (authHeader.startsWith('Bearer ')) {
         token = authHeader.slice(7);
       }

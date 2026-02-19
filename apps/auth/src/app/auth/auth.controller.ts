@@ -27,7 +27,12 @@ export class AuthController {
     return this.authService.validateToken(token);
   }
 
-  @MessagePattern('auth.update')
+  @MessagePattern(AuthPatterns.FIND_BY_ID)
+  findById(@Payload() id: string) {
+    return this.authService.findById(id);
+  }
+
+  @MessagePattern(AuthPatterns.UPDATE)
   update(@Payload() updateAuthDto: UpdateAuthDto) {
     return this.authService.update(updateAuthDto);
   }

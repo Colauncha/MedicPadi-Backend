@@ -1,11 +1,29 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePharmacyDto } from './dto/create-pharmacy.dto';
-import { UpdatePharmacyDto } from './dto/update-pharmacy.dto';
+import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import {
+  CreatePharmacyDto,
+  UpdatePharmacyDto,
+} from '@medicpadi-backend/contracts';
+import { Pharmacy } from '../../entities/pharmacy.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PharmacyService {
+  constructor(
+    @InjectRepository(Pharmacy)
+    private readonly pharmacyRepository: Repository<Pharmacy>,
+  ) {}
+
   create(createPharmacyDto: CreatePharmacyDto) {
-    return 'This action adds a new pharmacy';
+    try {
+      const pharmacyProfile = this.pharmacyRepository.create({
+        ...createPharmacyDto,
+      });
+      this.pharmacyRepository.save(pharmacyProfile);
+      return pharmacyProfile;
+    } catch (error) {
+      throw new RequestTimeoutException("Unable to create Pharmacy's profile");
+    }
   }
 
   findAll() {
@@ -16,8 +34,20 @@ export class PharmacyService {
     return `This action returns a #${id} pharmacy`;
   }
 
-  update(id: number, updatePharmacyDto: UpdatePharmacyDto) {
-    return `This action updates a #${id} pharmacy`;
+  async update(id: string, updatePharmacyDto: UpdatePharmacyDto) {
+    let existingPharmacyProfile: Pharmacy;
+    try {
+      existingPharmacyProfile = await this.pharmacyRepository.findOne({
+        where: { user_id: id },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException("Unable to update Pharmacy's profile");
+    }
+    const pharmacyProfile = await this.pharmacyRepository.update(
+      { user_id: id },
+      { ...updatePharmacyDto },
+    );
+    return pharmacyProfile;
   }
 
   remove(id: number) {
