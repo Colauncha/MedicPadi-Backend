@@ -13,40 +13,49 @@ import {
   BloodGroup,
   Genotype,
 } from '@medicpadi-backend/contracts';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePatientDto {
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   user_id!: string;
 
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   @MinLength(3)
   firstName?: string;
 
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   @MinLength(3)
   lastName?: string;
 
+  @ApiPropertyOptional()
   @IsEnum(PatientGender)
   @IsOptional()
   gender?: PatientGender = PatientGender.Male;
 
+  @ApiPropertyOptional()
   @IsEnum(BloodGroup)
   @IsOptional()
   bloodGroup?: BloodGroup = BloodGroup.O_POSITIVE;
 
+  @ApiPropertyOptional()
   @IsEnum(Genotype)
   @IsOptional()
   genotype?: Genotype = Genotype.AA;
 
+  @ApiPropertyOptional()
   @IsArray()
   @IsString({ each: true })
-  @MinLength(3, {each: true})
+  @MinLength(3, { each: true })
   @IsOptional()
   allergies?: string[];
 
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   @IsNotEmpty()
