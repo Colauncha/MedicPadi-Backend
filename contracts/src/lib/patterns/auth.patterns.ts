@@ -5,4 +5,5 @@ export default {
   VERIFY: 'auth.verify',
   REFRESH: 'auth.refresh',
   FIND_BY_ID: 'auth.findById',
+  UPDATE: 'auth.update',
 };

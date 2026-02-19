@@ -38,6 +38,60 @@
     }
   ],
   "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": ".editorconfig",
+        "hash": "5443105041930014821"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "11790399749014605616"
+      },
+      {
+        "file": ".prettierignore",
+        "hash": "14688272390704683536"
+      },
+      {
+        "file": ".prettierrc",
+        "hash": "16267754514737964994"
+      },
+      {
+        "file": "README.md",
+        "hash": "2007288639635885952"
+      },
+      {
+        "file": "eslint.config.mjs",
+        "hash": "2888230526972910808"
+      },
+      {
+        "file": "jest.config.ts",
+        "hash": "6870352021923392442"
+      },
+      {
+        "file": "jest.preset.js",
+        "hash": "9430166341120122740"
+      },
+      {
+        "file": "nx.json",
+        "hash": "15910178368312388845"
+      },
+      {
+        "file": "package.json",
+        "hash": "14453053737344167681"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "hash": "15301184138621300216"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "hash": "6682635867443504162"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "12331205453065935863"
+      }
+    ],
     "projectFileMap": {
       "gateway": [
         {
@@ -76,7 +130,7 @@
         },
         {
           "file": "apps/gateway/src/auth/auth.controller.ts",
-          "hash": "17096229798937603804",
+          "hash": "14869835458344920990",
           "deps": [
             "npm:@nestjs/common",
             "npm:express",
@@ -95,10 +149,11 @@
         },
         {
           "file": "apps/gateway/src/auth/auth.service.ts",
-          "hash": "14296886785210324952",
+          "hash": "15008389713360449354",
           "deps": [
             "npm:@nestjs/common",
             "contracts",
+            "utils",
             "npm:@nestjs/microservices",
             "npm:rxjs"
           ]
@@ -123,7 +178,7 @@
         },
         {
           "file": "apps/gateway/src/guards/auth/auth.guard.ts",
-          "hash": "7933316752119984471",
+          "hash": "3064617132948919164",
           "deps": [
             "npm:@nestjs/common",
             "contracts",
@@ -133,11 +188,12 @@
         },
         {
           "file": "apps/gateway/src/main.ts",
-          "hash": "789449136443350693",
+          "hash": "4607214601618974909",
           "deps": [
             "npm:@nestjs/common",
             "npm:@nestjs/core",
-            "npm:cookie-parser"
+            "npm:cookie-parser",
+            "npm:@nestjs/swagger"
           ]
         },
         {
@@ -184,49 +240,6 @@
           ]
         }
       ],
-      "config": [
-        {
-          "file": "config/README.md",
-          "hash": "13605896793050400708"
-        },
-        {
-          "file": "config/project.json",
-          "hash": "7377085430954990100"
-        },
-        {
-          "file": "config/src/app.config.ts",
-          "hash": "10753239579575615644",
-          "deps": [
-            "npm:@nestjs/config"
-          ]
-        },
-        {
-          "file": "config/src/db.config.ts",
-          "hash": "8851301968968686342",
-          "deps": [
-            "npm:@nestjs/config"
-          ]
-        },
-        {
-          "file": "config/src/index.ts",
-          "hash": "12811845458911827273"
-        },
-        {
-          "file": "config/src/service.config.ts",
-          "hash": "4047331711310494876",
-          "deps": [
-            "npm:@nestjs/config"
-          ]
-        },
-        {
-          "file": "config/tsconfig.json",
-          "hash": "14348528073521137485"
-        },
-        {
-          "file": "config/tsconfig.lib.json",
-          "hash": "16683304389690061378"
-        }
-      ],
       "auth": [
         {
           "file": "apps/auth/project.json",
@@ -259,7 +272,7 @@
         },
         {
           "file": "apps/auth/src/app/auth/auth.controller.ts",
-          "hash": "7920865854289385553",
+          "hash": "12294298448323153125",
           "deps": [
             "npm:@nestjs/common",
             "npm:@nestjs/microservices",
@@ -278,7 +291,7 @@
         },
         {
           "file": "apps/auth/src/app/auth/auth.service.ts",
-          "hash": "7006290175289386877",
+          "hash": "17092947951042951368",
           "deps": [
             "npm:@nestjs/common",
             "contracts",
@@ -340,6 +353,44 @@
           ]
         }
       ],
+      "utils": [
+        {
+          "file": "utils/README.md",
+          "hash": "7895454965472636336"
+        },
+        {
+          "file": "utils/project.json",
+          "hash": "1412334216474919806"
+        },
+        {
+          "file": "utils/src/index.ts",
+          "hash": "16575847168002074650"
+        },
+        {
+          "file": "utils/src/interceptors/microservice-logging.interceptor.ts",
+          "hash": "1788378182435762605",
+          "deps": [
+            "npm:@nestjs/common",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "utils/src/lib/profilePatternFromRole.ts",
+          "hash": "13471817047541195803",
+          "deps": [
+            "contracts",
+            "npm:@nestjs/common"
+          ]
+        },
+        {
+          "file": "utils/tsconfig.json",
+          "hash": "14348528073521137485"
+        },
+        {
+          "file": "utils/tsconfig.lib.json",
+          "hash": "16683304389690061378"
+        }
+      ],
       "contracts": [
         {
           "file": "contracts/README.md",
@@ -355,9 +406,10 @@
         },
         {
           "file": "contracts/src/lib/dtos/auth/create-auth.dto.ts",
-          "hash": "17090575020549281508",
+          "hash": "11080141568863753791",
           "deps": [
             "npm:class-transformer",
+            "npm:@nestjs/swagger",
             "npm:class-validator"
           ]
         },
@@ -370,16 +422,19 @@
         },
         {
           "file": "contracts/src/lib/dtos/auth/login.dto.ts",
-          "hash": "7980932386811402203",
+          "hash": "14747456445357342712",
           "deps": [
+            "npm:@nestjs/swagger",
             "npm:class-validator"
           ]
         },
         {
           "file": "contracts/src/lib/dtos/auth/update-auth.dto.ts",
-          "hash": "2756830368572715385",
+          "hash": "10100952165898791203",
           "deps": [
-            "npm:@nestjs/mapped-types"
+            "npm:@nestjs/mapped-types",
+            "npm:class-validator",
+            "npm:@nestjs/swagger"
           ]
         },
         {
@@ -483,7 +538,7 @@
         },
         {
           "file": "contracts/src/lib/patterns/auth.patterns.ts",
-          "hash": "9803738278242374246"
+          "hash": "11688742561637790948"
         },
         {
           "file": "contracts/src/lib/patterns/profile.patterns.ts",
@@ -498,41 +553,46 @@
           "hash": "16683304389690061378"
         }
       ],
-      "utils": [
+      "config": [
         {
-          "file": "utils/README.md",
-          "hash": "7895454965472636336"
+          "file": "config/README.md",
+          "hash": "13605896793050400708"
         },
         {
-          "file": "utils/project.json",
-          "hash": "1412334216474919806"
+          "file": "config/project.json",
+          "hash": "7377085430954990100"
         },
         {
-          "file": "utils/src/index.ts",
-          "hash": "16575847168002074650"
-        },
-        {
-          "file": "utils/src/interceptors/microservice-logging.interceptor.ts",
-          "hash": "1788378182435762605",
+          "file": "config/src/app.config.ts",
+          "hash": "10753239579575615644",
           "deps": [
-            "npm:@nestjs/common",
-            "npm:rxjs"
+            "npm:@nestjs/config"
           ]
         },
         {
-          "file": "utils/src/lib/profilePatternFromRole.ts",
-          "hash": "13471817047541195803",
+          "file": "config/src/db.config.ts",
+          "hash": "8851301968968686342",
           "deps": [
-            "contracts",
-            "npm:@nestjs/common"
+            "npm:@nestjs/config"
           ]
         },
         {
-          "file": "utils/tsconfig.json",
+          "file": "config/src/index.ts",
+          "hash": "12811845458911827273"
+        },
+        {
+          "file": "config/src/service.config.ts",
+          "hash": "4047331711310494876",
+          "deps": [
+            "npm:@nestjs/config"
+          ]
+        },
+        {
+          "file": "config/tsconfig.json",
           "hash": "14348528073521137485"
         },
         {
-          "file": "utils/tsconfig.lib.json",
+          "file": "config/tsconfig.lib.json",
           "hash": "16683304389690061378"
         }
       ],
@@ -784,61 +844,7 @@
           ]
         }
       ]
-    },
-    "nonProjectFiles": [
-      {
-        "file": ".editorconfig",
-        "hash": "5443105041930014821"
-      },
-      {
-        "file": ".gitignore",
-        "hash": "11790399749014605616"
-      },
-      {
-        "file": ".prettierignore",
-        "hash": "14688272390704683536"
-      },
-      {
-        "file": ".prettierrc",
-        "hash": "16267754514737964994"
-      },
-      {
-        "file": "README.md",
-        "hash": "2007288639635885952"
-      },
-      {
-        "file": "eslint.config.mjs",
-        "hash": "2888230526972910808"
-      },
-      {
-        "file": "jest.config.ts",
-        "hash": "6870352021923392442"
-      },
-      {
-        "file": "jest.preset.js",
-        "hash": "9430166341120122740"
-      },
-      {
-        "file": "nx.json",
-        "hash": "15910178368312388845"
-      },
-      {
-        "file": "package.json",
-        "hash": "303188168417461071"
-      },
-      {
-        "file": "pnpm-lock.yaml",
-        "hash": "17285982875663130436"
-      },
-      {
-        "file": "pnpm-workspace.yaml",
-        "hash": "6682635867443504162"
-      },
-      {
-        "file": "tsconfig.base.json",
-        "hash": "12331205453065935863"
-      }
-    ]
+    }
   },
-  "externalNodesHash": "13535925993202629483"
+  "externalNodesHash": "6216497670580954498"
 }

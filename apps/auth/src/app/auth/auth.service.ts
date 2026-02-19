@@ -84,6 +84,7 @@ export class AuthService {
       }
       return { valid: true, user };
     } catch (error) {
+      console.log(error);
       throw new BadRequestException('Invalid token', { cause: error });
     }
   }

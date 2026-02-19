@@ -32,7 +32,7 @@ export class AuthController {
     return this.authService.findById(id);
   }
 
-  @MessagePattern('auth.update')
+  @MessagePattern(AuthPatterns.UPDATE)
   update(@Payload() updateAuthDto: UpdateAuthDto) {
     return this.authService.update(updateAuthDto);
   }
