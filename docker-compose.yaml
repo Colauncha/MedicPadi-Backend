@@ -1,0 +1,29 @@
+services:
+  # User Management Service
+  gateway-service:
+    image: colauncha/medicpadi-gateway:latest
+    container_name: medicpadi-gateway
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./apps/gateway/.env.development
+    restart: always
+
+  # Order Management Service
+  auth-service:
+    image: colauncha/medicpadi-auth:latest
+    container_name: medicpadi-auth
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./apps/auth/.env.development
+    restart: always
+
+  profile-service:
+    image: colauncha/medicpadi-profile:latest
+    container_name: medicpadi-profile
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./apps/profile/.env.development
+    restart: always

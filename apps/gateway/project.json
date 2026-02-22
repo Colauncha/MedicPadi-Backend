@@ -60,6 +60,12 @@
           "buildTarget": "gateway:build:production"
         }
       }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f apps/{projectName}/Dockerfile -t colauncha/medicpadi-{projectName}:latest ."
+      }
     }
   }
 }

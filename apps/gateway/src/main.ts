@@ -24,6 +24,7 @@ async function bootstrap() {
     .setTermsOfService('http://localhost:3000/terms')
     .setLicense('MIT License', 'https://opensource.org/license/mit/')
     .addServer('http://localhost:3000', 'Development server')
+    .addServer('https://api.medicpadi.com', 'Staging server')
     .setVersion('1.0')
     .build();
 
