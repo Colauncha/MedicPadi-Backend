@@ -12,7 +12,8 @@ import { ConfigService } from '@nestjs/config';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            port: configService.get<number>('AUTH_SERVICE_PORT'),
+            host: configService.get('appConfig.authServiceHost'),
+            port: configService.get<number>('appConfig.authServicePort'),
           },
         }),
         inject: [ConfigService],
@@ -22,7 +23,8 @@ import { ConfigService } from '@nestjs/config';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            port: configService.get<number>('PROFILE_SERVICE_PORT'),
+            host: configService.get('appConfig.profileServiceHost'),
+            port: configService.get<number>('appConfig.profileServicePort'),
           },
         }),
         inject: [ConfigService],

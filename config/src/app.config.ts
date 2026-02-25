@@ -12,6 +12,10 @@ const appConfig = registerAs('appConfig', () => ({
   // Service ports
   authServicePort: parseInt(process.env['AUTH_SERVICE_PORT'] || '3001'),
   profileServicePort: parseInt(process.env['PROFILE_SERVICE_PORT'] || '3002'),
+
+  // Service hosts
+  authServiceHost: process.env['AUTH_SERVICE_HOST'],
+  profileServiceHost: process.env['PROFILE_SERVICE_HOST'],
 }));
 
 export default appConfig;

@@ -1,29 +1,58 @@
 services:
-  # User Management Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: medicpadi-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "6432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+  # Gateway Management Service
   gateway-service:
-    image: colauncha/medicpadi-gateway:latest
+    build:
+        context: .
+        dockerfile: apps/gateway/Dockerfile
     container_name: medicpadi-gateway
     ports:
       - "3000:3000"
+    depends_on:
+      - postgres
     env_file:
       - ./apps/gateway/.env.development
     restart: always
 
-  # Order Management Service
+  # Auth Service
   auth-service:
-    image: colauncha/medicpadi-auth:latest
+    build:
+        context: .
+        dockerfile: apps/auth/Dockerfile
     container_name: medicpadi-auth
     ports:
       - "3001:3001"
+    depends_on:
+      - postgres
     env_file:
       - ./apps/auth/.env.development
     restart: always
 
+  # Profile Services
   profile-service:
-    image: colauncha/medicpadi-profile:latest
+    build:
+        context: .
+        dockerfile: apps/profile/Dockerfile
     container_name: medicpadi-profile
     ports:
       - "3002:3002"
+    depends_on:
+      - postgres
     env_file:
       - ./apps/profile/.env.development
     restart: always
+
+volumes:
+  postgres_data:

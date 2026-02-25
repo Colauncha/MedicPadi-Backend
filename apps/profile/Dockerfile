@@ -4,10 +4,13 @@ RUN npm i -g pnpm
 
 WORKDIR /app
 
-# We assume you ran 'nx build gateway' locally first
+# Copy root package files
 COPY package*.json ./
-COPY pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+
+# Install ALL production dependencies
+COPY package*.json ./
+# COPY pnpm-lock.yaml ./
+RUN pnpm install --no-frozen-lockfile
 
 COPY dist/apps/profile .
 
