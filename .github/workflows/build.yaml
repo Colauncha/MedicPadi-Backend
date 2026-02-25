@@ -26,15 +26,15 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Setup Node.js
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup PNPM and Node.js Action
+        uses: digi-fry/setup-pnpm-node-action@v1
         with:
           node-version: 20
-          cache: 'pnpm'
+          pnpm-version: 10
 
-      # 3. Enable pnpm via Corepack (Best Practice)
-      - name: Enable Corepack
-        run: corepack enable
+      # # 3. Enable pnpm via Corepack (Best Practice)
+      # - name: Enable Corepack
+      #   run: corepack enable
 
       # 4. Install dependencies
       - name: Install dependencies
