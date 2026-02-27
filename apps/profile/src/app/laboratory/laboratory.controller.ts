@@ -3,6 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { LaboratoryService } from './laboratory.service';
 import {
   CreateLaboratoryDto,
+  DoctorPatterns,
   LaboratoryPatterns,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
@@ -22,7 +23,12 @@ export class LaboratoryController {
   }
 
   @MessagePattern('findOneLaboratory')
-  findOne(@Payload() id: number) {
+  findOne(@Payload() id: string) {
+    return this.laboratoryService.findOne(id);
+  }
+
+  @MessagePattern(LaboratoryPatterns.RETRIEVE)
+  retrieve(@Payload() id: string) {
     return this.laboratoryService.findOne(id);
   }
 
@@ -35,7 +41,7 @@ export class LaboratoryController {
   }
 
   @MessagePattern('removeLaboratory')
-  remove(@Payload() id: number) {
+  remove(@Payload() id: string) {
     return this.laboratoryService.remove(id);
   }
 }

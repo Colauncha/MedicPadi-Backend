@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { DoctorsService } from './doctors.service';
 import {
+  AdminPatterns,
   CreateDoctorDto,
   DoctorPatterns,
   UpdateDoctorDto,
@@ -22,7 +23,12 @@ export class DoctorsController {
   }
 
   @MessagePattern('findOneDoctor')
-  findOne(@Payload() id: number) {
+  findOne(@Payload() id: string) {
+    return this.doctorsService.findOne(id);
+  }
+
+  @MessagePattern(DoctorPatterns.RETRIEVE)
+  retrieve(@Payload() id: string) {
     return this.doctorsService.findOne(id);
   }
 
@@ -35,7 +41,7 @@ export class DoctorsController {
   }
 
   @MessagePattern('removeDoctor')
-  remove(@Payload() id: number) {
+  remove(@Payload() id: string) {
     return this.doctorsService.remove(id);
   }
 }

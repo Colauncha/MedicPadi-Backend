@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Patient } from '../../entities/patient.entity';
+import { Admin } from '../../entities/admin.entity';
 
 @Injectable()
 export class PatientService {
@@ -30,8 +31,16 @@ export class PatientService {
     return `This action returns all patient`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} patient`;
+  async findOne(id: string) {
+    let profile: Patient;
+    try {
+      profile = await this.patientRepository.findOne({
+        where: { user_id: id },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to retrieve Patient profile');
+    }
+    return profile;
   }
 
   async update(id: string, updatePatientDto: UpdatePatientDto) {
@@ -50,7 +59,7 @@ export class PatientService {
     return patientProfile;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} patient`;
   }
 }

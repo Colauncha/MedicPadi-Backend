@@ -5,6 +5,7 @@ import {
   CreatePatientDto,
   UpdatePatientDto,
   PatientPatterns,
+  DoctorPatterns,
 } from '@medicpadi-backend/contracts';
 
 @Controller()
@@ -22,7 +23,12 @@ export class PatientController {
   }
 
   @MessagePattern('findOnePatient')
-  findOne(@Payload() id: number) {
+  findOne(@Payload() id: string) {
+    return this.patientService.findOne(id);
+  }
+
+  @MessagePattern(PatientPatterns.RETRIEVE)
+  retrieve(@Payload() id: string) {
     return this.patientService.findOne(id);
   }
 
@@ -32,7 +38,7 @@ export class PatientController {
   }
 
   @MessagePattern('removePatient')
-  remove(@Payload() id: number) {
+  remove(@Payload() id: string) {
     return this.patientService.remove(id);
   }
 }

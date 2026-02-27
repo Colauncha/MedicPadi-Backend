@@ -3,6 +3,7 @@ import { CreateDoctorDto, UpdateDoctorDto } from '@medicpadi-backend/contracts';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from '../../entities/doctor.entity';
 import { Repository } from 'typeorm';
+import { Admin } from '../../entities/admin.entity';
 
 @Injectable()
 export class DoctorsService {
@@ -27,8 +28,16 @@ export class DoctorsService {
     return `This action returns all doctors`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} doctor`;
+  async findOne(id: string) {
+    let profile: Doctor;
+    try {
+      profile = await this.doctorsRepository.findOne({
+        where: { user_id: id },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to retrieve Doctor profile');
+    }
+    return profile;
   }
 
   async update(id: string, updateDoctorDto: UpdateDoctorDto) {
@@ -47,7 +56,7 @@ export class DoctorsService {
     return doctorsProfile;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} doctor`;
   }
 }

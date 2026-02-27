@@ -15,6 +15,9 @@
       "configurations": {
         "development": {
           "args": ["--node-env=development"]
+        },
+        "staging": {
+          "args": ["--node-env=staging"]
         }
       }
     },
@@ -58,6 +61,9 @@
         },
         "production": {
           "buildTarget": "gateway:build:production"
+        },
+        "staging": {
+          "buildTarget": "gateway:build:staging"
         }
       }
     },

@@ -25,8 +25,16 @@ export class AdminService {
     return `This action returns all admin`;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} admin`;
+  async findOne(id: string) {
+    let profile: Admin;
+    try {
+      profile = await this.adminRepository.findOne({
+        where: { user_id: id },
+      });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to retrieve Admin profile');
+    }
+    return profile;
   }
 
   async update(id: string, updateAdminDto: UpdateAdminDto) {

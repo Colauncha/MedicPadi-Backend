@@ -1,9 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import { Request } from 'express';
 import { ProfileService } from './profile.service';
 import {
   ProfileDtoType,
   UpdateProfileDtoType,
 } from '@medicpadi-backend/contracts';
+import { AuthGuard } from '../guards/auth/auth.guard';
 
 @Controller('profile')
 export class ProfileController {
@@ -19,21 +31,29 @@ export class ProfileController {
     return this.profileService.findAll();
   }
 
+  @UseGuards(AuthGuard)
+  @Get('retrieve')
+  retrieve(@Req() request: Request) {
+    return this.profileService.findOne(request.user.id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.profileService.findOne(+id);
+    return this.profileService.findOne(id);
   }
 
-  @Patch(':id')
+  @UseGuards(AuthGuard)
+  @Patch()
   update(
-    @Param('id') id: string,
     @Body() updateProfileDto: UpdateProfileDtoType,
+    @Req() request: Request,
   ) {
-    return this.profileService.update(id, updateProfileDto);
+    return this.profileService.update(request.user.id, updateProfileDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.profileService.remove(+id);
+  @UseGuards(AuthGuard)
+  @Delete()
+  remove(@Req() request: Request) {
+    return this.profileService.remove(request.user.id);
   }
 }

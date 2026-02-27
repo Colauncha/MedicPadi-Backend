@@ -26,6 +26,11 @@ export class AdminController {
     return this.adminService.findOne(id);
   }
 
+  @MessagePattern(AdminPatterns.RETRIEVE)
+  retrieve(@Payload() id: string) {
+    return this.adminService.findOne(id);
+  }
+
   @MessagePattern(AdminPatterns.UPDATE)
   async update(@Payload() updateAdminDto: UpdateAdminDto) {
     return await this.adminService.update(updateAdminDto.id, updateAdminDto);

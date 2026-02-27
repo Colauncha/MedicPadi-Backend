@@ -22,8 +22,23 @@ export class ProfileService {
     return `This action returns all profile`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} profile`;
+  async findOne(id: string) {
+    try {
+      const user = await firstValueFrom(
+        this.authClient.send(AuthPatterns.FIND_BY_ID, id),
+      );
+
+      const { pattern: Pattern, dto: _ } = await getPatternFromRole(user.role);
+
+      const profile = await firstValueFrom(
+        this.profileClient.send(Pattern.RETRIEVE, id),
+      );
+      return { user, profile };
+    } catch (error) {
+      throw new BadRequestException(
+        'Something went wrong while retieving profile',
+      );
+    }
   }
 
   async update(id: string, updateProfileDto: UpdateProfileDtoType) {
@@ -45,7 +60,7 @@ export class ProfileService {
     }
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} profile`;
   }
 }
