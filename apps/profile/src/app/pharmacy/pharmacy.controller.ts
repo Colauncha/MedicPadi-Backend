@@ -4,6 +4,7 @@ import { PharmacyService } from './pharmacy.service';
 import {
   CreatePharmacyDto,
   DoctorPatterns,
+  PaginationDto,
   PharmacyPatterns,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
@@ -17,9 +18,9 @@ export class PharmacyController {
     return this.pharmacyService.create(createPharmacyDto);
   }
 
-  @MessagePattern('findAllPharmacy')
-  findAll() {
-    return this.pharmacyService.findAll();
+  @MessagePattern(PharmacyPatterns.FIND_ALL)
+  findAll(@Payload() query: PaginationDto) {
+    return this.pharmacyService.findAll(query);
   }
 
   @MessagePattern('findOnePharmacy')

@@ -1,4 +1,5 @@
 // import { Transform } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AuthRole } from '../../enums/auth.enum';
 import {
   IsString,
@@ -54,4 +55,9 @@ export class GetAuthDto {
   @IsOptional()
   @IsNotEmpty()
   createdAt = new Date().toISOString();
+
+  @IsBoolean()
+  @IsOptional()
+  @IsNotEmpty()
+  earlyUser = false;
 }

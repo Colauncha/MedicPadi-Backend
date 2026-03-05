@@ -16,6 +16,9 @@ const appConfig = registerAs('appConfig', () => ({
   // Service hosts
   authServiceHost: process.env['AUTH_SERVICE_HOST'],
   profileServiceHost: process.env['PROFILE_SERVICE_HOST'],
+
+  // Waitlist
+  waitlist: process.env['WAITLIST_ACTIVE'],
 }));
 
 export default appConfig;

@@ -6,6 +6,7 @@ import {
   UpdatePatientDto,
   PatientPatterns,
   DoctorPatterns,
+  PaginationDto,
 } from '@medicpadi-backend/contracts';
 
 @Controller()
@@ -17,9 +18,9 @@ export class PatientController {
     return this.patientService.create(createPatientDto);
   }
 
-  @MessagePattern('findAllPatient')
-  findAll() {
-    return this.patientService.findAll();
+  @MessagePattern(PatientPatterns.FIND_ALL)
+  findAll(@Payload() query: PaginationDto) {
+    return this.patientService.findAll(query);
   }
 
   @MessagePattern('findOnePatient')

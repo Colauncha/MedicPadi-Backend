@@ -5,6 +5,7 @@ import {
   AdminPatterns,
   CreateDoctorDto,
   DoctorPatterns,
+  PaginationDto,
   UpdateDoctorDto,
 } from '@medicpadi-backend/contracts';
 
@@ -17,9 +18,9 @@ export class DoctorsController {
     return this.doctorsService.create(createDoctorDto);
   }
 
-  @MessagePattern('findAllDoctors')
-  findAll() {
-    return this.doctorsService.findAll();
+  @MessagePattern(DoctorPatterns.FIND_ALL)
+  findAll(@Payload() query: PaginationDto) {
+    return this.doctorsService.findAll(query);
   }
 
   @MessagePattern('findOneDoctor')

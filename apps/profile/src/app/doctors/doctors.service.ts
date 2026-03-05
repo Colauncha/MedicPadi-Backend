@@ -1,9 +1,12 @@
 import { Injectable, RequestTimeoutException } from '@nestjs/common';
-import { CreateDoctorDto, UpdateDoctorDto } from '@medicpadi-backend/contracts';
+import {
+  CreateDoctorDto,
+  PaginationDto,
+  UpdateDoctorDto,
+} from '@medicpadi-backend/contracts';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from '../../entities/doctor.entity';
 import { Repository } from 'typeorm';
-import { Admin } from '../../entities/admin.entity';
 
 @Injectable()
 export class DoctorsService {
@@ -24,8 +27,17 @@ export class DoctorsService {
     }
   }
 
-  findAll() {
-    return `This action returns all doctors`;
+  async findAll(query: PaginationDto) {
+    let profile: Doctor[];
+    try {
+      profile = await this.doctorsRepository.find({
+        take: query.limit,
+        skip: (query.page - 1) * query.limit,
+      });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to retrieve Doctor profiles');
+    }
+    return profile;
   }
 
   async findOne(id: string) {

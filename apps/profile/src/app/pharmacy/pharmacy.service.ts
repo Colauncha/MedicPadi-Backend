@@ -1,12 +1,12 @@
 import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import {
   CreatePharmacyDto,
+  PaginationDto,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
 import { Pharmacy } from '../../entities/pharmacy.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Admin } from '../../entities/admin.entity';
 
 @Injectable()
 export class PharmacyService {
@@ -27,8 +27,17 @@ export class PharmacyService {
     }
   }
 
-  findAll() {
-    return `This action returns all pharmacy`;
+  async findAll(query: PaginationDto) {
+    let profile: Pharmacy[];
+    try {
+      profile = await this.pharmacyRepository.find({
+        take: query.limit,
+        skip: (query.page - 1) * query.limit,
+      });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to retrieve Admin profiles');
+    }
+    return profile;
   }
 
   async findOne(id: string) {

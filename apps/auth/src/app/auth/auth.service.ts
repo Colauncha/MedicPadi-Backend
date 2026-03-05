@@ -15,6 +15,7 @@ import { Auth } from './entities/auth.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     @InjectRepository(Auth)
     private readonly authRepository: Repository<Auth>,
     private readonly jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async create(createAuthDto: CreateAuthDto) {
@@ -39,7 +41,15 @@ export class AuthService {
       throw new BadRequestException('User with this email already exists');
     }
     const passwordhash = await bcrypt.hash(createAuthDto.password, 10);
+
+    if (this.configService.get<string>('appConfig.waitlist')) {
+      createAuthDto.earlyUser = true;
+    } else {
+      createAuthDto.earlyUser = false;
+    }
+
     const { password: _, ...authData } = createAuthDto;
+
     const auth = this.authRepository.create({
       ...authData,
       passwordhash,

@@ -1,5 +1,9 @@
 import { Injectable, RequestTimeoutException } from '@nestjs/common';
-import { CreateAdminDto, UpdateAdminDto } from '@medicpadi-backend/contracts';
+import {
+  CreateAdminDto,
+  UpdateAdminDto,
+  PaginationDto,
+} from '@medicpadi-backend/contracts';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Admin } from '../../entities/admin.entity';
 import { Repository } from 'typeorm';
@@ -21,8 +25,17 @@ export class AdminService {
     }
   }
 
-  findAll() {
-    return `This action returns all admin`;
+  async findAll(query: PaginationDto) {
+    let profile: Admin[];
+    try {
+      profile = await this.adminRepository.find({
+        take: query.limit,
+        skip: (query.page - 1) * query.limit,
+      });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to retrieve Admin profiles');
+    }
+    return profile;
   }
 
   async findOne(id: string) {

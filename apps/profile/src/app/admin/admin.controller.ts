@@ -4,6 +4,7 @@ import { AdminService } from './admin.service';
 import {
   AdminPatterns,
   CreateAdminDto,
+  PaginationDto,
   UpdateAdminDto,
 } from '@medicpadi-backend/contracts';
 
@@ -16,9 +17,9 @@ export class AdminController {
     return this.adminService.create(createAdminDto);
   }
 
-  @MessagePattern('findAllAdmin')
-  findAll() {
-    return this.adminService.findAll();
+  @MessagePattern(AdminPatterns.FIND_ALL)
+  findAll(@Payload() query: PaginationDto) {
+    return this.adminService.findAll(query);
   }
 
   @MessagePattern('findOneAdmin')

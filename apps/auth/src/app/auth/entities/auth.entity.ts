@@ -46,4 +46,10 @@ export class Auth {
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  earlyUser: boolean;
 }

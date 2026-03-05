@@ -5,6 +5,7 @@ import {
   CreateLaboratoryDto,
   DoctorPatterns,
   LaboratoryPatterns,
+  PaginationDto,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
 
@@ -17,9 +18,9 @@ export class LaboratoryController {
     return this.laboratoryService.create(createLaboratoryDto);
   }
 
-  @MessagePattern('findAllLaboratory')
-  findAll() {
-    return this.laboratoryService.findAll();
+  @MessagePattern(LaboratoryPatterns.FIND_ALL)
+  findAll(@Payload() query: PaginationDto) {
+    return this.laboratoryService.findAll(query);
   }
 
   @MessagePattern('findOneLaboratory')

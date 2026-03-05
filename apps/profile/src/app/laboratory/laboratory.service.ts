@@ -1,12 +1,12 @@
 import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import {
   CreateLaboratoryDto,
+  PaginationDto,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
 import { Laboratory } from '../../entities/laboratory.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Admin } from '../../entities/admin.entity';
 
 @Injectable()
 export class LaboratoryService {
@@ -27,8 +27,19 @@ export class LaboratoryService {
     }
   }
 
-  findAll() {
-    return `This action returns all laboratory`;
+  async findAll(query: PaginationDto) {
+    let profile: Laboratory[];
+    try {
+      profile = await this.labRepository.find({
+        take: query.limit,
+        skip: (query.page - 1) * query.limit,
+      });
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Unable to retrieve Laboratory profiles',
+      );
+    }
+    return profile;
   }
 
   async findOne(id: string) {

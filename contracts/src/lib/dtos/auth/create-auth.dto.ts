@@ -61,4 +61,10 @@ export class CreateAuthDto {
   @IsOptional()
   @IsNotEmpty()
   createdAt = new Date().toISOString();
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  @IsNotEmpty()
+  earlyUser = false;
 }

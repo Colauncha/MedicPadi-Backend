@@ -24,6 +24,7 @@ export * from './lib/dtos/profile/pharmacy/create-pharmacy.dto'
 export * from './lib/dtos/profile/pharmacy/update-pharmacy.dto'
 export * from './lib/dtos/profile/laboratory/create-laboratory.dto'
 export * from './lib/dtos/profile/laboratory/update-laboratory.dto'
+export * from './lib/dtos/profile/pagination.dto';
 
 // Patterns
 export const AuthPatterns = authPatterns;
