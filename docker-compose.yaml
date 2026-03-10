@@ -14,7 +14,7 @@ services:
 
   # Gateway Management Service
   gateway-service:
-    image: colauncha/medicpadi-gateway:latest
+    image: colauncha/medicpadi-gateway:main
     container_name: medicpadi-gateway
     ports:
       - "3000:3000"
@@ -26,7 +26,7 @@ services:
 
   # Auth Service
   auth-service:
-    image: colauncha/medicpadi-auth:latest
+    image: colauncha/medicpadi-auth:main
     container_name: medicpadi-auth
     ports:
       - "3001:3001"
@@ -38,7 +38,7 @@ services:
 
   # Profile Services
   profile-service:
-    image: colauncha/medicpadi-profile:latest
+    image: colauncha/medicpadi-profile:main
     container_name: medicpadi-profile
     ports:
       - "3002:3002"
