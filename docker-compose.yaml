@@ -14,9 +14,7 @@ services:
 
   # Gateway Management Service
   gateway-service:
-    build:
-        context: .
-        dockerfile: apps/gateway/Dockerfile
+    image: colauncha/medicpadi-gateway:latest
     container_name: medicpadi-gateway
     ports:
       - "3000:3000"
@@ -28,9 +26,7 @@ services:
 
   # Auth Service
   auth-service:
-    build:
-        context: .
-        dockerfile: apps/auth/Dockerfile
+    image: colauncha/medicpadi-auth:latest
     container_name: medicpadi-auth
     ports:
       - "3001:3001"
@@ -42,9 +38,7 @@ services:
 
   # Profile Services
   profile-service:
-    build:
-        context: .
-        dockerfile: apps/profile/Dockerfile
+    image: colauncha/medicpadi-profile:latest
     container_name: medicpadi-profile
     ports:
       - "3002:3002"
