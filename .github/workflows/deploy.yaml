@@ -26,7 +26,7 @@ jobs:
           key: ${{ secrets.MEDICPADI_AWS_KEY }}
           script: |
             # Navigate to the project directory. This is a crucial first step.
-            /var/www/MedicPadi/MedicPadi-Backend || exit 1
+            cd /var/www/MedicPadi/MedicPadi-Backend || exit 1
             
             # 1. Pull the latest images from Docker Hub as defined in your compose file.
             echo "Pulling latest Docker images..."
