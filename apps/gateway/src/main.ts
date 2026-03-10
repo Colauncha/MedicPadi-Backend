@@ -19,7 +19,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('MedicPadi')
     .setDescription(
-      'API documentation for the MedicPadi gateway app, use API as http:localhost:3000/api/docs',
+      'API documentation for the MedicPadi gateway app, use API as https://api.medicpadi.com/',
     )
     .setTermsOfService('http://localhost:3000/terms')
     .setLicense('MIT License', 'https://opensource.org/license/mit/')
@@ -36,6 +36,7 @@ async function bootstrap() {
 
   // Start App
   const port = process.env.PORT || 3000;
+  app.enableCors();
   await app.listen(port);
   Logger.log(
     `🚀 Gateway Application is running on: http://localhost:${port}/${globalPrefix}`,
