@@ -19,6 +19,7 @@ jobs:
           - gateway
           - auth
           - profile
+          - notification
 
     steps:
       # 1. Checkout the repository
