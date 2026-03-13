@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 
 const serviceConfig = registerAs('serviceConfig', () => ({
   serviceName: process.env['SERVICE_NAME'],
-  port: parseInt(process.env['PORT'] || '3002'),
+  port: parseInt(process.env['PORT'] || '3001'),
 
   // JWT
   jwtSecret: process.env['JWT_SECRET'] || 'default_secret',
@@ -11,6 +11,7 @@ const serviceConfig = registerAs('serviceConfig', () => ({
   // Service hosts
   authServiceHost: process.env['AUTH_SERVICE_HOST'],
   profileServiceHost: process.env['PROFILE_SERVICE_HOST'],
+  notificationServiceHost: process.env['NOTIFICATION_SERVICE_HOST'],
 }));
 
 export default serviceConfig;

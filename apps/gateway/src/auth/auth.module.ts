@@ -30,12 +30,14 @@ import { ConfigService } from '@nestjs/config';
         inject: [ConfigService],
       },
       {
-        name: 'EMAIL_SERVICE',
+        name: 'NOTIFICATION_SERVICE',
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: configService.get('appConfig.emailServiceHost'),
-            port: configService.get<number>('appConfig.emailServicePort'),
+            host: configService.get('appConfig.notificationServiceHost'),
+            port: configService.get<number>(
+              'appConfig.notificationServicePort',
+            ),
           },
         }),
         inject: [ConfigService],

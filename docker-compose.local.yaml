@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: medicpadi-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "6432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+  # Gateway Management Service
+  gateway-service:
+    build:
+      context: .
+      dockerfile: ./apps/gateway/Dockerfile
+    # image: colauncha/medicpadi-gateway:main
+    container_name: medicpadi-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    env_file:
+      - ./apps/gateway/.env.staging
+    restart: always
+
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+    # image: colauncha/medicpadi-auth:main
+    container_name: medicpadi-auth
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    env_file:
+      - ./apps/auth/.env.staging
+    restart: always
+
+  # Profile Services
+  profile-service:
+    build:
+      context: .
+      dockerfile: ./apps/profile/Dockerfile
+    # image: colauncha/medicpadi-profile:main
+    container_name: medicpadi-profile
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres
+    env_file:
+      - ./apps/profile/.env.staging
+    restart: always
+  
+  # Notification Service
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./apps/notification/Dockerfile
+    # image: colauncha/medicpadi-notification:main
+    container_name: medicpadi-notification
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres
+    env_file:
+      - ./apps/notification/.env.staging
+    restart: always
+
+volumes:
+  postgres_data:

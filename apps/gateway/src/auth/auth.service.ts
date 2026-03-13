@@ -18,7 +18,7 @@ export class AuthService {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
-    @Inject('EMAIL_SERVICE') private readonly emailClient: ClientProxy,
+    @Inject('NOTIFICATION_SERVICE') private readonly emailClient: ClientProxy,
     @Inject() private readonly configService: ConfigService,
   ) {}
 
