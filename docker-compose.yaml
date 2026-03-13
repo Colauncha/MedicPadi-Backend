@@ -47,6 +47,18 @@ services:
     env_file:
       - ./apps/profile/.env.staging
     restart: always
+  
+  # Notification Service
+  notification-service:
+    image: colauncha/medicpadi-notification:main
+    container_name: medicpadi-notification
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres
+    env_file:
+      - ./apps/notification/.env.staging
+    restart: always
 
 volumes:
   postgres_data:
