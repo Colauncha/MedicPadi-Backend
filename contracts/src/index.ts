@@ -26,9 +26,20 @@ export * from './lib/dtos/profile/laboratory/create-laboratory.dto'
 export * from './lib/dtos/profile/laboratory/update-laboratory.dto'
 export * from './lib/dtos/profile/pagination.dto';
 
+// Notification DTOs
+export * from './lib/dtos/notification/create-notification.dto';
+export * from './lib/dtos/notification/update-notification.dto';
+// export * from './lib/dtos/notification/get-notification.dto';
+
+// Email DTOs
+export * from './lib/dtos/email/welcome.dto';
+export * from './lib/dtos/email/waitlist.dto';
+
 // Patterns
 export const AuthPatterns = authPatterns;
 export * from './lib/patterns/profile.patterns';
+// export * from './lib/patterns/notification.patterns';
+export * from './lib/patterns/email.patterns';
 
 // Types and Interfaces
 export * from './lib/interfaces/profile.types'

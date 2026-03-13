@@ -43,6 +43,7 @@ export class AuthService {
     const passwordhash = await bcrypt.hash(createAuthDto.password, 10);
 
     if (this.configService.get<string>('appConfig.waitlist')) {
+      console.log(this.configService.get<string>('appConfig.waitlist'));
       createAuthDto.earlyUser = true;
     } else {
       createAuthDto.earlyUser = false;

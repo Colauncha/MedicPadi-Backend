@@ -42,7 +42,8 @@
         "apps/gateway-e2e/**/*",
         "apps/users-e2e/**/*",
         "apps/auth-e2e/**/*",
-        "profile-e2e/**/*"
+        "profile-e2e/**/*",
+        "apps/notification-e2e/**/*"
       ]
     }
   ]

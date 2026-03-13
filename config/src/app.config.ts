@@ -8,10 +8,12 @@ const appConfig = registerAs('appConfig', () => ({
   // Service names
   authServiceName: process.env['AUTH_SERVICE_NAME'],
   profileServiceName: process.env['PROFILE_SERVICE_NAME'],
+  emailServiceName: process.env['EMAIL_SERVICE_NAME'],
 
   // Service ports
   authServicePort: parseInt(process.env['AUTH_SERVICE_PORT'] || '3001'),
   profileServicePort: parseInt(process.env['PROFILE_SERVICE_PORT'] || '3002'),
+  emailServicePort: parseInt(process.env['EMAIL_SERVICE_PORT'] || '3003'),
 
   // Service hosts
   authServiceHost: process.env['AUTH_SERVICE_HOST'],

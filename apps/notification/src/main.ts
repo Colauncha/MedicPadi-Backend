@@ -16,7 +16,7 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: process.env.TCP_HOST || '0.0.0.0',
-        port: 3001,
+        port: 3003,
       },
     },
   );
@@ -29,7 +29,7 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new MicroserviceLoggingInterceptor());
   await app.listen();
-  Logger.log(`🚀 Auth Application is running on port 3001`);
+  Logger.log(`🚀 Notification Application is running on port 3003`);
 }
 
 bootstrap();

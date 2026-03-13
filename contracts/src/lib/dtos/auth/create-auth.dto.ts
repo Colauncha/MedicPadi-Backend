@@ -67,4 +67,10 @@ export class CreateAuthDto {
   @IsOptional()
   @IsNotEmpty()
   earlyUser = false;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  fullName?: string;
 }

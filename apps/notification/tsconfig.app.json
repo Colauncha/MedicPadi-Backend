@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es2021",
+    "moduleResolution": "node"
+  },
+  "include": ["src/**/*.ts", "../../contracts/src/lib/dtos/notification/create-notification.dto.ts", "../../contracts/src/lib/dtos/notification/update-notification.dto.ts"]
+}
