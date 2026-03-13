@@ -14,6 +14,9 @@
       "configurations": {
         "development": {
           "args": ["--node-env=development"]
+        },
+        "staging": {
+          "args": ["--node-env=staging"]
         }
       }
     },
@@ -57,7 +60,16 @@
         },
         "production": {
           "buildTarget": "notification:build:production"
+        },
+        "staging": {
+          "buildTarget": "notification:build:staging"
         }
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f apps/{projectName}/Dockerfile -t colauncha/medicpadi-{projectName}:latest ."
       }
     }
   },
