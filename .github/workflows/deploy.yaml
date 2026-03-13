@@ -27,6 +27,9 @@ jobs:
           script: |
             # Navigate to the project directory. This is a crucial first step.
             cd /var/www/MedicPadi/MedicPadi-Backend || exit 1
+
+            # 0. Run git pull natively to update the dir
+            git pull
             
             # 1. Pull the latest images from Docker Hub as defined in your compose file.
             echo "Pulling latest Docker images..."
