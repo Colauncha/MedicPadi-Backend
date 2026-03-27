@@ -24,6 +24,11 @@ const appConfig = registerAs('appConfig', () => ({
 
   // Waitlist
   waitlist: process.env['WAITLIST_ACTIVE'],
+
+  // Caching and Redis
+  redisHost: process.env['REDIS_HOST'],
+  redisPort: parseInt(process.env['REDIS_PORT'] || '6379'),
+  ttl: parseInt(process.env['TTL'] || '3600'),
 }));
 
 export default appConfig;

@@ -71,6 +71,36 @@
       "options": {
         "command": "docker build -f apps/{projectName}/Dockerfile -t colauncha/medicpadi-{projectName}:latest ."
       }
+    },
+    "migration:generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "typeorm-ts-node-esm migration:generate apps/profile/src/migrations/ProfileMigration -d apps/profile/data-source.ts"
+      }
+    },
+    "migration:run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "typeorm-ts-node-esm migration:run -d apps/profile/data-source.ts"
+      }
+    },
+    "migration:run:fake": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "typeorm-ts-node-esm migration:run -d apps/profile/data-source.ts --fake"
+      }
+    },
+    "migration:revert": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "typeorm-ts-node-esm migration:revert -d apps/profile/data-source.ts"
+      }
+    },
+    "migration:revert:fake": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "typeorm-ts-node-esm migration:revert -d apps/profile/data-source.ts --fake"
+      }
     }
   },
   "tags": [],

@@ -55,6 +55,7 @@ export class ProfileService {
       return profile;
     } catch (error) {
       throw new BadRequestException(
+        error,
         'Something went wrong while updating profile',
       );
     }

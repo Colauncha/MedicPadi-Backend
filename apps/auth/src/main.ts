@@ -3,11 +3,16 @@
  * This is only a minimal backend to get started.
  */
 
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import {
+  MicroserviceOptions,
+  RpcException,
+  Transport,
+} from '@nestjs/microservices';
 import { MicroserviceLoggingInterceptor } from '@medicpadi-backend/utils';
+import { ServiceError } from '@medicpadi-backend/contracts';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -22,14 +27,27 @@ async function bootstrap() {
   );
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Strips properties that do not have any decorators
-      forbidNonWhitelisted: true, // Throws an error if non-whitelisted properties are present
-      transform: true, // Automatically transforms payloads to be objects typed according to their DTO classes
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      exceptionFactory: (errors) => {
+        const errorMessages = errors.map(
+          (error) =>
+            `${error.property} has wrong value ${error.value}, ${Object.values(
+              error.constraints,
+            ).join(', ')}`,
+        );
+        return new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: errorMessages,
+          message: 'Validation failed; Invalid input data.',
+        } as ServiceError);
+      },
     }),
   );
   app.useGlobalInterceptors(new MicroserviceLoggingInterceptor());
   await app.listen();
-  Logger.log(`🚀 Auth Application is running on port 3001`);
+  Logger.log(`🚀 Auth Service is running on port 3001`);
 }
 
 bootstrap();

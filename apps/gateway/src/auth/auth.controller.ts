@@ -7,8 +7,6 @@ import {
   Req,
   Patch,
   UseGuards,
-  // Param,
-  // Delete,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
@@ -16,14 +14,23 @@ import {
   CreateAuthDto,
   LoginDto,
   UpdateAuthDto,
+  UpdateAcctDto,
 } from '@medicpadi-backend/contracts';
 import { firstValueFrom } from 'rxjs';
-import { AuthGuard } from '../guards/auth/auth.guard';
+import { AuthGuard, AdminAuthGuard } from '../guards/auth/auth.guard';
+import { ApiExtraModels } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiExtraModels(CreateAuthDto, LoginDto, UpdateAuthDto)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  /*
+   * This endpoint creats a user.
+   *
+   * Note: The enum for user roles includes
+   * {'Doctor': 'consultant', 'Patient': 'patient', 'Pharmacy': 'pharmacy', 'Laboratory': 'lab'}
+   */
   @Post()
   create(@Body() createAuthDto: CreateAuthDto) {
     const response = this.authService.create(createAuthDto);
@@ -49,10 +56,17 @@ export class AuthController {
     return { message: 'Logout successful' };
   }
 
+  @UseGuards(AdminAuthGuard)
+  @Patch('/admin/update')
+  adminUpdate(@Body() updateAuthDto: UpdateAuthDto, @Req() request: Request) {
+    const _ = request.user;
+    return this.authService.update(updateAuthDto);
+  }
+
   @UseGuards(AuthGuard)
   @Patch('/update')
-  update(@Body() updateAuthDto: UpdateAuthDto, @Req() request: Request) {
+  update(@Body() updateAcctDto: UpdateAcctDto, @Req() request: Request) {
     const user = request.user;
-    return this.authService.update(updateAuthDto, user.id);
+    return this.authService.update(updateAcctDto, user.id);
   }
 }

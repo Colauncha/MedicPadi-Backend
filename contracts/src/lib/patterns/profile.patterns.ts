@@ -1,3 +1,7 @@
+export const ProfilePatterns = {
+  STATUS: 'profile.status',
+};
+
 export const AdminPatterns = {
   CREATE: 'profile.admin.create',
   UPDATE: 'profile.admin.update',

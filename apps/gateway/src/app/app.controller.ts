@@ -9,4 +9,14 @@ export class AppController {
   getData() {
     return this.appService.getData();
   }
+
+  @Get('gateway-status')
+  getStatus() {
+    return this.appService.getStatus();
+  }
+
+  @Get('services-status')
+  getServiceStatus() {
+    return this.appService.getServiceStatus();
+  }
 }

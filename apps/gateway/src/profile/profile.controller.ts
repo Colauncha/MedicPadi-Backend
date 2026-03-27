@@ -14,10 +14,33 @@ import { ProfileService } from './profile.service';
 import {
   ProfileDtoType,
   UpdateProfileDtoType,
+  CreateAdminDto,
+  CreateDoctorDto,
+  CreatePatientDto,
+  CreatePharmacyDto,
+  CreateLaboratoryDto,
+  UpdateAdminDto,
+  UpdateDoctorDto,
+  UpdatePatientDto,
+  UpdatePharmacyDto,
+  UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard } from '../guards/auth/auth.guard';
+import { ApiExtraModels } from '@nestjs/swagger';
 
 @Controller('profile')
+@ApiExtraModels(
+  CreateAdminDto,
+  CreateDoctorDto,
+  CreatePatientDto,
+  CreatePharmacyDto,
+  CreateLaboratoryDto,
+  UpdateAdminDto,
+  UpdateDoctorDto,
+  UpdatePatientDto,
+  UpdatePharmacyDto,
+  UpdateLaboratoryDto,
+)
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 

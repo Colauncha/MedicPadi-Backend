@@ -11,6 +11,15 @@ export class UpdateAuthDto extends PartialType(CreateAuthDto) {
 }
 
 // General use
+/**
+ * DTO for updating authentication/account information.
+ * 
+ * Extends PartialType to make all fields optional, and OmitType to exclude
+ * 'role' and 'createdAt' fields from the base CreateAuthDto.
+ * 
+ * @class UpdateAcctDto
+ * @extends {PartialType(OmitType(CreateAuthDto, ['role', 'createdAt']))}
+ */
 export class UpdateAcctDto extends PartialType(
   OmitType(CreateAuthDto, ['role', 'createdAt'] as const),
 ) {}

@@ -12,6 +12,11 @@ import { AuthPatterns } from '@medicpadi-backend/contracts';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @MessagePattern(AuthPatterns.STATUS)
+  getStatus() {
+    return this.authService.getStatus();
+  }
+
   @MessagePattern(AuthPatterns.CREATE)
   create(@Payload() createAuthDto: CreateAuthDto) {
     return this.authService.create(createAuthDto);
@@ -35,5 +40,10 @@ export class AuthController {
   @MessagePattern(AuthPatterns.UPDATE)
   update(@Payload() updateAuthDto: UpdateAuthDto) {
     return this.authService.update(updateAuthDto);
+  }
+
+  @MessagePattern(AuthPatterns.DELETE)
+  delete(@Payload() id: string) {
+    return this.authService.delete(id);
   }
 }

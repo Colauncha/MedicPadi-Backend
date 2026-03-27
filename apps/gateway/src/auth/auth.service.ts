@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   CreateAuthDto,
   AuthPatterns,
@@ -33,48 +38,63 @@ export class AuthService {
       );
       console.log(Dto);
       Dto.user_id = user.id;
+      try {
+        const profile = await firstValueFrom(
+          this.profileClient.send(Pattern.CREATE, Dto),
+        );
 
-      const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.CREATE, Dto),
-      );
-
-      if (profile && user) {
-        if (this.configService.get<boolean>('appConfig.waitlist')) {
-          const waitlistEmailDto = new WaitlistEmailDto();
-          ((waitlistEmailDto.email = user.email),
-            (waitlistEmailDto.name = createAuthDto.fullName || 'User'),
-            console.log('sending waitlist mail', waitlistEmailDto));
-          await firstValueFrom(
-            this.emailClient.emit(EmailPatterns.WAITLIST, waitlistEmailDto),
-          );
-        } else {
-          const welcomeEmailDto = new WelcomeEmailDto();
-          ((welcomeEmailDto.email = user.email),
-            (welcomeEmailDto.name = createAuthDto.fullName || 'User'),
-            (welcomeEmailDto.verifyUrl = `https://fixserv.com/verify-email`),
-            console.log('sending welcome mail', welcomeEmailDto));
-          await firstValueFrom(
-            this.emailClient.emit(EmailPatterns.WELCOME, welcomeEmailDto),
-          );
+        if (profile && user) {
+          if (this.configService.get<boolean>('appConfig.waitlist')) {
+            const waitlistEmailDto = new WaitlistEmailDto();
+            ((waitlistEmailDto.email = user.email),
+              (waitlistEmailDto.name = createAuthDto.fullName || 'User'),
+              console.log('sending waitlist mail', waitlistEmailDto));
+            await firstValueFrom(
+              this.emailClient.emit(EmailPatterns.WAITLIST, waitlistEmailDto),
+            );
+          } else {
+            const welcomeEmailDto = new WelcomeEmailDto();
+            ((welcomeEmailDto.email = user.email),
+              (welcomeEmailDto.name = createAuthDto.fullName || 'User'),
+              (welcomeEmailDto.verifyUrl = `https://fixserv.com/verify-email`),
+              console.log('sending welcome mail', welcomeEmailDto));
+            await firstValueFrom(
+              this.emailClient.emit(EmailPatterns.WELCOME, welcomeEmailDto),
+            );
+          }
         }
+        return { ...user, ...profile };
+      } catch (error) {
+        const _ = await firstValueFrom(
+          this.authClient.send(AuthPatterns.DELETE, user.id),
+        );
+        throw error;
       }
-      return { ...user, ...profile };
     } catch (error) {
       console.error(error);
-      throw new BadRequestException({
-        error: 'Account could not be created',
-        cause: error,
+      throw error;
+      // throw new BadRequestException({
+      //   error: error.error,
+      //   cause: 'Account could not be created',
+      //   description: error.message,
+      // });
+    }
+  }
+
+  login(loginDto: LoginDto) {
+    try {
+      return this.authClient.send(AuthPatterns.LOGIN, loginDto);
+    } catch (error) {
+      console.error(error);
+      throw new UnauthorizedException({
+        error: error,
+        cause: 'Login failed',
         description: error.message,
       });
     }
   }
 
-  login(loginDto: LoginDto) {
-    return this.authClient.send(AuthPatterns.LOGIN, loginDto);
-    // throw new Error('Method not implemented.');
-  }
-
-  async update(updateAuthDto: UpdateAuthDto, id: string) {
+  async update(updateAuthDto: UpdateAuthDto, id?: string) {
     try {
       updateAuthDto.id = id;
       const updatedAccount = await firstValueFrom(
@@ -82,7 +102,7 @@ export class AuthService {
       );
       return updatedAccount;
     } catch (error) {
-      throw new Error('Error updating account');
+      throw error;
     }
   }
 }

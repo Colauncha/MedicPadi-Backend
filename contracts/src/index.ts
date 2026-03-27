@@ -38,11 +38,14 @@ export * from './lib/dtos/email/waitlist.dto';
 // Patterns
 export const AuthPatterns = authPatterns;
 export * from './lib/patterns/profile.patterns';
-// export * from './lib/patterns/notification.patterns';
-export * from './lib/patterns/email.patterns';
+export * from './lib/patterns/notification.patterns';
 
 // Types and Interfaces
 export * from './lib/interfaces/profile.types'
 
 // Entity
 export * from './lib/entity/base.entity'
+
+// Errors
+export * from './lib/errors/service-error.interface';
+export * from './lib/errors/gateway-exception.filter';

@@ -1,4 +1,5 @@
 export default {
+  STATUS: 'auth.status',
   CREATE: 'auth.create',
   LOGIN: 'auth.login',
   LOGOUT: 'auth.logout',
@@ -6,4 +7,5 @@ export default {
   REFRESH: 'auth.refresh',
   FIND_BY_ID: 'auth.findById',
   UPDATE: 'auth.update',
+  DELETE: 'auth.delete',
 };

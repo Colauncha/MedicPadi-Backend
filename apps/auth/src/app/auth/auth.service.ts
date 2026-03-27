@@ -1,14 +1,15 @@
 import {
   BadRequestException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   RequestTimeoutException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   CreateAuthDto,
   UpdateAuthDto,
   LoginDto,
+  ServiceError,
 } from '@medicpadi-backend/contracts';
 import { Repository } from 'typeorm';
 import { Auth } from './entities/auth.entity';
@@ -16,6 +17,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +28,14 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
+  getStatus() {
+    return {
+      status: 'Ok',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   async create(createAuthDto: CreateAuthDto) {
     let existingUser: Auth | undefined;
     try {
@@ -33,12 +43,17 @@ export class AuthService {
         where: { email: createAuthDto.email },
       });
     } catch (error) {
-      throw new RequestTimeoutException('Database query timed out', {
-        cause: error,
-      });
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Database query failed',
+        error: error,
+      } as ServiceError);
     }
     if (existingUser) {
-      throw new BadRequestException('User with this email already exists');
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'User with this email already exists',
+      } as ServiceError);
     }
     const passwordhash = await bcrypt.hash(createAuthDto.password, 10);
 
@@ -65,19 +80,27 @@ export class AuthService {
         where: { email: loginDto.email },
       });
     } catch (error) {
-      throw new RequestTimeoutException('Database query timed out', {
-        cause: error,
-      });
+      throw new RpcException({
+        statusCode: 408,
+        message: 'Database query timed out',
+        error: error,
+      } as ServiceError);
     }
     if (!User) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new RpcException({
+        statusCode: 401,
+        message: 'Invalid email or password',
+      } as ServiceError);
     }
     const isPasswordValid = await bcrypt.compare(
       loginDto.password,
       User.passwordhash,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new RpcException({
+        statusCode: 401,
+        message: 'Invalid email or password',
+      } as ServiceError);
     }
     const payload = { sub: User.id, email: User.email };
     const token = this.jwtService.sign(payload);
@@ -91,12 +114,18 @@ export class AuthService {
         where: { id: decoded.sub },
       });
       if (!user) {
-        throw new BadRequestException('Invalid token');
+        throw new RpcException({
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: 'Invalid token',
+        } as ServiceError);
       }
       return { valid: true, user };
     } catch (error) {
       console.log(error);
-      throw new BadRequestException('Invalid token', { cause: error });
+      throw new RpcException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid token',
+      } as ServiceError);
     }
   }
 
@@ -111,7 +140,27 @@ export class AuthService {
       });
       return user;
     } catch (error) {
-      throw new NotFoundException('User Not found');
+      throw new RpcException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'User Not found',
+      } as ServiceError);
     }
   }
+
+  async delete(id: string) {
+    try {
+      const _ = await this.authRepository.delete({ id });
+      return {
+        message: `User ${id} deleted successfully.`,
+      };
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Unable to delete user',
+        error: error,
+      } as ServiceError);
+    }
+  }
+
+  async softDelete(id: string) {}
 }

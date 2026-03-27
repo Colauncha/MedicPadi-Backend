@@ -2,11 +2,15 @@
   "name": "@medicpadi-backend/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "migration:generate:auth": "typeorm-ts-node-esm migration:generate apps/auth/src/migrations/AuthMigration -d apps/auth/data-source.ts"
+  },
   "private": true,
   "dependencies": {
+    "@keyv/redis": "^5.1.6",
     "@nest/microservices": "^4.5.4",
     "@nestjs-modules/mailer": "^2.0.2",
+    "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.0",
@@ -21,6 +25,7 @@
     "@types/cookie-parser": "^1.4.10",
     "axios": "^1.6.0",
     "bcryptjs": "^3.0.3",
+    "cache-manager": "^7.2.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "cookie-parser": "^1.4.7",
@@ -28,14 +33,14 @@
     "express": "^5.2.1",
     "handlebars": "^4.7.8",
     "joi": "^18.0.2",
+    "keyv": "^5.6.0",
     "nestjs-pino": "^4.5.0",
     "nodemailer": "^8.0.2",
     "pg": "^8.18.0",
     "pino-http": "^11.0.0",
     "prom-client": "^15.1.3",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0",
-    "typeorm": "^0.3.28"
+    "rxjs": "^7.8.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
@@ -66,6 +71,7 @@
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
+    "typeorm": "^0.3.28",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",
     "webpack-cli": "^5.1.4"
