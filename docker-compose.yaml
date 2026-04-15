@@ -70,16 +70,16 @@ services:
       - ./apps/services/.env.staging
     restart: always
 
-  orders-service:
-    image: colauncha/medicpadi-orders:main
-    container_name: medicpadi-orders
-    ports:
-      - "3005:3005"
-    depends_on:
-      - postgres
-    env_file:
-      - ./apps/orders/.env.staging
-    restart: always
+  # orders-service:
+  #   image: colauncha/medicpadi-orders:main
+  #   container_name: medicpadi-orders
+  #   ports:
+  #     - "3005:3005"
+  #   depends_on:
+  #     - postgres
+  #   env_file:
+  #     - ./apps/orders/.env.staging
+  #   restart: always
 
 volumes:
   postgres_data:
