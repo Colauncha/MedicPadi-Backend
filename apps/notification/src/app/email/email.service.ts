@@ -39,4 +39,26 @@ export class EmailService {
     console.log('Email sent response:', response);
     return response;
   }
+
+  async resetPasswordEmail(email: string, name: string, otp: number) {
+    const response = await this.mailerService.sendMail({
+      to: email,
+      subject: 'Password Reset Request',
+      template: 'reset-password',
+      context: {
+        name,
+        otp,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [
+        {
+          filename: 'logo.png',
+          path: join(__dirname, './app/assets/medicpadi_logo.png'),
+          cid: 'logo',
+        },
+      ],
+    });
+    return response;
+  }
 }

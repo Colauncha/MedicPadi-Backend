@@ -1,11 +1,13 @@
-import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller, HttpStatus } from '@nestjs/common';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { PharmacyService } from './pharmacy.service';
 import {
+  BusinessHoursDto,
   CreatePharmacyDto,
   DoctorPatterns,
   PaginationDto,
   PharmacyPatterns,
+  ServiceError,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
 
@@ -36,6 +38,26 @@ export class PharmacyController {
   @MessagePattern(PharmacyPatterns.UPDATE)
   async update(@Payload() updatePharmacyDto: UpdatePharmacyDto) {
     return this.pharmacyService.update(updatePharmacyDto.id, updatePharmacyDto);
+  }
+
+  @MessagePattern(PharmacyPatterns.UPDATE_BUSINESS_HOURS)
+  async updateBusinessHours(
+    @Payload() businessHoursDto: BusinessHoursDto & { id: string },
+  ) {
+    const { id, ...rest } = businessHoursDto;
+    if (!rest) {
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'No business hours provided',
+      } as ServiceError);
+    }
+    if (Object.keys(rest).length === 0) {
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'No business hours provided',
+      } as ServiceError);
+    }
+    return this.pharmacyService.updateBusinessHours(id, rest);
   }
 
   @MessagePattern('removePharmacy')

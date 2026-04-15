@@ -8,11 +8,13 @@ import { AuthModule } from '../auth/auth.module';
 import { ProfileModule } from '../profile/profile.module';
 import KeyvRedis from '@keyv/redis';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ServicesModule } from '../services/services.module';
 
 @Module({
   imports: [
     AuthModule,
     ProfileModule,
+    ServicesModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `medicpadi-backend/apps/gateway/.env.${process.env.NODE_ENV || 'development'}`,
@@ -64,6 +66,28 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
             port: configService.get<number>(
               'appConfig.notificationServicePort',
             ),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'SERVICES_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.servicesServiceHost'),
+            port: configService.get<number>('appConfig.servicesServicePort'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'ORDER_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.ordersServiceHost'),
+            port: configService.get<number>('appConfig.ordersServicePort'),
           },
         }),
         inject: [ConfigService],

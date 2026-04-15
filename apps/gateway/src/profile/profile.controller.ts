@@ -8,8 +8,16 @@ import {
   Delete,
   UseGuards,
   Req,
+  UploadedFile,
+  UseInterceptors,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  BadRequestException,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
+import { Multer } from 'multer';
 import { ProfileService } from './profile.service';
 import {
   ProfileDtoType,
@@ -24,9 +32,13 @@ import {
   UpdatePatientDto,
   UpdatePharmacyDto,
   UpdateLaboratoryDto,
+  AuthRole,
+  BusinessHoursDto,
 } from '@medicpadi-backend/contracts';
-import { AuthGuard } from '../guards/auth/auth.guard';
-import { ApiExtraModels } from '@nestjs/swagger';
+import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
+import { ApiBody, ApiConsumes, ApiExtraModels } from '@nestjs/swagger';
+import { CloudinaryService } from '@medicpadi-backend/utils';
+import { Roles } from '../guards/decorators/roles.decorator';
 
 @Controller('profile')
 @ApiExtraModels(
@@ -41,8 +53,12 @@ import { ApiExtraModels } from '@nestjs/swagger';
   UpdatePharmacyDto,
   UpdateLaboratoryDto,
 )
+@UseGuards(AuthGuard)
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService) {}
+  constructor(
+    private readonly profileService: ProfileService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post()
   create(@Body() createProfileDto: ProfileDtoType) {
@@ -50,13 +66,13 @@ export class ProfileController {
   }
 
   @Get()
+  @Roles(AuthRole.ADMIN)
   findAll() {
     return this.profileService.findAll();
   }
 
-  @UseGuards(AuthGuard)
   @Get('retrieve')
-  retrieve(@Req() request: Request) {
+  retrieve(@Req() request: RequestWithUser) {
     return this.profileService.findOne(request.user.id);
   }
 
@@ -65,18 +81,86 @@ export class ProfileController {
     return this.profileService.findOne(id);
   }
 
-  @UseGuards(AuthGuard)
   @Patch()
   update(
     @Body() updateProfileDto: UpdateProfileDtoType,
-    @Req() request: Request,
+    @Req() request: RequestWithUser,
   ) {
-    return this.profileService.update(request.user.id, updateProfileDto);
+    return this.profileService.update(request.user, updateProfileDto);
   }
 
-  @UseGuards(AuthGuard)
   @Delete()
-  remove(@Req() request: Request) {
+  remove(@Req() request: RequestWithUser) {
     return this.profileService.remove(request.user.id);
   }
+
+  @Post('/profile-picture')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('image'))
+  async updateProfilePicture(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /^image\/(png|jpeg|webp)$/ }),
+        ],
+      }),
+    )
+    image: Express.Multer.File,
+    @Req() request: RequestWithUser,
+  ) {
+    let imageUrlObj: { public_id: string; url: string } | any = null;
+    try {
+      imageUrlObj = await this.cloudinaryService.uploadImage(image);
+    } catch (error) {
+      throw new BadRequestException('Failed to upload image');
+    }
+    if (!imageUrlObj) {
+      throw new BadRequestException('Failed to upload image');
+    }
+    imageUrlObj = {
+      public_id: imageUrlObj.public_id,
+      url: imageUrlObj.secure_url,
+    };
+    const update = await this.profileService.update(request.user, {
+      profilePicture: imageUrlObj,
+    });
+    return update
+      ? imageUrlObj
+      : new BadRequestException('Failed to update profile picture');
+  }
+
+  @Patch('/business-hours')
+  @Roles(AuthRole.CONSULTANT, AuthRole.PHARMACY, AuthRole.LAB, AuthRole.ADMIN)
+  async updateBusinessHours(
+    @Body() businessHoursDto: BusinessHoursDto,
+    @Req() request: RequestWithUser,
+  ) {
+    return this.profileService.updateBusinessHours(
+      request.user,
+      businessHoursDto,
+    );
+  }
+
+  // Laboratory specific method
+
+  // @Post('/laboratory/test-offered')
+  // @UseGuards(AuthGuard)
+  // async addLabTestOffered(
+  //   @Body() testOffered: TestOfferedDto,
+  //   @Req() request: RequestWithUser,
+  // ) {
+  //   return this.profileService.addLabTestOffered(request.user.id, testOffered);
+  // }
 }

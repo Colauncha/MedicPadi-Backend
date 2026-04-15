@@ -5,4 +5,5 @@ export const NotificationPatterns = {
 export const EmailPatterns = {
   WELCOME: 'email.welcome',
   WAITLIST: 'email.waitlist',
+  RESET_PASSWORD: 'email.reset-password',
 };

@@ -21,6 +21,7 @@ export const PharmacyPatterns = {
   UPDATE: 'profile.pharmacy.update',
   RETRIEVE: 'profile.pharmacy.retrieve',
   FIND_ALL: 'profile.pharmacy.findAll',
+  UPDATE_BUSINESS_HOURS: 'profile.pharmacy.updateBusinessHours',
 };
 
 export const DoctorPatterns = {
@@ -28,6 +29,7 @@ export const DoctorPatterns = {
   UPDATE: 'profile.doctors.update',
   RETRIEVE: 'profile.doctors.retrieve',
   FIND_ALL: 'profile.doctors.findAll',
+  UPDATE_BUSINESS_HOURS: 'profile.doctors.updateBusinessHours',
 };
 
 export const LaboratoryPatterns = {
@@ -35,4 +37,5 @@ export const LaboratoryPatterns = {
   UPDATE: 'profile.lab.update',
   RETRIEVE: 'profile.lab.retrieve',
   FIND_ALL: 'profile.laboratory.findAll',
+  UPDATE_BUSINESS_HOURS: 'profile.lab.updateBusinessHours',
 };

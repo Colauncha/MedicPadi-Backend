@@ -1,12 +1,14 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import {
   CreateDoctorDto,
   PaginationDto,
+  ServiceError,
   UpdateDoctorDto,
 } from '@medicpadi-backend/contracts';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from '../../entities/doctor.entity';
 import { Repository } from 'typeorm';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class DoctorsService {
@@ -23,7 +25,10 @@ export class DoctorsService {
       this.doctorsRepository.save(adminProfile);
       return adminProfile;
     } catch (error) {
-      throw new RequestTimeoutException('Unable to create Doctor profile');
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to Create Doctor's profile",
+      } as ServiceError);
     }
   }
 
@@ -35,7 +40,10 @@ export class DoctorsService {
         skip: (query.page - 1) * query.limit,
       });
     } catch (error) {
-      throw new RequestTimeoutException('Unable to retrieve Doctor profiles');
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Doctors profiles',
+      } as ServiceError);
     }
     return profile;
   }
@@ -47,7 +55,10 @@ export class DoctorsService {
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException('Unable to retrieve Doctor profile');
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to retrieve Doctor's profile",
+      } as ServiceError);
     }
     return profile;
   }
@@ -59,7 +70,10 @@ export class DoctorsService {
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException("Unable to update Doctor's profile");
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Doctor's profile",
+      } as ServiceError);
     }
     const doctorsProfile = await this.doctorsRepository.update(
       { user_id: id },

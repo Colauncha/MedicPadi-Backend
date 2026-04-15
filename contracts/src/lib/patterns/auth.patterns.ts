@@ -8,4 +8,6 @@ export default {
   FIND_BY_ID: 'auth.findById',
   UPDATE: 'auth.update',
   DELETE: 'auth.delete',
+  REQUEST_PASSWORD_RESET: 'auth.requestPasswordReset',
+  RESET_PASSWORD: 'auth.resetPassword',
 };

@@ -32,6 +32,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transform: true,
       exceptionFactory: (errors) => {
+        console.log(errors);
         const errorMessages = errors.map(
           (error) =>
             `${error.property} has wrong value ${error.value}, ${Object.values(

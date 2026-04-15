@@ -1,12 +1,14 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import {
   CreatePatientDto,
   PaginationDto,
+  ServiceError,
   UpdatePatientDto,
 } from '@medicpadi-backend/contracts';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Patient } from '../../entities/patient.entity';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class PatientService {
@@ -23,7 +25,10 @@ export class PatientService {
       this.patientRepository.save(patientProfile);
       return patientProfile;
     } catch (error) {
-      throw new RequestTimeoutException("Unable to create Patient's profile");
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to create Patient's profile",
+      } as ServiceError);
     }
   }
 
@@ -35,7 +40,10 @@ export class PatientService {
         skip: (query.page - 1) * query.limit,
       });
     } catch (error) {
-      throw new RequestTimeoutException('Unable to retrieve Patient profiles');
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Patient profiles',
+      } as ServiceError);
     }
     return profile;
   }
@@ -47,7 +55,10 @@ export class PatientService {
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException('Unable to retrieve Patient profile');
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Patient profile',
+      } as ServiceError);
     }
     return profile;
   }
@@ -59,7 +70,10 @@ export class PatientService {
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException("Unable to update Patient's profile");
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Patient's profile",
+      } as ServiceError);
     }
     const patientProfile = await this.patientRepository.update(
       { user_id: id },

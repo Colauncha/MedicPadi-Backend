@@ -61,4 +61,13 @@ export class Patient extends BaseClass {
     length: 14,
   })
   emergencyContact: string;
+
+  @Column({
+    type: 'simple-json',
+    nullable: true,
+  })
+  profilePicture: { public_id: string; url: string } = {
+    public_id: '',
+    url: '',
+  };
 }

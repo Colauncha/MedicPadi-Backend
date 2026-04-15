@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import KeyvRedis from '@keyv/redis';
 import { serviceConfig, dbConfig, appConfig } from '@medicpadi-backend/config';
 import { Auth } from './auth/entities/auth.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -18,12 +20,6 @@ import { AuthModule } from './auth/auth.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        // console.log(
-        //   'Service configuration:',
-        //   configService.get('serviceConfig'),
-        // );
-        // console.log('Database configuration:', configService.get('dbConfig'));
-        console.log('All congigs', configService);
         return {
           type: 'postgres',
           entities: [Auth],

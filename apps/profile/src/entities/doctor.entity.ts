@@ -54,4 +54,13 @@ export class Doctor extends BaseClass {
     nullable: true,
   })
   bio: string;
+
+  @Column({
+    type: 'simple-json',
+    nullable: true,
+  })
+  profilePicture: { public_id: string; url: string } = {
+    public_id: '',
+    url: '',
+  };
 }

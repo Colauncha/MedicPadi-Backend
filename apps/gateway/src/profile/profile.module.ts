@@ -3,6 +3,7 @@ import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { CloudinaryModule } from '@medicpadi-backend/utils';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         inject: [ConfigService],
       },
     ]),
+    CloudinaryModule,
   ],
   controllers: [ProfileController],
   providers: [ProfileService],

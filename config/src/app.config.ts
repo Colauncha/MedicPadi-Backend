@@ -9,6 +9,8 @@ const appConfig = registerAs('appConfig', () => ({
   authServiceName: process.env['AUTH_SERVICE_NAME'],
   profileServiceName: process.env['PROFILE_SERVICE_NAME'],
   notificationServiceName: process.env['NOTIFICATION_SERVICE_NAME'],
+  servicesServiceName: process.env['SERVICES_SERVICE_NAME'],
+  ordersServiceName: process.env['ORDERS_SERVICE_NAME'],
 
   // Service ports
   authServicePort: parseInt(process.env['AUTH_SERVICE_PORT'] || '3001'),
@@ -16,11 +18,15 @@ const appConfig = registerAs('appConfig', () => ({
   notificationServicePort: parseInt(
     process.env['NOTIFICATION_SERVICE_PORT'] || '3003',
   ),
+  servicesServicePort: parseInt(process.env['SERVICES_SERVICE_PORT'] || '3004'),
+  ordersServicePort: parseInt(process.env['ORDERS_SERVICE_PORT'] || '3005'),
 
   // Service hosts
   authServiceHost: process.env['AUTH_SERVICE_HOST'],
   profileServiceHost: process.env['PROFILE_SERVICE_HOST'],
   notificationServiceHost: process.env['NOTIFICATION_SERVICE_HOST'],
+  servicesServiceHost: process.env['SERVICES_SERVICE_HOST'],
+  ordersServiceHost: process.env['ORDERS_SERVICE_HOST'],
 
   // Waitlist
   waitlist: process.env['WAITLIST_ACTIVE'],

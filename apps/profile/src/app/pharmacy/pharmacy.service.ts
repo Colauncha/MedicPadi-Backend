@@ -1,12 +1,15 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import {
+  BusinessHoursDto,
   CreatePharmacyDto,
   PaginationDto,
+  ServiceError,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
 import { Pharmacy } from '../../entities/pharmacy.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class PharmacyService {
@@ -23,7 +26,10 @@ export class PharmacyService {
       this.pharmacyRepository.save(pharmacyProfile);
       return pharmacyProfile;
     } catch (error) {
-      throw new RequestTimeoutException("Unable to create Pharmacy's profile");
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to create Pharmacy's profile",
+      } as ServiceError);
     }
   }
 
@@ -35,7 +41,10 @@ export class PharmacyService {
         skip: (query.page - 1) * query.limit,
       });
     } catch (error) {
-      throw new RequestTimeoutException('Unable to retrieve Admin profiles');
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Admin profiles',
+      } as ServiceError);
     }
     return profile;
   }
@@ -47,7 +56,10 @@ export class PharmacyService {
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException('Unable to retrieve Pharmacy profile');
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Pharmacy profile',
+      } as ServiceError);
     }
     return profile;
   }
@@ -59,11 +71,33 @@ export class PharmacyService {
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException("Unable to update Pharmacy's profile");
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Pharmacy's profile",
+      } as ServiceError);
     }
     const pharmacyProfile = await this.pharmacyRepository.update(
       { user_id: id },
       { ...updatePharmacyDto },
+    );
+    return pharmacyProfile;
+  }
+
+  async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {
+    let existingPharmacyProfile: Pharmacy;
+    try {
+      existingPharmacyProfile = await this.pharmacyRepository.findOne({
+        where: { user_id: id },
+      });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Pharmacy's profile",
+      } as ServiceError);
+    }
+    const pharmacyProfile = await this.pharmacyRepository.update(
+      { user_id: id },
+      { businessHours: businessHoursDto },
     );
     return pharmacyProfile;
   }

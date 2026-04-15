@@ -1,15 +1,11 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  RequestTimeoutException,
-} from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import {
   CreateAuthDto,
   UpdateAuthDto,
   LoginDto,
   ServiceError,
+  EmailPatterns,
+  ResetPasswordEmailDto,
 } from '@medicpadi-backend/contracts';
 import { Repository } from 'typeorm';
 import { Auth } from './entities/auth.entity';
@@ -17,7 +13,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { CACHE_MANAGER, Cache, CacheKey } from '@nestjs/cache-manager';
+import { generateOtp } from '@medicpadi-backend/utils';
+import { firstValueFrom } from 'rxjs';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +26,9 @@ export class AuthService {
     private readonly authRepository: Repository<Auth>,
     private readonly jwtService: JwtService,
     private configService: ConfigService,
+    @Inject('NOTIFICATION_SERVICE')
+    private readonly notificationClient: ClientProxy,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
 
   getStatus() {
@@ -144,6 +147,98 @@ export class AuthService {
         statusCode: HttpStatus.NOT_FOUND,
         message: 'User Not found',
       } as ServiceError);
+    }
+  }
+
+  async requestPasswordReset(email: string) {
+    let user: Auth | undefined;
+    try {
+      user = await this.authRepository.findOne({
+        where: { email },
+      });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Database query failed',
+        error: error,
+      } as ServiceError);
+    }
+    if (!user) {
+      throw new RpcException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'User with this email does not exist',
+      } as ServiceError);
+    }
+    const resetToken = generateOtp();
+    let redisRet = await this.redis.set(
+      `password-reset:${email}`,
+      resetToken,
+      'EX',
+      3600,
+    );
+    const resetDto = new ResetPasswordEmailDto();
+    resetDto.email = user.email;
+    resetDto.name = 'User';
+    resetDto.otp = resetToken;
+    await firstValueFrom(
+      this.notificationClient.emit(EmailPatterns.RESET_PASSWORD, resetDto),
+    );
+    console.log('Redis set result:', redisRet);
+    return {
+      message: 'Password reset token generated',
+      resetToken,
+    };
+  }
+
+  async resetPassword(otp: number, email: string, newPassword: string) {
+    try {
+      let user: Auth | undefined;
+      let otpStore: string | null | number;
+      try {
+        otpStore = await this.redis.get(`password-reset:${email}`);
+        otpStore = otpStore ? parseInt(otpStore.trim(), 10) : null;
+      } catch (error) {
+        throw new RpcException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Cache query failed',
+          error: error,
+        } as ServiceError);
+      }
+      console.log(`OTP from cache: ${otpStore}, provided OTP: ${otp}`);
+      if (!otp || !otpStore || otp !== otpStore) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid or expired OTP',
+        } as ServiceError);
+      }
+      try {
+        user = await this.authRepository.findOne({
+          where: { email },
+        });
+      } catch (error) {
+        throw new RpcException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Database query failed',
+          error: error,
+        } as ServiceError);
+      }
+      if (!user) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User with this email does not exist',
+        } as ServiceError);
+      }
+      const passwordhash = await bcrypt.hash(newPassword, 10);
+      user.passwordhash = passwordhash;
+      return this.authRepository.save(user);
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to reset password',
+        error: error,
+      } as ServiceError);
+    } finally {
+      await this.redis.del(`password-reset:${email}`);
     }
   }
 

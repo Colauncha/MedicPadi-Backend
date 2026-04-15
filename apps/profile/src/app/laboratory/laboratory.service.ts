@@ -1,12 +1,15 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import {
+  BusinessHoursDto,
   CreateLaboratoryDto,
   PaginationDto,
+  ServiceError,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
 import { Laboratory } from '../../entities/laboratory.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class LaboratoryService {
@@ -23,7 +26,10 @@ export class LaboratoryService {
       this.labRepository.save(adminProfile);
       return adminProfile;
     } catch (error) {
-      throw new RequestTimeoutException('Unable to create Labs profile');
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to create Labs profile',
+      } as ServiceError);
     }
   }
 
@@ -35,9 +41,10 @@ export class LaboratoryService {
         skip: (query.page - 1) * query.limit,
       });
     } catch (error) {
-      throw new RequestTimeoutException(
-        'Unable to retrieve Laboratory profiles',
-      );
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Laboratory profiles',
+      } as ServiceError);
     }
     return profile;
   }
@@ -49,9 +56,10 @@ export class LaboratoryService {
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException(
-        'Unable to retrieve Laboratory profile',
-      );
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Laboratory profile',
+      } as ServiceError);
     }
     return profile;
   }
@@ -63,13 +71,33 @@ export class LaboratoryService {
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException(
-        "Unable to update Laboratory's profile",
-      );
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Laboratory's profile",
+      } as ServiceError);
     }
     const labProfile = await this.labRepository.update(
       { user_id: id },
-      { ...updateLaboratoryDto },
+      updateLaboratoryDto,
+    );
+    return labProfile;
+  }
+
+  async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {
+    let existingLaboratoryProfile: Laboratory;
+    try {
+      existingLaboratoryProfile = await this.labRepository.findOne({
+        where: { user_id: id },
+      });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Laboratory's profile",
+      } as ServiceError);
+    }
+    const labProfile = await this.labRepository.update(
+      { user_id: id },
+      { businessHours: businessHoursDto },
     );
     return labProfile;
   }

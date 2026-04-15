@@ -8,6 +8,7 @@ import { CreatePatientDto } from '../dtos/profile/patient/create-patient.dto';
 import { UpdatePatientDto } from '../dtos/profile/patient/update-patient.dto';
 import { CreatePharmacyDto } from '../dtos/profile/pharmacy/create-pharmacy.dto';
 import { UpdatePharmacyDto } from '../dtos/profile/pharmacy/update-pharmacy.dto';
+import { BusinessHoursDto } from '../dtos/profile/update-business-hours.dto';
 
 export type ProfileDtoType =
   | CreateAdminDto

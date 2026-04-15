@@ -12,6 +12,8 @@ const serviceConfig = registerAs('serviceConfig', () => ({
   authServiceHost: process.env['AUTH_SERVICE_HOST'],
   profileServiceHost: process.env['PROFILE_SERVICE_HOST'],
   notificationServiceHost: process.env['NOTIFICATION_SERVICE_HOST'],
+  servicesServiceHost: process.env['SERVICES_SERVICE_HOST'],
+  ordersServiceHost: process.env['ORDERS_SERVICE_HOST'],
 }));
 
 export default serviceConfig;

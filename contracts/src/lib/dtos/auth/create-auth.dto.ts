@@ -17,7 +17,7 @@ export class CreateAuthDto {
   @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
-  @MinLength(3)
+  @MinLength(5)
   @MaxLength(50)
   email!: string;
 

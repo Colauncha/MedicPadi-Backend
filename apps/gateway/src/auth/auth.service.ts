@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import {
   CreateAuthDto,
   AuthPatterns,
@@ -71,13 +66,7 @@ export class AuthService {
         throw error;
       }
     } catch (error) {
-      console.error(error);
       throw error;
-      // throw new BadRequestException({
-      //   error: error.error,
-      //   cause: 'Account could not be created',
-      //   description: error.message,
-      // });
     }
   }
 
@@ -85,7 +74,6 @@ export class AuthService {
     try {
       return this.authClient.send(AuthPatterns.LOGIN, loginDto);
     } catch (error) {
-      console.error(error);
       throw new UnauthorizedException({
         error: error,
         cause: 'Login failed',
@@ -101,6 +89,45 @@ export class AuthService {
         this.authClient.send(AuthPatterns.UPDATE, updateAuthDto),
       );
       return updatedAccount;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async requestPasswordReset(email: string) {
+    try {
+      await firstValueFrom(
+        this.authClient.send(AuthPatterns.REQUEST_PASSWORD_RESET, email),
+      );
+      return { message: 'Password reset requested successfully' };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async resetPassword(
+    otp: number | string,
+    email: string,
+    newPassword: string,
+  ) {
+    try {
+      await firstValueFrom(
+        this.authClient.send(AuthPatterns.RESET_PASSWORD, {
+          otp,
+          email,
+          newPassword,
+        }),
+      );
+      return { message: 'Password reset successfully' };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async delete(id: string) {
+    try {
+      await firstValueFrom(this.authClient.send(AuthPatterns.DELETE, id));
+      return { message: 'Account deleted successfully' };
     } catch (error) {
       throw error;
     }

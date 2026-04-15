@@ -12,6 +12,7 @@ export * from './lib/dtos/auth/create-auth.dto';
 export * from './lib/dtos/auth/update-auth.dto';
 export * from './lib/dtos/auth/get-auth.dto';
 export * from './lib/dtos/auth/login.dto';
+export * from './lib/dtos/auth/reset-password.dto';
 
 // profile DTOs
 export * from './lib/dtos/profile/doctor/create-doctor.dto'
@@ -24,6 +25,7 @@ export * from './lib/dtos/profile/pharmacy/create-pharmacy.dto'
 export * from './lib/dtos/profile/pharmacy/update-pharmacy.dto'
 export * from './lib/dtos/profile/laboratory/create-laboratory.dto'
 export * from './lib/dtos/profile/laboratory/update-laboratory.dto'
+export * from './lib/dtos/profile/update-business-hours.dto';
 export * from './lib/dtos/profile/pagination.dto';
 
 // Notification DTOs
@@ -34,14 +36,25 @@ export * from './lib/dtos/notification/update-notification.dto';
 // Email DTOs
 export * from './lib/dtos/email/welcome.dto';
 export * from './lib/dtos/email/waitlist.dto';
+export * from './lib/dtos/email/reset-password.dto';
+
+// Service DTOs
+export * from './lib/dtos/services/lab-tests/create-lab-test.dto';
+export * from './lib/dtos/services/lab-tests/update-lab-test.dto';
+export * from './lib/dtos/services/pharmacy-drugs/create-pharmacy-drug.dto';
+export * from './lib/dtos/services/pharmacy-drugs/update-pharmacy-drug.dto';
+
 
 // Patterns
 export const AuthPatterns = authPatterns;
 export * from './lib/patterns/profile.patterns';
 export * from './lib/patterns/notification.patterns';
+export * from './lib/patterns/service.patterns';
 
 // Types and Interfaces
 export * from './lib/interfaces/profile.types'
+export * from './lib/interfaces/test-offered.interface';
+export * from './lib/interfaces/business-hours.interface';
 
 // Entity
 export * from './lib/entity/base.entity'

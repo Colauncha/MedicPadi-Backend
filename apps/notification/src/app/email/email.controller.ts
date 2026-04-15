@@ -5,6 +5,7 @@ import {
   WelcomeEmailDto,
   WaitlistEmailDto,
   EmailPatterns,
+  ResetPasswordEmailDto,
 } from '@medicpadi-backend/contracts';
 
 @Controller()
@@ -27,6 +28,16 @@ export class EmailController {
     return this.emailService.waitlistEmail(
       waitlistEmailDto.email,
       waitlistEmailDto.name,
+    );
+  }
+
+  @EventPattern(EmailPatterns.RESET_PASSWORD)
+  async resetPassword(@Payload() resetPasswordEmailDto: ResetPasswordEmailDto) {
+    console.log('Received reset password email event:', resetPasswordEmailDto);
+    return await this.emailService.resetPasswordEmail(
+      resetPasswordEmailDto.email,
+      resetPasswordEmailDto.name,
+      resetPasswordEmailDto.otp,
     );
   }
 }
