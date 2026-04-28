@@ -8,7 +8,7 @@ import {
 } from '@medicpadi-backend/contracts';
 import { RpcException } from '@nestjs/microservices';
 import { LabTest } from '../../entities/lab-test.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -35,18 +35,26 @@ export class LabTestsService {
   }
 
   async findAll(query: PaginationDto): Promise<PaginationResponseDto<LabTest>> {
+    let page = query.page || 1;
+    let limit = query.limit || 10;
+
     let response: PaginationResponseDto<LabTest> = {
       data: [],
       total: 0,
-      page: query.page,
-      limit: query.limit,
+      page: page,
+      limit: limit,
     };
 
     try {
       const result = await this.labRepository.findAndCount({
-        where: { user_id: query.id },
-        take: query.limit,
-        skip: (query.page - 1) * query.limit,
+        where: query.search
+          ? [
+              { user_id: query.id, name: ILike(`%${query.search}%`) },
+              { user_id: query.id, shortName: ILike(`%${query.search}%`) },
+            ]
+          : { user_id: query.id },
+        take: limit,
+        skip: (page - 1) * limit,
         order: {
           createdAt: 'DESC',
         },
@@ -76,8 +84,8 @@ export class LabTestsService {
     }
   }
 
-  async update(id: string, updateLabTestDto: UpdateLabTestDto) {
-    let existingLabTest: LabTest;
+  async update(id: string | undefined, updateLabTestDto: UpdateLabTestDto) {
+    let existingLabTest: LabTest | null;
     try {
       existingLabTest = await this.labRepository.findOne({
         where: { id },
@@ -103,7 +111,7 @@ export class LabTestsService {
   }
 
   async remove(id: string) {
-    let existingLabTest: LabTest;
+    let existingLabTest: LabTest | null;
     try {
       existingLabTest = await this.findOne(id);
       if (!existingLabTest) {

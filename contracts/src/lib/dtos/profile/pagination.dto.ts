@@ -33,11 +33,11 @@ export class PaginationResponseDto<T> {
   data!: T[];
 
   @ApiProperty()
-  total!: number;
+  total?: number;
 
   @ApiProperty()
-  page!: number;
+  page?: number;
 
   @ApiProperty()
-  limit!: number;
+  limit?: number;
 }

@@ -3,12 +3,13 @@ import {
   BusinessHoursDto,
   CreatePharmacyDto,
   PaginationDto,
+  PaginationResponseDto,
   ServiceError,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
 import { Pharmacy } from '../../entities/pharmacy.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
@@ -33,24 +34,46 @@ export class PharmacyService {
     }
   }
 
-  async findAll(query: PaginationDto) {
-    let profile: Pharmacy[];
+  async findAll(
+    query: PaginationDto,
+  ): Promise<PaginationResponseDto<Pharmacy>> {
+    let page = query.page || 1;
+    let limit = query.limit || 10;
+
+    let response: PaginationResponseDto<Pharmacy> = {
+      data: [],
+      total: 0,
+      page: page,
+      limit: limit,
+    };
+
     try {
-      profile = await this.pharmacyRepository.find({
-        take: query.limit,
-        skip: (query.page - 1) * query.limit,
-      });
+      [response.data, response.total] =
+        await this.pharmacyRepository.findAndCount({
+          take: limit,
+          skip: (page - 1) * limit,
+          where: query.search
+            ? [
+                { name: ILike(`%${query.search}%`) },
+                { registrationNumber: ILike(`%${query.search}%`) },
+                { address: ILike(`%${query.search}%`) },
+              ]
+            : {},
+          order: {
+            createdAt: 'DESC',
+          },
+        });
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to retrieve Admin profiles',
       } as ServiceError);
     }
-    return profile;
+    return response;
   }
 
   async findOne(id: string) {
-    let profile: Pharmacy;
+    let profile: Pharmacy | null;
     try {
       profile = await this.pharmacyRepository.findOne({
         where: { user_id: id },
@@ -64,8 +87,8 @@ export class PharmacyService {
     return profile;
   }
 
-  async update(id: string, updatePharmacyDto: UpdatePharmacyDto) {
-    let existingPharmacyProfile: Pharmacy;
+  async update(id: string | undefined, updatePharmacyDto: UpdatePharmacyDto) {
+    let existingPharmacyProfile: Pharmacy | null;
     try {
       existingPharmacyProfile = await this.pharmacyRepository.findOne({
         where: { user_id: id },
@@ -84,7 +107,7 @@ export class PharmacyService {
   }
 
   async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {
-    let existingPharmacyProfile: Pharmacy;
+    let existingPharmacyProfile: Pharmacy | null;
     try {
       existingPharmacyProfile = await this.pharmacyRepository.findOne({
         where: { user_id: id },

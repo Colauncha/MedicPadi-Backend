@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import {
   CreatePatientDto,
   PaginationDto,
+  PaginationResponseDto,
   ServiceError,
   UpdatePatientDto,
 } from '@medicpadi-backend/contracts';
@@ -32,24 +33,37 @@ export class PatientService {
     }
   }
 
-  async findAll(query: PaginationDto) {
-    let profile: Patient[];
+  async findAll(query: PaginationDto): Promise<PaginationResponseDto<Patient>> {
+    let page = query.page || 1;
+    let limit = query.limit || 10;
+
+    let profileResponse: PaginationResponseDto<Patient> = {
+      data: [],
+      total: 0,
+      page: page,
+      limit: limit,
+    };
+
     try {
-      profile = await this.patientRepository.find({
-        take: query.limit,
-        skip: (query.page - 1) * query.limit,
-      });
+      [profileResponse.data, profileResponse.total] =
+        await this.patientRepository.findAndCount({
+          take: limit,
+          skip: (page - 1) * limit,
+          order: {
+            createdAt: 'DESC',
+          },
+        });
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to retrieve Patient profiles',
       } as ServiceError);
     }
-    return profile;
+    return profileResponse;
   }
 
   async findOne(id: string) {
-    let profile: Patient;
+    let profile: Patient | null;
     try {
       profile = await this.patientRepository.findOne({
         where: { user_id: id },
@@ -63,8 +77,8 @@ export class PatientService {
     return profile;
   }
 
-  async update(id: string, updatePatientDto: UpdatePatientDto) {
-    let existingPatientProfile: Patient;
+  async update(id: string | undefined, updatePatientDto: UpdatePatientDto) {
+    let existingPatientProfile: Patient | null;
     try {
       existingPatientProfile = await this.patientRepository.findOne({
         where: { user_id: id },

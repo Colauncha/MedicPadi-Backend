@@ -3,12 +3,13 @@ import {
   BusinessHoursDto,
   CreateLaboratoryDto,
   PaginationDto,
+  PaginationResponseDto,
   ServiceError,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
 import { Laboratory } from '../../entities/laboratory.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
@@ -33,24 +34,44 @@ export class LaboratoryService {
     }
   }
 
-  async findAll(query: PaginationDto) {
-    let profile: Laboratory[];
+  async findAll(
+    query: PaginationDto,
+  ): Promise<PaginationResponseDto<Laboratory>> {
+    let page = query.page || 1;
+    let limit = query.limit || 10;
+
+    let profileResponse: PaginationResponseDto<Laboratory> = {
+      data: [],
+      total: 0,
+      page: page,
+      limit: limit,
+    };
+
     try {
-      profile = await this.labRepository.find({
-        take: query.limit,
-        skip: (query.page - 1) * query.limit,
-      });
+      [profileResponse.data, profileResponse.total] =
+        await this.labRepository.findAndCount({
+          take: limit,
+          skip: (page - 1) * limit,
+          where: query.search
+            ? [
+                { name: ILike(`%${query.search}%`) },
+                { registrationNumber: ILike(`%${query.search}%`) },
+                { address: ILike(`%${query.search}%`) },
+              ]
+            : {},
+          order: { createdAt: 'DESC' },
+        });
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to retrieve Laboratory profiles',
       } as ServiceError);
     }
-    return profile;
+    return profileResponse;
   }
 
   async findOne(id: string) {
-    let profile: Laboratory;
+    let profile: Laboratory | null;
     try {
       profile = await this.labRepository.findOne({
         where: { user_id: id },
@@ -64,12 +85,22 @@ export class LaboratoryService {
     return profile;
   }
 
-  async update(id: string, updateLaboratoryDto: UpdateLaboratoryDto) {
-    let existingLaboratoryProfile: Laboratory;
+  async update(
+    id: string | undefined,
+    updateLaboratoryDto: UpdateLaboratoryDto,
+  ) {
+    let existingLaboratoryProfile: Laboratory | null;
     try {
       existingLaboratoryProfile = await this.labRepository.findOne({
         where: { user_id: id },
       });
+
+      if (!existingLaboratoryProfile) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Laboratory profile not found',
+        } as ServiceError);
+      }
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
@@ -84,11 +115,18 @@ export class LaboratoryService {
   }
 
   async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {
-    let existingLaboratoryProfile: Laboratory;
+    let existingLaboratoryProfile: Laboratory | null;
     try {
       existingLaboratoryProfile = await this.labRepository.findOne({
         where: { user_id: id },
       });
+
+      if (!existingLaboratoryProfile) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Laboratory profile not found',
+        } as ServiceError);
+      }
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,

@@ -12,33 +12,33 @@ export class Doctor extends BaseClass {
     unique: true,
     nullable: false,
   })
-  user_id: string;
+  user_id!: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  firstName: string;
+  firstName?: string | null;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  lastName: string;
+  lastName?: string | null;
 
   @Column({
     type: 'enum',
     enum: DoctorsGender,
     default: DoctorsGender.Male,
   })
-  gender: DoctorsGender;
+  gender?: DoctorsGender;
 
   @Column({
     type: 'varchar',
     nullable: true,
     unique: true,
   })
-  licenceNumber: string;
+  licenceNumber?: string | null;
 
   @Column({
     type: 'enum',
@@ -46,14 +46,14 @@ export class Doctor extends BaseClass {
     nullable: false,
     default: DoctorsSpecialies.General,
   })
-  speciality: DoctorsSpecialies;
+  speciality?: DoctorsSpecialies;
 
   @Column({
     type: 'varchar',
     length: 240,
     nullable: true,
   })
-  bio: string;
+  bio?: string | null;
 
   @Column({
     type: 'simple-json',

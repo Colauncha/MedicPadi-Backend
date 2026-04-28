@@ -8,24 +8,24 @@ export class Admin extends BaseClass {
     unique: true,
     nullable: false,
   })
-  user_id: string;
+  user_id!: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  firstName: string;
+  firstName?: string | null;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  lastName: string;
+  lastName?: string | null;
 
   @Column({
     type: 'text',
     array: true,
     nullable: false,
   })
-  permissions: string[];
+  permissions?: string[];
 }

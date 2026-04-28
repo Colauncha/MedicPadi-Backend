@@ -7,41 +7,42 @@ export class LabTest extends BaseClass {
     type: 'varchar',
     nullable: false,
   })
-  user_id: string;
+  user_id!: string;
 
   @Column({
     type: 'varchar',
     nullable: false,
   })
-  name: string;
+  name!: string;
 
   @Column({
     type: 'varchar',
+    nullable: false,
   })
-  shortName: string;
+  shortName!: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  description: string;
+  description?: string;
 
   @Column({
     type: 'float',
     nullable: false,
   })
-  price: number;
+  price!: number;
 
   @Column({
     type: 'boolean',
     nullable: true,
     default: false,
   })
-  available: boolean;
+  available!: boolean;
 
   @Column({
     type: 'float',
     nullable: false,
   })
-  TAT: number;
+  TAT!: number;
 }

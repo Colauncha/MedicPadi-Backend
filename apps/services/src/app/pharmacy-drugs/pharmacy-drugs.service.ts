@@ -8,7 +8,7 @@ import {
 } from '@medicpadi-backend/contracts';
 import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { PharmacyDrug } from '../../entities/pharmacy-drug.entity';
 
 @Injectable()
@@ -36,18 +36,25 @@ export class PharmacyDrugsService {
   async findAll(
     query: PaginationDto,
   ): Promise<PaginationResponseDto<PharmacyDrug>> {
+    let page = query.page || 1;
+    let limit = query.limit || 10;
+
     let response: PaginationResponseDto<PharmacyDrug> = {
       data: [],
       total: 0,
-      page: query.page,
-      limit: query.limit,
+      page: page,
+      limit: limit,
     };
 
     try {
       const result = await this.pharmacyDrugRepository.findAndCount({
-        where: { user_id: query.id },
-        take: query.limit,
-        skip: (query.page - 1) * query.limit,
+        where: query.search
+          ? [
+              { user_id: query.id, name: ILike(`%${query.search}%`) },
+            ]
+          : { user_id: query.id },
+        take: limit,
+        skip: (page - 1) * limit,
         order: {
           createdAt: 'DESC',
         },
@@ -57,7 +64,7 @@ export class PharmacyDrugsService {
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Unable to get Lab tests',
+        message: 'Unable to get Pharmacy drugs',
       } as ServiceError);
     }
     return response;
@@ -77,8 +84,8 @@ export class PharmacyDrugsService {
     }
   }
 
-  async update(id: string, updatePharmacyDrugDto: UpdatePharmacyDrugDto) {
-    let existingPharmDrug: PharmacyDrug;
+  async update(id: string | undefined, updatePharmacyDrugDto: UpdatePharmacyDrugDto) {
+    let existingPharmDrug: PharmacyDrug | null;
     try {
       existingPharmDrug = await this.pharmacyDrugRepository.findOne({
         where: { id },
@@ -104,7 +111,7 @@ export class PharmacyDrugsService {
   }
 
   async remove(id: string) {
-    let existingPharmDrug: PharmacyDrug;
+    let existingPharmDrug: PharmacyDrug | null;
     try {
       existingPharmDrug = await this.findOne(id);
       if (!existingPharmDrug) {

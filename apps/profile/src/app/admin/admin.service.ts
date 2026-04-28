@@ -3,10 +3,11 @@ import {
   CreateAdminDto,
   UpdateAdminDto,
   PaginationDto,
+  PaginationResponseDto,
 } from '@medicpadi-backend/contracts';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Admin } from '../../entities/admin.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 @Injectable()
 export class AdminService {
@@ -25,21 +26,38 @@ export class AdminService {
     }
   }
 
-  async findAll(query: PaginationDto) {
-    let profile: Admin[];
+  async findAll(query: PaginationDto): Promise<PaginationResponseDto<Admin>> {
+    let page = query.page || 1;
+    let limit = query.limit || 10;
+
+    let profileResponse: PaginationResponseDto<Admin> = {
+      data: [],
+      total: 0,
+      page: page || 1,
+      limit: limit || 10,
+    };
+
     try {
-      profile = await this.adminRepository.find({
-        take: query.limit,
-        skip: (query.page - 1) * query.limit,
-      });
+      [profileResponse.data, profileResponse.total] =
+        await this.adminRepository.findAndCount({
+          take: limit,
+          skip: (page - 1) * limit,
+          where: query.search
+            ? [
+                { firstName: ILike(`%${query.search}%`) },
+                { lastName: ILike(`%${query.search}%`) },
+                { user_id: ILike(`%${query.search}%`) },
+              ]
+            : {},
+        });
     } catch (error) {
       throw new RequestTimeoutException('Unable to retrieve Admin profiles');
     }
-    return profile;
+    return profileResponse;
   }
 
   async findOne(id: string) {
-    let profile: Admin;
+    let profile: Admin | null;
     try {
       profile = await this.adminRepository.findOne({
         where: { user_id: id },
@@ -50,14 +68,14 @@ export class AdminService {
     return profile;
   }
 
-  async update(id: string, updateAdminDto: UpdateAdminDto) {
-    let existingAdminProfile: Admin;
+  async update(id: string | undefined, updateAdminDto: UpdateAdminDto) {
+    let existingAdminProfile: Admin | null;
     try {
       existingAdminProfile = await this.adminRepository.findOne({
         where: { user_id: id },
       });
     } catch (error) {
-      throw new RequestTimeoutException('Unable to create Admin profile');
+      throw new RequestTimeoutException('Unable to update Admin profile');
     }
     const adminProfile = await this.adminRepository.update(
       { user_id: id },

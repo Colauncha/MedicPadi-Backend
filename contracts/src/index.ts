@@ -5,6 +5,7 @@ import authPatterns from './lib/patterns/auth.patterns';
 export * from './lib/enums/auth.enum';
 export * from './lib/enums/doctor.enum';
 export * from './lib/enums/patient.enum';
+export * from './lib/enums/appointment-status.enum';
 
 // DTOs
 // auth DTOs
@@ -44,12 +45,21 @@ export * from './lib/dtos/services/lab-tests/update-lab-test.dto';
 export * from './lib/dtos/services/pharmacy-drugs/create-pharmacy-drug.dto';
 export * from './lib/dtos/services/pharmacy-drugs/update-pharmacy-drug.dto';
 
+// Order DTOs
+export * from './lib/dtos/orders/appointments/create-appointment.dto';
+export * from './lib/dtos/orders/appointments/update-appointment.dto';
+export * from './lib/dtos/orders/test-requisition/create-test-requisition.dto';
+export * from './lib/dtos/orders/test-requisition/update-test-requisition.dto';
+export * from './lib/dtos/orders/drug-requisition/create-drug-requisition.dto';
+export * from './lib/dtos/orders/drug-requisition/update-drug-requisition.dto';
+
 
 // Patterns
 export const AuthPatterns = authPatterns;
 export * from './lib/patterns/profile.patterns';
 export * from './lib/patterns/notification.patterns';
 export * from './lib/patterns/service.patterns';
+export * from './lib/patterns/order.patterns';
 
 // Types and Interfaces
 export * from './lib/interfaces/profile.types'

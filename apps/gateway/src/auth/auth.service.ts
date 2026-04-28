@@ -74,11 +74,7 @@ export class AuthService {
     try {
       return this.authClient.send(AuthPatterns.LOGIN, loginDto);
     } catch (error) {
-      throw new UnauthorizedException({
-        error: error,
-        cause: 'Login failed',
-        description: error.message,
-      });
+      throw error;
     }
   }
 

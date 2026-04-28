@@ -36,7 +36,7 @@ async function bootstrap() {
         const errorMessages = errors.map(
           (error) =>
             `${error.property} has wrong value ${error.value}, ${Object.values(
-              error.constraints,
+              error.constraints || '<no message>',
             ).join(', ')}`,
         );
         return new RpcException({

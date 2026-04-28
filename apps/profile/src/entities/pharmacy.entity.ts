@@ -8,28 +8,26 @@ export class Pharmacy extends BaseClass {
     unique: true,
     nullable: false,
   })
-  user_id: string;
+  user_id!: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  name?: string | null;
 
   @Column({
     type: 'varchar',
     unique: true,
     nullable: true,
   })
-  name: string;
+  registrationNumber?: string | null;
 
   @Column({
     type: 'varchar',
-    unique: true,
     nullable: true,
   })
-  registrationNumber: string;
-
-  @Column({
-    type: 'varchar',
-    unique: true,
-    nullable: true,
-  })
-  address: string;
+  address?: string | null;
 
   @Column({
     type: 'simple-json',
@@ -45,12 +43,12 @@ export class Pharmacy extends BaseClass {
     nullable: true,
   })
   businessHours: BusinessHoursDto = {
-    monday: { start: new Date().setHours(9), end: new Date().setHours(17) },
-    tuesday: { start: new Date().setHours(9), end: new Date().setHours(17) },
-    wednesday: { start: new Date().setHours(9), end: new Date().setHours(17) },
-    thursday: { start: new Date().setHours(9), end: new Date().setHours(17) },
-    friday: { start: new Date().setHours(9), end: new Date().setHours(17) },
-    saturday: { start: new Date().setHours(9), end: new Date().setHours(17) },
+    monday: { start: 9, end: 17 },
+    tuesday: { start: 9, end: 17 },
+    wednesday: { start: 9, end: 17 },
+    thursday: { start: 9, end: 17 },
+    friday: { start: 9, end: 17 },
+    saturday: { start: 9, end: 17 },
     sunday: { start: 'closed', end: 'closed' },
   };
 }

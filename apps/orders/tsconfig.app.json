@@ -9,5 +9,5 @@
     "target": "es2021",
     "moduleResolution": "node"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "../../contracts/src/lib/dtos/orders/appointments/create-appointment.dto.ts", "../../contracts/src/lib/dtos/orders/appointments/update-appointment.dto.ts", "../../contracts/src/lib/dtos/orders/drug-requisition/create-drug-requisition.dto.ts", "../../contracts/src/lib/dtos/orders/drug-requisition/update-drug-requisition.dto.ts", "../../contracts/src/lib/dtos/orders/test-requisition/create-test-requisition.dto.ts", "../../contracts/src/lib/dtos/orders/test-requisition/update-test-requisition.dto.ts"]
 }

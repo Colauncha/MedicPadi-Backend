@@ -9,7 +9,7 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import {
   CreateAuthDto,
@@ -57,8 +57,8 @@ export class AuthController {
   }
 
   @Get('logout')
-  logout(@Req() request: Request) {
-    request.res.clearCookie('auth_token');
+  logout(@Res({ passthrough: true }) response: Response) {
+    response.clearCookie('auth_token');
     return { message: 'Logout successful' };
   }
 

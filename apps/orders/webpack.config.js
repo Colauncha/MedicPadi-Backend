@@ -20,6 +20,7 @@ module.exports = {
       outputHashing: 'none',
       generatePackageJson: true,
       sourceMap: true,
+      typeCheckOptions: { async: true },
     }),
   ],
 };

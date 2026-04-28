@@ -26,8 +26,8 @@ export class EmailController {
   waitlist(@Payload() waitlistEmailDto: WaitlistEmailDto) {
     console.log('Received waitlist email event:', waitlistEmailDto);
     return this.emailService.waitlistEmail(
-      waitlistEmailDto.email,
-      waitlistEmailDto.name,
+      waitlistEmailDto.email!,
+      waitlistEmailDto.name!,
     );
   }
 

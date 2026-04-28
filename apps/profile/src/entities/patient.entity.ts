@@ -13,54 +13,54 @@ export class Patient extends BaseClass {
     unique: true,
     nullable: false,
   })
-  user_id: string;
+  user_id!: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  firstName: string;
+  firstName?: string | null;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  lastName: string;
+  lastName?: string | null;
 
   @Column({
     type: 'enum',
     enum: PatientGender,
     default: PatientGender.Male,
   })
-  gender: PatientGender;
+  gender?: PatientGender;
 
   @Column({
     type: 'enum',
     enum: BloodGroup,
     default: BloodGroup.O_NEGATIVE,
   })
-  bloodGroup: BloodGroup;
+  bloodGroup?: BloodGroup;
 
   @Column({
     type: 'enum',
     enum: Genotype,
     default: Genotype.AA,
   })
-  genotype: Genotype;
+  genotype?: Genotype;
 
   @Column({
     type: 'json',
     array: true,
     nullable: true,
   })
-  allergies: string[];
+  allergies?: string[];
 
   @Column({
     type: 'varchar',
     nullable: true,
     length: 14,
   })
-  emergencyContact: string;
+  emergencyContact?: string | null;
 
   @Column({
     type: 'simple-json',

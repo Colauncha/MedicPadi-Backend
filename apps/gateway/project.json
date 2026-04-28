@@ -72,6 +72,13 @@
       "options": {
         "command": "docker build -f apps/{projectName}/Dockerfile -t colauncha/medicpadi-{projectName}:latest ."
       }
+    },
+    "test:e2e": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "NODE_OPTIONS=--experimental-vm-modules npx jest --config jest-e2e.json --runInBand",
+        "cwd": "apps/gateway"
+      }
     }
   }
 }

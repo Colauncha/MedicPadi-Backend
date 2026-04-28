@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   async create(createAuthDto: CreateAuthDto) {
-    let existingUser: Auth | undefined;
+    let existingUser: Auth | null;
     try {
       existingUser = await this.authRepository.findOne({
         where: { email: createAuthDto.email },
@@ -77,7 +77,7 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    let User: Auth | undefined;
+    let User: Auth | null;
     try {
       User = await this.authRepository.findOne({
         where: { email: loginDto.email },
@@ -151,7 +151,7 @@ export class AuthService {
   }
 
   async requestPasswordReset(email: string) {
-    let user: Auth | undefined;
+    let user: Auth | null;
     try {
       user = await this.authRepository.findOne({
         where: { email },
@@ -192,7 +192,7 @@ export class AuthService {
 
   async resetPassword(otp: number, email: string, newPassword: string) {
     try {
-      let user: Auth | undefined;
+      let user: Auth | null;
       let otpStore: string | null | number;
       try {
         otpStore = await this.redis.get(`password-reset:${email}`);

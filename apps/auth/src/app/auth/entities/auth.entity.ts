@@ -4,7 +4,7 @@ import { AuthRole } from '@medicpadi-backend/contracts';
 @Entity()
 export class Auth {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({
     type: 'varchar',
@@ -12,44 +12,44 @@ export class Auth {
     length: 50,
     unique: true,
   })
-  email: string;
+  email!: string;
 
   @Column({
     type: 'varchar',
     nullable: false,
     length: 255,
   })
-  passwordhash: string;
+  passwordhash!: string;
 
   @Column({
     type: 'enum',
     enum: AuthRole,
     default: AuthRole.PATIENT,
   })
-  role: AuthRole;
+  role!: AuthRole;
 
   @Column({
     type: 'varchar',
     nullable: false,
     length: 14,
   })
-  phoneNumber: string;
+  phoneNumber?: string;
 
   @Column({
     type: 'boolean',
     default: false,
   })
-  isVerified: boolean;
+  isVerified!: boolean;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Column({
     type: 'boolean',
     default: false,
   })
-  earlyUser: boolean;
+  earlyUser!: boolean;
 }

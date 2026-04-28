@@ -8,8 +8,8 @@ export class BusinessHoursDto {
   @IsOptional()
   @IsObject()
   monday?: { start: number | 'closed'; end: number | 'closed' } = {
-    start: new Date().setHours(9),
-    end: new Date().setHours(17),
+    start: 9,
+    end: 17,
   };
 
   @ApiPropertyOptional()
@@ -17,8 +17,8 @@ export class BusinessHoursDto {
   @IsOptional()
   @IsObject()
   tuesday?: { start: number | 'closed'; end: number | 'closed' } = {
-    start: new Date().setHours(9),
-    end: new Date().setHours(17),
+    start: 9,
+    end: 17,
   };
 
   @ApiPropertyOptional()
@@ -26,8 +26,8 @@ export class BusinessHoursDto {
   @IsOptional()
   @IsObject()
   wednesday?: { start: number | 'closed'; end: number | 'closed' } = {
-    start: new Date().setHours(9),
-    end: new Date().setHours(17),
+    start: 9,
+    end: 17,
   };
 
   @ApiPropertyOptional()
@@ -35,8 +35,8 @@ export class BusinessHoursDto {
   @IsOptional()
   @IsObject()
   thursday?: { start: number | 'closed'; end: number | 'closed' } = {
-    start: new Date().setHours(9),
-    end: new Date().setHours(17),
+    start: 9,
+    end: 17,
   };
 
   @ApiPropertyOptional()
@@ -44,8 +44,8 @@ export class BusinessHoursDto {
   @IsOptional()
   @IsObject()
   friday?: { start: number | 'closed'; end: number | 'closed' } = {
-    start: new Date().setHours(9),
-    end: new Date().setHours(17),
+    start: 9,
+    end: 17,
   };
 
   @ApiPropertyOptional()
@@ -53,8 +53,8 @@ export class BusinessHoursDto {
   @IsOptional()
   @IsObject()
   saturday?: { start: number | 'closed'; end: number | 'closed' } = {
-    start: new Date().setHours(9),
-    end: new Date().setHours(17),
+    start: 9,
+    end: 17,
   };
 
   @ApiPropertyOptional()

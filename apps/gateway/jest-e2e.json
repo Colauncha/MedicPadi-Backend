@@ -1,0 +1,19 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": "./test/.*.e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "tsconfig": "tsconfig.e2e.json"
+      }
+    ]
+  },
+  "moduleNameMapper": {
+    "^@medicpadi-backend/contracts$": "<rootDir>/../../contracts/src/index.ts",
+    "^@medicpadi-backend/config$": "<rootDir>/../../config/src/index.ts",
+    "^@medicpadi-backend/utils$": "<rootDir>/../../utils/src/index.ts"
+  }
+}
