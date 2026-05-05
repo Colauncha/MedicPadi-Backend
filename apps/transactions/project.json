@@ -1,0 +1,77 @@
+{
+  "name": "transactions",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/transactions/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "webpack-cli build",
+        "args": ["--node-env=production"],
+        "cwd": "apps/transactions"
+      },
+      "configurations": {
+        "development": { "args": ["--node-env=development"] },
+        "staging": { "args": ["--node-env=staging"] }
+      }
+    },
+    "prune-lockfile": {
+      "dependsOn": ["build"],
+      "cache": true,
+      "executor": "@nx/js:prune-lockfile",
+      "outputs": [
+        "{workspaceRoot}/dist/apps/transactions/package.json",
+        "{workspaceRoot}/dist/apps/transactions/package-lock.json"
+      ],
+      "options": { "buildTarget": "build" }
+    },
+    "copy-workspace-modules": {
+      "dependsOn": ["build"],
+      "cache": true,
+      "outputs": ["{workspaceRoot}/dist/apps/transactions/workspace_modules"],
+      "executor": "@nx/js:copy-workspace-modules",
+      "options": { "buildTarget": "build" }
+    },
+    "prune": {
+      "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
+      "executor": "nx:noop"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "transactions:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": { "buildTarget": "transactions:build:development" },
+        "production": { "buildTarget": "transactions:build:production" },
+        "staging": { "buildTarget": "transactions:build:staging" }
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f apps/{projectName}/Dockerfile -t colauncha/medicpadi-{projectName}:latest ."
+      }
+    },
+    "migration:generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "typeorm-ts-node-esm migration:generate apps/transactions/src/migrations/TransactionsMigration -d apps/transactions/data-source.ts"
+      }
+    },
+    "migration:run": {
+      "executor": "nx:run-commands",
+      "options": { "command": "typeorm-ts-node-esm migration:run -d apps/transactions/data-source.ts" }
+    },
+    "migration:revert": {
+      "executor": "nx:run-commands",
+      "options": { "command": "typeorm-ts-node-esm migration:revert -d apps/transactions/data-source.ts" }
+    }
+  },
+  "tags": []
+}

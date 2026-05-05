@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { serviceConfig, dbConfig, smtpConfig } from '@medicpadi-backend/config';
 import { EmailModule } from './email/email.module';
+import { Notification } from './notification/entities/notification.entity';
 
 @Module({
   imports: [
@@ -17,26 +18,17 @@ import { EmailModule } from './email/email.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
-        console.log(
-          'Service configuration:',
-          configService.get('serviceConfig'),
-        );
-        console.log('Database configuration:', configService.get('dbConfig'));
-        return {
-          type: 'postgres',
-          // entities: [Auth],
-          host: configService.get<string>('dbConfig.host'),
-          port: configService.get<number>('dbConfig.port'),
-          username: configService.get<string>('dbConfig.username'),
-          password: configService.get<string>('dbConfig.password'),
-          database: configService.get<string>('dbConfig.database'),
-          synchronize: configService.get<boolean>('dbConfig.synchronize'),
-          autoLoadEntities: configService.get<boolean>(
-            'dbConfig.autoLoadEntities',
-          ),
-        };
-      },
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres',
+        entities: [Notification],
+        host: configService.get<string>('dbConfig.host'),
+        port: configService.get<number>('dbConfig.port'),
+        username: configService.get<string>('dbConfig.username'),
+        password: configService.get<string>('dbConfig.password'),
+        database: configService.get<string>('dbConfig.database'),
+        synchronize: configService.get<boolean>('dbConfig.synchronize'),
+        autoLoadEntities: configService.get<boolean>('dbConfig.autoLoadEntities'),
+      }),
     }),
     NotificationModule,
     EmailModule,

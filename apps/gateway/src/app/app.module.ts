@@ -9,12 +9,18 @@ import { ProfileModule } from '../profile/profile.module';
 import KeyvRedis from '@keyv/redis';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ServicesModule } from '../services/services.module';
+import { OrderModule } from '../order/order.module';
+import { EhrModule } from '../ehr/ehr.module';
+import { TransactionsModule } from '../transactions/transactions.module';
 
 @Module({
   imports: [
     AuthModule,
     ProfileModule,
     ServicesModule,
+    OrderModule,
+    EhrModule,
+    TransactionsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `medicpadi-backend/apps/gateway/.env.${process.env.NODE_ENV || 'development'}`,
@@ -88,6 +94,28 @@ import { ServicesModule } from '../services/services.module';
           options: {
             host: configService.get('appConfig.ordersServiceHost'),
             port: configService.get<number>('appConfig.ordersServicePort'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'EHR_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.ehrServiceHost'),
+            port: configService.get<number>('appConfig.ehrServicePort'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'TRANSACTIONS_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.transactionsServiceHost'),
+            port: configService.get<number>('appConfig.transactionsServicePort'),
           },
         }),
         inject: [ConfigService],

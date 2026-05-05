@@ -1,40 +1,39 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import {
+  CreateDrugRequisitionDto,
+  OrderPatterns,
+  PaginationDto,
+  UpdateDrugRequisitionDto,
+} from '@medicpadi-backend/contracts';
 import { DrugRequisitionService } from './drug-requisition.service';
-import { CreateDrugRequisitionDto } from '../../../../../contracts/src/lib/dtos/orders/drug-requisition/create-drug-requisition.dto';
-import { UpdateDrugRequisitionDto } from '../../../../../contracts/src/lib/dtos/orders/drug-requisition/update-drug-requisition.dto';
 
 @Controller()
 export class DrugRequisitionController {
-  constructor(
-    private readonly drugRequisitionService: DrugRequisitionService,
-  ) {}
+  constructor(private readonly drugRequisitionService: DrugRequisitionService) {}
 
-  @MessagePattern('createDrugRequisition')
-  create(@Payload() createDrugRequisitionDto: CreateDrugRequisitionDto) {
-    return this.drugRequisitionService.create(createDrugRequisitionDto);
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.CREATE)
+  create(@Payload() dto: CreateDrugRequisitionDto) {
+    return this.drugRequisitionService.create(dto);
   }
 
-  @MessagePattern('findAllDrugRequisition')
-  findAll() {
-    return this.drugRequisitionService.findAll();
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.FIND_ALL)
+  findAll(@Payload() query: PaginationDto) {
+    return this.drugRequisitionService.findAll(query);
   }
 
-  @MessagePattern('findOneDrugRequisition')
-  findOne(@Payload() id: number) {
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.RETRIEVE)
+  findOne(@Payload() id: string) {
     return this.drugRequisitionService.findOne(id);
   }
 
-  @MessagePattern('updateDrugRequisition')
-  update(@Payload() updateDrugRequisitionDto: UpdateDrugRequisitionDto) {
-    return this.drugRequisitionService.update(
-      updateDrugRequisitionDto.id,
-      updateDrugRequisitionDto,
-    );
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.UPDATE)
+  update(@Payload() dto: UpdateDrugRequisitionDto) {
+    return this.drugRequisitionService.update(dto.id, dto);
   }
 
-  @MessagePattern('removeDrugRequisition')
-  remove(@Payload() id: number) {
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.DELETE)
+  remove(@Payload() id: string) {
     return this.drugRequisitionService.remove(id);
   }
 }

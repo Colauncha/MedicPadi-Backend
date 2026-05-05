@@ -7,6 +7,13 @@ export const OrderPatterns = {
     FIND_ALL: 'orders.appointments.findAll',
     DELETE: 'orders.appointments.delete',
   },
+  PRESCRIPTIONS: {
+    CREATE: 'orders.prescriptions.create',
+    UPDATE: 'orders.prescriptions.update',
+    RETRIEVE: 'orders.prescriptions.retrieve',
+    FIND_ALL: 'orders.prescriptions.findAll',
+    DELETE: 'orders.prescriptions.delete',
+  },
   DRUG_REQUISITIONS: {
     CREATE: 'orders.drugRequisitions.create',
     UPDATE: 'orders.drugRequisitions.update',

@@ -14,6 +14,7 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
@@ -34,6 +35,7 @@ import {
   UpdateLaboratoryDto,
   AuthRole,
   BusinessHoursDto,
+  PaginationDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { ApiBody, ApiConsumes, ApiExtraModels } from '@nestjs/swagger';
@@ -66,19 +68,19 @@ export class ProfileController {
   }
 
   @Get()
-  @Roles(AuthRole.ADMIN)
-  findAll() {
-    return this.profileService.findAll();
+  @Roles(AuthRole.ADMIN, AuthRole.PATIENT)
+  findAll(@Query() query: PaginationDto) {
+    return this.profileService.findAll(query);
   }
 
   @Get('retrieve')
   retrieve(@Req() request: RequestWithUser) {
-    return this.profileService.findOne(request.user.id);
+    return this.profileService.retrieve(request.user.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.profileService.findOne(id);
+  findOne(@Param('id') id: string, @Query('role') role: string) {
+    return this.profileService.findOne(id, role);
   }
 
   @Patch()

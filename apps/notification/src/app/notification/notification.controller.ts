@@ -1,40 +1,44 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { NotificationService } from './notification.service';
 import {
   CreateNotificationDto,
+  NotificationPatterns,
+  PaginationDto,
   UpdateNotificationDto,
 } from '@medicpadi-backend/contracts';
+import { NotificationService } from './notification.service';
 
 @Controller()
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  @MessagePattern('createNotification')
-  create(@Payload() createNotificationDto: CreateNotificationDto) {
-    return this.notificationService.create(createNotificationDto);
+  @MessagePattern(NotificationPatterns.NOTIFICATIONS.CREATE)
+  create(@Payload() dto: CreateNotificationDto) {
+    return this.notificationService.create(dto);
   }
 
-  @MessagePattern('findAllNotification')
-  findAll() {
-    return this.notificationService.findAll();
+  @MessagePattern(NotificationPatterns.NOTIFICATIONS.FIND_ALL)
+  findAll(@Payload() query: PaginationDto) {
+    return this.notificationService.findAll(query);
   }
 
-  @MessagePattern('findOneNotification')
-  findOne(@Payload() id: number) {
+  @MessagePattern(NotificationPatterns.NOTIFICATIONS.RETRIEVE)
+  findOne(@Payload() id: string) {
     return this.notificationService.findOne(id);
   }
 
-  @MessagePattern('updateNotification')
-  update(@Payload() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationService.update(
-      updateNotificationDto.id,
-      updateNotificationDto,
-    );
+  @MessagePattern(NotificationPatterns.NOTIFICATIONS.MARK_READ)
+  markRead(@Payload() id: string) {
+    return this.notificationService.markRead(id);
   }
 
-  @MessagePattern('removeNotification')
-  remove(@Payload() id: number) {
+  @MessagePattern(NotificationPatterns.NOTIFICATIONS.UPDATE)
+  update(@Payload() dto: UpdateNotificationDto) {
+    return this.notificationService.update(dto.id, dto);
+  }
+
+  @MessagePattern(NotificationPatterns.NOTIFICATIONS.DELETE)
+  remove(@Payload() id: string) {
     return this.notificationService.remove(id);
   }
 }

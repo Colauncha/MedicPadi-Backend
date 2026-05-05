@@ -3,8 +3,9 @@ import {
   ProfileDtoType,
   UpdateProfileDtoType,
   AuthPatterns,
-  LaboratoryPatterns,
   BusinessHoursDto,
+  PaginationDto,
+  AuthRole,
 } from '@medicpadi-backend/contracts';
 import { getPatternFromRole } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -20,11 +21,20 @@ export class ProfileService {
     return createProfileDto;
   }
 
-  findAll() {
-    return `This action returns all profile`;
+  async findAll(query: PaginationDto) {
+    try {
+      const { pattern: Pattern, dto: _ } = await getPatternFromRole(
+        query.role || AuthRole.PATIENT,
+      );
+      return await firstValueFrom(
+        this.profileClient.send(Pattern.FIND_ALL, query),
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
-  async findOne(id: string) {
+  async retrieve(id: string) {
     try {
       const user = await firstValueFrom(
         this.authClient.send(AuthPatterns.FIND_BY_ID, id),
@@ -36,6 +46,21 @@ export class ProfileService {
         this.profileClient.send(Pattern.RETRIEVE, id),
       );
       return { user, profile };
+    } catch (error) {
+      throw new BadRequestException(
+        'Something went wrong while retieving profile',
+      );
+    }
+  }
+
+  async findOne(id: string, role: string) {
+    try {
+      const { pattern: Pattern, dto: _ } = await getPatternFromRole(role);
+
+      const profile = await firstValueFrom(
+        this.profileClient.send(Pattern.RETRIEVE, id),
+      );
+      return { profile };
     } catch (error) {
       throw new BadRequestException(
         'Something went wrong while retieving profile',

@@ -9,5 +9,18 @@
     "target": "es2021",
     "moduleResolution": "node"
   },
-  "include": ["src/**/*.ts", "../../contracts/src/lib/dtos/orders/appointments/create-appointment.dto.ts", "../../contracts/src/lib/dtos/orders/appointments/update-appointment.dto.ts", "../../contracts/src/lib/dtos/orders/drug-requisition/create-drug-requisition.dto.ts", "../../contracts/src/lib/dtos/orders/drug-requisition/update-drug-requisition.dto.ts", "../../contracts/src/lib/dtos/orders/test-requisition/create-test-requisition.dto.ts", "../../contracts/src/lib/dtos/orders/test-requisition/update-test-requisition.dto.ts"]
+  "include": [
+    "src/**/*.ts",
+    "../../contracts/src/lib/dtos/orders/appointments/create-appointment.dto.ts",
+    "../../contracts/src/lib/dtos/orders/appointments/update-appointment.dto.ts",
+    "../../contracts/src/lib/dtos/orders/prescriptions/create-prescription-item.dto.ts",
+    "../../contracts/src/lib/dtos/orders/prescriptions/create-prescription.dto.ts",
+    "../../contracts/src/lib/dtos/orders/prescriptions/update-prescription.dto.ts",
+    "../../contracts/src/lib/dtos/orders/drug-requisition/create-drug-requisition-item.dto.ts",
+    "../../contracts/src/lib/dtos/orders/drug-requisition/create-drug-requisition.dto.ts",
+    "../../contracts/src/lib/dtos/orders/drug-requisition/update-drug-requisition.dto.ts",
+    "../../contracts/src/lib/dtos/orders/test-requisition/create-test-requisition-item.dto.ts",
+    "../../contracts/src/lib/dtos/orders/test-requisition/create-test-requisition.dto.ts",
+    "../../contracts/src/lib/dtos/orders/test-requisition/update-test-requisition.dto.ts"
+  ]
 }

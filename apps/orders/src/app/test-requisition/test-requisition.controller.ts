@@ -1,40 +1,39 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import {
+  CreateTestRequisitionDto,
+  OrderPatterns,
+  PaginationDto,
+  UpdateTestRequisitionDto,
+} from '@medicpadi-backend/contracts';
 import { TestRequisitionService } from './test-requisition.service';
-import { CreateTestRequisitionDto } from '../../../../../contracts/src/lib/dtos/orders/test-requisition/create-test-requisition.dto';
-import { UpdateTestRequisitionDto } from '../../../../../contracts/src/lib/dtos/orders/test-requisition/update-test-requisition.dto';
 
 @Controller()
 export class TestRequisitionController {
-  constructor(
-    private readonly testRequisitionService: TestRequisitionService,
-  ) {}
+  constructor(private readonly testRequisitionService: TestRequisitionService) {}
 
-  @MessagePattern('createTestRequisition')
-  create(@Payload() createTestRequisitionDto: CreateTestRequisitionDto) {
-    return this.testRequisitionService.create(createTestRequisitionDto);
+  @MessagePattern(OrderPatterns.TEST_REQUISITIONS.CREATE)
+  create(@Payload() dto: CreateTestRequisitionDto) {
+    return this.testRequisitionService.create(dto);
   }
 
-  @MessagePattern('findAllTestRequisition')
-  findAll() {
-    return this.testRequisitionService.findAll();
+  @MessagePattern(OrderPatterns.TEST_REQUISITIONS.FIND_ALL)
+  findAll(@Payload() query: PaginationDto) {
+    return this.testRequisitionService.findAll(query);
   }
 
-  @MessagePattern('findOneTestRequisition')
-  findOne(@Payload() id: number) {
+  @MessagePattern(OrderPatterns.TEST_REQUISITIONS.RETRIEVE)
+  findOne(@Payload() id: string) {
     return this.testRequisitionService.findOne(id);
   }
 
-  @MessagePattern('updateTestRequisition')
-  update(@Payload() updateTestRequisitionDto: UpdateTestRequisitionDto) {
-    return this.testRequisitionService.update(
-      updateTestRequisitionDto.id,
-      updateTestRequisitionDto,
-    );
+  @MessagePattern(OrderPatterns.TEST_REQUISITIONS.UPDATE)
+  update(@Payload() dto: UpdateTestRequisitionDto) {
+    return this.testRequisitionService.update(dto.id, dto);
   }
 
-  @MessagePattern('removeTestRequisition')
-  remove(@Payload() id: number) {
+  @MessagePattern(OrderPatterns.TEST_REQUISITIONS.DELETE)
+  remove(@Payload() id: string) {
     return this.testRequisitionService.remove(id);
   }
 }

@@ -26,6 +26,11 @@ export class PaginationDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  role?: string;
 }
 
 export class PaginationResponseDto<T> {

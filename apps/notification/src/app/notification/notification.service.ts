@@ -1,28 +1,130 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { RpcException } from '@nestjs/microservices';
 import {
   CreateNotificationDto,
+  PaginationDto,
+  PaginationResponseDto,
+  ServiceError,
   UpdateNotificationDto,
 } from '@medicpadi-backend/contracts';
+import { Notification } from './entities/notification.entity';
 
 @Injectable()
 export class NotificationService {
-  create(createNotificationDto: CreateNotificationDto) {
-    return 'This action adds a new notification';
+  constructor(
+    @InjectRepository(Notification)
+    private readonly notificationRepo: Repository<Notification>,
+  ) {}
+
+  async create(dto: CreateNotificationDto) {
+    try {
+      const notification = this.notificationRepo.create({
+        ...dto,
+        sent_at: new Date(),
+      });
+      await this.notificationRepo.save(notification);
+      return notification;
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to create notification',
+      } as ServiceError);
+    }
   }
 
-  findAll() {
-    return `This action returns all notification`;
+  async findAll(
+    query: PaginationDto,
+  ): Promise<PaginationResponseDto<Notification>> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const response: PaginationResponseDto<Notification> = {
+      data: [],
+      total: 0,
+      page,
+      limit,
+    };
+    try {
+      const result = await this.notificationRepo.findAndCount({
+        where: query.id ? { user_id: query.id } : {},
+        take: limit,
+        skip: (page - 1) * limit,
+        order: { createdAt: 'DESC' },
+      });
+      response.data = result[0];
+      response.total = result[1];
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to get notifications',
+      } as ServiceError);
+    }
+    return response;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
+  async findOne(id: string) {
+    try {
+      return await this.notificationRepo.findOne({ where: { id } });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to get notification',
+      } as ServiceError);
+    }
   }
 
-  update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    return `This action updates a #${id} notification`;
+  async markRead(id: string) {
+    try {
+      await this.notificationRepo.update({ id }, { is_read: true });
+      return { message: 'Notification marked as read' };
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to mark notification as read',
+      } as ServiceError);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} notification`;
+  async update(id: string | undefined, dto: UpdateNotificationDto) {
+    try {
+      const existing = await this.notificationRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Notification not found',
+        } as ServiceError);
+      }
+      const result = await this.notificationRepo.update({ id }, dto);
+      return result.raw;
+    } catch (error) {
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: 'Unable to update notification',
+          } as ServiceError);
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      const existing = await this.findOne(id);
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Notification not found',
+        } as ServiceError);
+      }
+      await this.notificationRepo.remove(existing);
+      return { message: 'Notification removed successfully' };
+    } catch (error) {
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: 'Unable to remove notification',
+          } as ServiceError);
+    }
   }
 }

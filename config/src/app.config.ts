@@ -11,6 +11,8 @@ const appConfig = registerAs('appConfig', () => ({
   notificationServiceName: process.env['NOTIFICATION_SERVICE_NAME'],
   servicesServiceName: process.env['SERVICES_SERVICE_NAME'],
   ordersServiceName: process.env['ORDERS_SERVICE_NAME'],
+  ehrServiceName: process.env['EHR_SERVICE_NAME'],
+  transactionsServiceName: process.env['TRANSACTIONS_SERVICE_NAME'],
 
   // Service ports
   authServicePort: parseInt(process.env['AUTH_SERVICE_PORT'] || '3001'),
@@ -20,6 +22,10 @@ const appConfig = registerAs('appConfig', () => ({
   ),
   servicesServicePort: parseInt(process.env['SERVICES_SERVICE_PORT'] || '3004'),
   ordersServicePort: parseInt(process.env['ORDERS_SERVICE_PORT'] || '3005'),
+  ehrServicePort: parseInt(process.env['EHR_SERVICE_PORT'] || '3006'),
+  transactionsServicePort: parseInt(
+    process.env['TRANSACTIONS_SERVICE_PORT'] || '3007',
+  ),
 
   // Service hosts
   authServiceHost: process.env['AUTH_SERVICE_HOST'],
@@ -27,6 +33,8 @@ const appConfig = registerAs('appConfig', () => ({
   notificationServiceHost: process.env['NOTIFICATION_SERVICE_HOST'],
   servicesServiceHost: process.env['SERVICES_SERVICE_HOST'],
   ordersServiceHost: process.env['ORDERS_SERVICE_HOST'],
+  ehrServiceHost: process.env['EHR_SERVICE_HOST'],
+  transactionsServiceHost: process.env['TRANSACTIONS_SERVICE_HOST'],
 
   // Waitlist
   waitlist: process.env['WAITLIST_ACTIVE'],
