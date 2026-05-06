@@ -5,12 +5,10 @@ RUN npm i -g pnpm
 WORKDIR /app
 
 # Copy root package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install ALL production dependencies
-COPY package*.json ./
-# COPY pnpm-lock.yaml ./
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 COPY dist/apps/notification .
 

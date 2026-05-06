@@ -47,6 +47,30 @@
     "rxjs": "^7.8.0",
     "uuid": "^13.0.0"
   },
+  "pnpm": {
+    "packageExtensions": {
+      "@nestjs-modules/mailer": {
+        "exports": {
+          ".": {
+            "require": "./index.js",
+            "import": "./index.js"
+          },
+          "./dist/adapters/handlebars.adapter": {
+            "require": "./dist/adapters/handlebars.adapter.js",
+            "import": "./dist/adapters/handlebars.adapter.js"
+          },
+          "./dist/adapters/ejs.adapter": {
+            "require": "./dist/adapters/ejs.adapter.js",
+            "import": "./dist/adapters/ejs.adapter.js"
+          },
+          "./dist/adapters/pug.adapter": {
+            "require": "./dist/adapters/pug.adapter.js",
+            "import": "./dist/adapters/pug.adapter.js"
+          }
+        }
+      }
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
     "@nestjs/schematics": "^11.0.0",
