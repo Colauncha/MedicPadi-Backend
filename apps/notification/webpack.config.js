@@ -2,6 +2,13 @@ const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join } = require('path');
 
 module.exports = {
+  resolve: {
+    alias: {
+      '@nestjs-modules/mailer/dist/adapters/handlebars.adapter': require.resolve(
+        '@nestjs-modules/mailer/dist/adapters/handlebars.adapter.js'
+      ),
+    },
+  },
   output: {
     path: join(__dirname, '../../dist/apps/notification'),
     clean: true,
