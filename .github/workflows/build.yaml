@@ -21,7 +21,10 @@ jobs:
           - profile
           - notification
           - services
-          # - orders
+          - orders
+          # - transactions
+          # - ehr
+          # - community
 
     steps:
       # 1. Checkout the repository
