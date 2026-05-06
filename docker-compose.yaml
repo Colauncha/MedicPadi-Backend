@@ -70,15 +70,48 @@ services:
       - ./apps/services/.env.staging
     restart: always
 
-  # orders-service:
-  #   image: colauncha/medicpadi-orders:main
-  #   container_name: medicpadi-orders
+  orders-service:
+    image: colauncha/medicpadi-orders:main
+    container_name: medicpadi-orders
+    ports:
+      - "3005:3005"
+    depends_on:
+      - postgres
+    env_file:
+      - ./apps/orders/.env.staging
+    restart: always
+
+  # ehr-service:
+  #   image: colauncha/medicpadi-ehr:main
+  #   container_name: medicpadi-ehr
   #   ports:
-  #     - "3005:3005"
+  #     - "3006:3006"
   #   depends_on:
   #     - postgres
   #   env_file:
-  #     - ./apps/orders/.env.staging
+  #     - ./apps/ehr/.env.staging
+  #   restart: always
+
+  # transactions-service:
+  #   image: colauncha/medicpadi-transaction:main
+  #   container_name: medicpadi-transaction
+  #   ports:
+  #     - "3008:3008"
+  #   depends_on:
+  #     - postgres
+  #   env_file:
+  #     - ./apps/transaction/.env.staging
+    # restart: always
+
+  # community-service:
+  #   image: colauncha/medicpadi-community:main
+  #   container_name: medicpadi-community
+  #   ports:
+  #     - "3007:3007"
+  #   depends_on:
+  #     - postgres
+  #   env_file:
+  #     - ./apps/community/.env.staging
   #   restart: always
 
 volumes:
