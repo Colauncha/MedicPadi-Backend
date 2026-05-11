@@ -21,7 +21,7 @@ export class AppointmentService {
     @InjectRepository(Appointment)
     private readonly appointmentRepo: Repository<Appointment>,
     @Inject() private readonly zoomService: ZoomService,
-    @Inject('PROFILE_SEVICE') private readonly profileClient: ClientProxy,
+    @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
   ) {}
 
   async create(dto: CreateAppointmentDto) {
