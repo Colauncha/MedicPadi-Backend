@@ -45,4 +45,17 @@ export class LabTest extends BaseClass {
     nullable: false,
   })
   TAT!: number;
+
+  @Column({
+    type: 'boolean',
+    nullable: false,
+    default: false,
+  })
+  hasImage!: boolean;
+
+  @Column({
+    type: 'string',
+    nullable: false,
+  })
+  department!: string;
 }

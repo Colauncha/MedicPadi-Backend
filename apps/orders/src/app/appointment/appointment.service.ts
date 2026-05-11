@@ -1,10 +1,11 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   AppointmentStatus,
   CreateAppointmentDto,
+  DoctorPatterns,
   PaginationDto,
   PaginationResponseDto,
   ServiceError,
@@ -12,6 +13,7 @@ import {
 } from '@medicpadi-backend/contracts';
 import { Appointment } from '../../entities/appointment.entity';
 import { ZoomService } from './providers/zoom.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AppointmentService {
@@ -19,6 +21,7 @@ export class AppointmentService {
     @InjectRepository(Appointment)
     private readonly appointmentRepo: Repository<Appointment>,
     @Inject() private readonly zoomService: ZoomService,
+    @Inject('PROFILE_SEVICE') private readonly profileClient: ClientProxy,
   ) {}
 
   async create(dto: CreateAppointmentDto) {
@@ -43,15 +46,21 @@ export class AppointmentService {
         } as ServiceError);
       }
 
+      const doctor = await firstValueFrom(
+        this.profileClient.send(DoctorPatterns.RETRIEVE, dto.provider_id),
+      );
+
       const meeting = await this.zoomService.createMeeting(
         `Appointment between ${dto.patient_id} and ${dto.provider_id}`,
         appointmentTime.toISOString(),
+        doctor.sessionLength * dto.sessions,
       );
 
       if (meeting) {
         dto.meeting_link = meeting.start_url;
         dto.meeting_id = meeting.meeting_id;
         dto.join_link = meeting.join_url;
+        dto.sessionCost = doctor.costPerSession * dto.sessions;
       }
 
       const appointment = this.appointmentRepo.create({ ...dto });
@@ -120,6 +129,17 @@ export class AppointmentService {
           message: 'Appointment not found',
         } as ServiceError);
       }
+
+      if (existing.meeting_id) {
+        await this.zoomService.updateMeeting(
+          existing.meeting_id,
+          dto.topic,
+          dto.appointment_time instanceof Date
+            ? dto.appointment_time.toISOString()
+            : undefined,
+        );
+      }
+
       const result = await this.appointmentRepo.update({ id }, dto);
       return result.raw;
     } catch (error) {
@@ -162,6 +182,9 @@ export class AppointmentService {
           statusCode: HttpStatus.NOT_FOUND,
           message: 'Appointment not found',
         } as ServiceError);
+      }
+      if (existing.meeting_id) {
+        await this.zoomService.deleteMeeting(existing.meeting_id);
       }
       await this.appointmentRepo.remove(existing);
       return { message: 'Appointment removed successfully' };

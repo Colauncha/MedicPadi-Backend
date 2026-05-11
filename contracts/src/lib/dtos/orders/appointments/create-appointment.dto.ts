@@ -43,4 +43,14 @@ export class CreateAppointmentDto {
   @IsString()
   @IsOptional()
   join_link?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  sessionCost?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  sessions: number = 1;
 }

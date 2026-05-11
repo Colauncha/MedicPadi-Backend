@@ -20,4 +20,9 @@ export class UpdateAppointmentDto extends PartialType(CreateAppointmentDto) {
   @IsString()
   @IsOptional()
   status?: AppointmentStatus;
+
+  @ApiPropertyOptional()
+  @IsDate()
+  @IsOptional()
+  topic?: string;
 }

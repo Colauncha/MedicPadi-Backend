@@ -1,11 +1,17 @@
-import { AppointmentStatus, BaseClass } from '@medicpadi-backend/contracts';
-import { Column, Entity } from 'typeorm';
+import {
+  AppointmentPaymentStatus,
+  AppointmentStatus,
+  BaseClass,
+} from '@medicpadi-backend/contracts';
+import { Column, Entity, Index } from 'typeorm';
 
 @Entity('appointments')
 export class Appointment extends BaseClass {
+  @Index()
   @Column({ type: 'uuid', nullable: false })
   provider_id!: string;
 
+  @Index()
   @Column({ type: 'uuid', nullable: false })
   patient_id!: string;
 
@@ -24,10 +30,26 @@ export class Appointment extends BaseClass {
   @Column({ type: 'int', nullable: true })
   meeting_id?: number;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  sessionCost?: number;
+
+  @Column({ type: 'int', nullable: true, default: 1 })
+  sessions?: number;
+
   @Column({
     type: 'enum',
     enum: AppointmentStatus,
     default: AppointmentStatus.PENDING,
   })
   status!: AppointmentStatus;
+
+  @Column({
+    type: 'enum',
+    enum: AppointmentPaymentStatus,
+    default: AppointmentPaymentStatus.P_PENDING,
+  })
+  paymentStatus!: AppointmentPaymentStatus;
+
+  @Column({ type: 'text', nullable: true })
+  doctorsNote?: string;
 }

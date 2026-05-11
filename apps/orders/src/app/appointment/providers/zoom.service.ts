@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { start } from 'repl';
 
 @Injectable()
 export class ZoomService {
@@ -29,7 +28,7 @@ export class ZoomService {
     return response.data.access_token;
   }
 
-  async createMeeting(topic: string, startTime: string) {
+  async createMeeting(topic: string, startTime: string, sessionLength: number) {
     const API_URL = this.configService.get<string>('zoomConfig.zoomApiUrl');
     const token = await this.getToken();
 
@@ -40,7 +39,7 @@ export class ZoomService {
           topic,
           type: 2,
           start_time: startTime,
-          duration: 60,
+          duration: sessionLength,
           timezone: 'UTC+1',
           setting: {
             waiting_room: true,
@@ -64,11 +63,79 @@ export class ZoomService {
         };
       }
     } catch (error) {
-      console.error('Error creating Zoom meeting:', error);
+      throw error instanceof Error
+        ? error
+        : new Error('Error creating Zoom meeting');
     }
   }
 
-  async updateMeeting(meetingId: string, topic: string, startTime: string) {}
+  async updateMeeting(
+    meetingId: number,
+    topic: string | undefined,
+    startTime: string | undefined,
+  ) {
+    const API_URL = this.configService.get<string>('zoomConfig.zoomApiUrl');
+    const token = await this.getToken();
 
-  async deleteMeeting(meetingId: string) {}
+    if (!topic && !startTime) {
+      throw new Error('At least one of topic or startTime must be provided');
+    }
+    let data = {};
+
+    if (topic) {
+      data = { ...data, topic };
+    }
+
+    if (startTime) {
+      data = { ...data, start_time: startTime };
+    }
+
+    try {
+      const response = await axios.patch(
+        `${API_URL}/meetings/${meetingId}`,
+        {
+          ...data,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        return {
+          join_url: response.data.join_url,
+          meeting_id: response.data.id,
+          start_time: response.data.start_time,
+          start_url: response.data.start_url,
+        };
+      }
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error('Error updating Zoom meeting');
+    }
+  }
+
+  async deleteMeeting(meetingId: number) {
+    const API_URL = this.configService.get<string>('zoomConfig.zoomApiUrl');
+    const token = await this.getToken();
+
+    try {
+      const response = await axios.delete(`${API_URL}/meetings/${meetingId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 204) {
+        return { message: 'Meeting deleted successfully' };
+      }
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error('Error deleting Zoom meeting');
+    }
+  }
 }

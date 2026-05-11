@@ -12,6 +12,15 @@ services:
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
 
+  redis:
+    image: redis:7-alpine
+    container_name: medicpadi-redis
+    port:
+      - "6379:6379"
+    restart: always
+    volumes:
+      - redis_data:/var/lib/redis/data
+
   # Gateway Management Service
   gateway-service:
     image: colauncha/medicpadi-gateway:main
@@ -32,6 +41,7 @@ services:
       - "3001:3001"
     depends_on:
       - postgres
+      - redis      
     env_file:
       - ./apps/auth/.env.staging
     restart: always
@@ -116,3 +126,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
