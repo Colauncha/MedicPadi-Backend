@@ -54,7 +54,7 @@ export class LabTest extends BaseClass {
   hasImage!: boolean;
 
   @Column({
-    type: 'string',
+    type: 'text',
     nullable: false,
   })
   department!: string;

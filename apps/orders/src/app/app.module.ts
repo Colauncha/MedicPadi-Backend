@@ -15,6 +15,7 @@ import { TestRequisition } from '../entities/test-requisition.entity';
 import { TestRequisitionItem } from '../entities/test-requisition-item.entity';
 import { DrugRequisition } from '../entities/drug-requisition.entity';
 import { DrugRequisitionItem } from '../entities/drug-requisition-item.entity';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -48,6 +49,19 @@ import { DrugRequisitionItem } from '../entities/drug-requisition-item.entity';
         ),
       }),
     }),
+    ClientsModule.registerAsync([
+      {
+        name: 'PROFILE_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.profileServiceHost'),
+            port: configService.get<number>('appConfig.profileServicePort'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
     AppointmentModule,
     PrescriptionModule,
     TestRequisitionModule,
