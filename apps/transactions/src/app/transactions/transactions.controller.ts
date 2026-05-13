@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateTransactionDto,
+  CreateWalletDto,
   PaginationDto,
   TransactionPatterns,
   UpdateTransactionDto,
@@ -35,5 +36,25 @@ export class TransactionsController {
   @MessagePattern(TransactionPatterns.TRANSACTIONS.DELETE)
   remove(@Payload() id: string) {
     return this.transactionsService.remove(id);
+  }
+
+  @MessagePattern(TransactionPatterns.TRANSACTIONS.VERIFY)
+  verify(@Payload() reference: string) {
+    return this.transactionsService.verify(reference);
+  }
+
+  @MessagePattern(TransactionPatterns.TRANSACTIONS.WEBHOOK)
+  handleWebhook(@Payload() payload: { event: string; data: any }) {
+    return this.transactionsService.handleWebhook(payload);
+  }
+
+  @MessagePattern(TransactionPatterns.WALLET.CREATE)
+  createWallet(@Payload() dto: CreateWalletDto) {
+    return this.transactionsService.createWallet(dto);
+  }
+
+  @MessagePattern(TransactionPatterns.WALLET.RETRIEVE)
+  getWallet(@Payload() userId: string) {
+    return this.transactionsService.getWallet(userId);
   }
 }

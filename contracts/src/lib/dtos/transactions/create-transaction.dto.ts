@@ -26,6 +26,11 @@ export class CreateTransactionDto {
   @IsOptional()
   source_id?: string;
 
+  @ApiPropertyOptional()
+  @IsUUID()
+  @IsOptional()
+  provider_id?: string;
+
   @ApiProperty()
   @IsNumber()
   @IsPositive()

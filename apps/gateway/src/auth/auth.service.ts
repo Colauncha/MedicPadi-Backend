@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   CreateAuthDto,
   AuthPatterns,
@@ -7,6 +7,8 @@ import {
   EmailPatterns,
   WaitlistEmailDto,
   WelcomeEmailDto,
+  TransactionPatterns,
+  CreateWalletDto,
 } from '@medicpadi-backend/contracts';
 import { getPatternFromRole } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -19,6 +21,8 @@ export class AuthService {
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
     @Inject('NOTIFICATION_SERVICE') private readonly emailClient: ClientProxy,
+    @Inject('TRANSACTIONS_SERVICE')
+    private readonly transactionsClient: ClientProxy,
     @Inject() private readonly configService: ConfigService,
   ) {}
 
@@ -31,36 +35,35 @@ export class AuthService {
       const { pattern: Pattern, dto: Dto } = await getPatternFromRole(
         createAuthDto.role,
       );
-      console.log(Dto);
       Dto.user_id = user.id;
       try {
         const profile = await firstValueFrom(
           this.profileClient.send(Pattern.CREATE, Dto),
         );
 
+        // Create wallet for the new user (fire-and-forget; non-blocking)
+        const walletDto: CreateWalletDto = { user_id: user.id };
+        this.transactionsClient
+          .send(TransactionPatterns.WALLET.CREATE, walletDto)
+          .subscribe();
+
         if (profile && user) {
           if (this.configService.get<boolean>('appConfig.waitlist')) {
             const waitlistEmailDto = new WaitlistEmailDto();
-            ((waitlistEmailDto.email = user.email),
-              (waitlistEmailDto.name = createAuthDto.fullName || 'User'),
-              console.log('sending waitlist mail', waitlistEmailDto));
-            await firstValueFrom(
-              this.emailClient.emit(EmailPatterns.WAITLIST, waitlistEmailDto),
-            );
+            waitlistEmailDto.email = user.email;
+            waitlistEmailDto.name = createAuthDto.fullName || 'User';
+            this.emailClient.emit(EmailPatterns.WAITLIST, waitlistEmailDto);
           } else {
             const welcomeEmailDto = new WelcomeEmailDto();
-            ((welcomeEmailDto.email = user.email),
-              (welcomeEmailDto.name = createAuthDto.fullName || 'User'),
-              (welcomeEmailDto.verifyUrl = `https://fixserv.com/verify-email`),
-              console.log('sending welcome mail', welcomeEmailDto));
-            await firstValueFrom(
-              this.emailClient.emit(EmailPatterns.WELCOME, welcomeEmailDto),
-            );
+            welcomeEmailDto.email = user.email;
+            welcomeEmailDto.name = createAuthDto.fullName || 'User';
+            welcomeEmailDto.verifyUrl = `https://medicpadi.com/verify-email`;
+            this.emailClient.emit(EmailPatterns.WELCOME, welcomeEmailDto);
           }
         }
         return { ...user, ...profile };
       } catch (error) {
-        const _ = await firstValueFrom(
+        await firstValueFrom(
           this.authClient.send(AuthPatterns.DELETE, user.id),
         );
         throw error;
@@ -81,10 +84,9 @@ export class AuthService {
   async update(updateAuthDto: UpdateAuthDto, id?: string) {
     try {
       updateAuthDto.id = id;
-      const updatedAccount = await firstValueFrom(
+      return await firstValueFrom(
         this.authClient.send(AuthPatterns.UPDATE, updateAuthDto),
       );
-      return updatedAccount;
     } catch (error) {
       throw error;
     }

@@ -42,6 +42,19 @@ import { ConfigService } from '@nestjs/config';
         }),
         inject: [ConfigService],
       },
+      {
+        name: 'TRANSACTIONS_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.transactionsServiceHost'),
+            port: configService.get<number>(
+              'appConfig.transactionsServicePort',
+            ),
+          },
+        }),
+        inject: [ConfigService],
+      },
     ]),
   ],
   controllers: [AuthController],

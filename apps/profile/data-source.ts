@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { dirname, resolve } from 'path/posix';
+import { dirname, join, resolve } from 'path';
 import { DataSource } from 'typeorm';
 import { fileURLToPath } from 'url';
 
@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 dotenv.config({
-  path: resolve(__dirname, './.env.development'),
+  path: resolve(__dirname, `.env.${process.env.NODE_ENV ?? 'development'}`),
 });
 
 export const AppDataSource = new DataSource({
@@ -17,10 +17,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-
-  entities: ['src/entities/*.entity.ts'],
-
-  migrations: ['src/migrations/*.ts'],
-
+  entities: [join(__dirname, 'src/entities/*.entity.ts')],
+  migrations: [join(__dirname, 'src/migrations/*.ts')],
   synchronize: false,
 });

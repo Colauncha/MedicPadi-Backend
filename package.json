@@ -2,9 +2,7 @@
   "name": "@medicpadi-backend/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {
-    "migration:generate:auth": "typeorm-ts-node-esm migration:generate apps/auth/src/migrations/AuthMigration -d apps/auth/data-source.ts"
-  },
+  "scripts": {},
   "private": true,
   "dependencies": {
     "@keyv/redis": "^5.1.6",

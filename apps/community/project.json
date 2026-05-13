@@ -68,9 +68,17 @@
       "executor": "nx:run-commands",
       "options": { "command": "typeorm-ts-node-esm migration:run -d apps/community/data-source.ts" }
     },
+    "migration:run:fake": {
+      "executor": "nx:run-commands",
+      "options": { "command": "typeorm-ts-node-esm migration:run -d apps/community/data-source.ts --fake" }
+    },
     "migration:revert": {
       "executor": "nx:run-commands",
       "options": { "command": "typeorm-ts-node-esm migration:revert -d apps/community/data-source.ts" }
+    },
+    "migration:revert:fake": {
+      "executor": "nx:run-commands",
+      "options": { "command": "typeorm-ts-node-esm migration:revert -d apps/community/data-source.ts --fake" }
     }
   },
   "tags": []

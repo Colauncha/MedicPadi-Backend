@@ -22,6 +22,39 @@ import { ConfigService } from '@nestjs/config';
         }),
         inject: [ConfigService],
       },
+      {
+        name: 'TRANSACTIONS_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.transactionsServiceHost'),
+            port: configService.get<number>('appConfig.transactionsServicePort'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'AUTH_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.authServiceHost'),
+            port: configService.get<number>('appConfig.authServicePort'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'NOTIFICATION_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.notificationServiceHost'),
+            port: configService.get<number>('appConfig.notificationServicePort'),
+          },
+        }),
+        inject: [ConfigService],
+      },
     ]),
   ],
   controllers: [AppointmentController],

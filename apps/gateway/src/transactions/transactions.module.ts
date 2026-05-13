@@ -32,6 +32,6 @@ import { ConfigService } from '@nestjs/config';
     ]),
   ],
   controllers: [TransactionsController],
-  providers: [TransactionsService],
+  providers: [TransactionsService, ConfigService],
 })
 export class TransactionsModule {}

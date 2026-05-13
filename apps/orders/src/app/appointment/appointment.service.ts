@@ -1,15 +1,23 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
+  AppointmentEmailDto,
   AppointmentStatus,
+  AuthPatterns,
   CreateAppointmentDto,
   DoctorPatterns,
+  EmailPatterns,
+  PatientPatterns,
   PaginationDto,
   PaginationResponseDto,
   ServiceError,
   UpdateAppointmentDto,
+  CreateTransactionDto,
+  TransactionSourceType,
+  PaymentGateway,
+  PaystackInitializeResponse,
 } from '@medicpadi-backend/contracts';
 import { Appointment } from '../../entities/appointment.entity';
 import { ZoomService } from './providers/zoom.service';
@@ -20,11 +28,23 @@ export class AppointmentService {
   constructor(
     @InjectRepository(Appointment)
     private readonly appointmentRepo: Repository<Appointment>,
+    private readonly dataSource: DataSource,
     @Inject() private readonly zoomService: ZoomService,
     @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
+    @Inject('TRANSACTIONS_SERVICE')
+    private readonly transactionsClient: ClientProxy,
+    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('NOTIFICATION_SERVICE')
+    private readonly notificationClient: ClientProxy,
   ) {}
 
   async create(dto: CreateAppointmentDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    let zoomMeetingId: number | undefined;
+
     try {
       const appointmentTime =
         typeof dto.appointment_time === 'string'
@@ -46,9 +66,17 @@ export class AppointmentService {
         } as ServiceError);
       }
 
-      const doctor = await firstValueFrom(
-        this.profileClient.send(DoctorPatterns.RETRIEVE, dto.provider_id),
-      );
+      const [doctor, patient, patientAuth] = await Promise.all([
+        firstValueFrom(
+          this.profileClient.send(DoctorPatterns.RETRIEVE, dto.provider_id),
+        ),
+        firstValueFrom(
+          this.profileClient.send(PatientPatterns.RETRIEVE, dto.patient_id),
+        ),
+        firstValueFrom(
+          this.authClient.send(AuthPatterns.FIND_BY_ID, dto.patient_id),
+        ),
+      ]);
 
       const meeting = await this.zoomService.createMeeting(
         `Appointment between ${dto.patient_id} and ${dto.provider_id}`,
@@ -56,25 +84,63 @@ export class AppointmentService {
         doctor.sessionLength * dto.sessions,
       );
 
-      if (meeting) {
-        dto.meeting_link = meeting.start_url;
-        dto.meeting_id = meeting.meeting_id;
-        dto.join_link = meeting.join_url;
-        dto.sessionCost = doctor.costPerSession * dto.sessions;
+      if (!meeting) {
+        throw new RpcException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Unable to create Zoom meeting',
+        } as ServiceError);
       }
 
-      const appointment = this.appointmentRepo.create({ ...dto });
-      this.appointmentRepo.save(appointment);
+      zoomMeetingId = meeting.meeting_id;
+      dto.meeting_link = meeting.start_url;
+      dto.meeting_id = meeting.meeting_id;
+      dto.join_link = meeting.join_url;
+      dto.sessionCost = doctor.costPerSession * dto.sessions;
 
-      // Call transactions service to deduct funds from patient
-      // ...
+      const appointment = queryRunner.manager.create(Appointment, { ...dto });
+      const savedAppointment = await queryRunner.manager.save(appointment);
 
-      return appointment;
+      const transactionDto: CreateTransactionDto = {
+        user_id: dto.patient_id || '',
+        source_type: TransactionSourceType.APPOINTMENT,
+        source_id: savedAppointment.id,
+        provider_id: dto.provider_id,
+        amount: dto.sessionCost,
+        gateway: PaymentGateway.PAYSTACK,
+      };
+
+      const initTransaction: PaystackInitializeResponse = await firstValueFrom(
+        this.transactionsClient.send('transactions.create', transactionDto),
+      );
+
+      await queryRunner.commitTransaction();
+
+      // Notify patient — fire-and-forget
+      const emailDto: AppointmentEmailDto = {
+        email: patientAuth.email,
+        patientName: `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() || patientAuth.email,
+        doctorName: `Dr. ${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim(),
+        appointmentTime: appointmentTime.toISOString(),
+        joinLink: savedAppointment.join_link,
+      };
+      this.notificationClient.emit(EmailPatterns.APPOINTMENT_CREATED, emailDto);
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { meeting_link: _, ...appointmentData } = savedAppointment;
+      return { appointment: appointmentData, payment: initTransaction.data };
     } catch (error) {
-      throw new RpcException({
-        statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Unable to create appointment',
-      } as ServiceError);
+      await queryRunner.rollbackTransaction();
+      if (zoomMeetingId) {
+        await this.zoomService.deleteMeeting(zoomMeetingId).catch(() => {});
+      }
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Unable to create appointment',
+          } as ServiceError);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -154,7 +220,7 @@ export class AppointmentService {
 
   async accept(id: string) {
     try {
-      let existing = await this.appointmentRepo.findOne({ where: { id } });
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
       if (!existing) {
         throw new RpcException({
           statusCode: HttpStatus.NOT_FOUND,
@@ -163,6 +229,24 @@ export class AppointmentService {
       }
       existing.status = AppointmentStatus.CONFIRMED;
       await this.appointmentRepo.save(existing);
+
+      // Notify patient their appointment was confirmed — fire-and-forget
+      this.authClient
+        .send(AuthPatterns.FIND_BY_ID, existing.patient_id)
+        .subscribe((patientAuth) => {
+          const emailDto: AppointmentEmailDto = {
+            email: patientAuth.email,
+            patientName: patientAuth.fullName ?? patientAuth.email,
+            doctorName: '',
+            appointmentTime: existing.appointment_time?.toISOString() ?? '',
+            joinLink: existing.join_link,
+          };
+          this.notificationClient.emit(
+            EmailPatterns.APPOINTMENT_CONFIRMED,
+            emailDto,
+          );
+        });
+
       return existing;
     } catch (error) {
       throw error instanceof RpcException
@@ -176,7 +260,7 @@ export class AppointmentService {
 
   async remove(id: string) {
     try {
-      let existing = await this.findOne(id);
+      const existing = await this.findOne(id);
       if (!existing) {
         throw new RpcException({
           statusCode: HttpStatus.NOT_FOUND,
@@ -187,6 +271,23 @@ export class AppointmentService {
         await this.zoomService.deleteMeeting(existing.meeting_id);
       }
       await this.appointmentRepo.remove(existing);
+
+      // Notify patient of cancellation — fire-and-forget
+      this.authClient
+        .send(AuthPatterns.FIND_BY_ID, existing.patient_id)
+        .subscribe((patientAuth) => {
+          const emailDto: AppointmentEmailDto = {
+            email: patientAuth.email,
+            patientName: patientAuth.fullName ?? patientAuth.email,
+            doctorName: '',
+            appointmentTime: existing.appointment_time?.toISOString() ?? '',
+          };
+          this.notificationClient.emit(
+            EmailPatterns.APPOINTMENT_CANCELLED,
+            emailDto,
+          );
+        });
+
       return { message: 'Appointment removed successfully' };
     } catch (error) {
       throw error instanceof RpcException

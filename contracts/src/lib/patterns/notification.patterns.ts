@@ -14,4 +14,8 @@ export const EmailPatterns = {
   WELCOME: 'email.welcome',
   WAITLIST: 'email.waitlist',
   RESET_PASSWORD: 'email.reset-password',
+  APPOINTMENT_CREATED: 'email.appointment.created',
+  APPOINTMENT_CONFIRMED: 'email.appointment.confirmed',
+  APPOINTMENT_CANCELLED: 'email.appointment.cancelled',
+  PAYMENT_SUCCESS: 'email.payment.success',
 };

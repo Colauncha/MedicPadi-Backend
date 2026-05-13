@@ -1,37 +1,229 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { RpcException } from '@nestjs/microservices';
+import { DataSource, Repository } from 'typeorm';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   CreateTransactionDto,
+  CreateWalletDto,
   PaginationDto,
   PaginationResponseDto,
+  PaymentEmailDto,
+  PaymentStatus,
   ServiceError,
   UpdateTransactionDto,
+  PaymentGateway,
+  AuthPatterns,
+  PaystackInitializeResponse,
+  PaystackVerifyResponse,
+  EmailPatterns,
 } from '@medicpadi-backend/contracts';
 import { Transaction } from '../../entities/transaction.entity';
+import { Wallet } from '../../entities/wallet.entity';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepo: Repository<Transaction>,
+    @InjectRepository(Wallet)
+    private readonly walletRepo: Repository<Wallet>,
+    private readonly dataSource: DataSource,
+    @Inject() private readonly configService: ConfigService,
+    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('NOTIFICATION_SERVICE')
+    private readonly notificationClient: ClientProxy,
   ) {}
 
   async create(dto: CreateTransactionDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const transaction = this.transactionRepo.create(dto);
-      await this.transactionRepo.save(transaction);
-      return transaction;
+      const paystackUrl = this.configService.get<string>(
+        'paystackConfig.paystackApiUrl',
+      );
+      const paystackSecretKey = this.configService.get<string>(
+        'paystackConfig.secretKey',
+      );
+      const user = await firstValueFrom(
+        this.authClient.send(AuthPatterns.FIND_BY_ID, dto.user_id),
+      );
+
+      let data: PaystackInitializeResponse;
+
+      if (dto.gateway === PaymentGateway.PAYSTACK) {
+        const response = await fetch(`${paystackUrl}/transaction/initialize`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${paystackSecretKey}`,
+          },
+          body: JSON.stringify({
+            email: user.email,
+            amount: Math.round(dto.amount * 100),
+            currency: dto.currency,
+            metadata: {
+              user_id: dto.user_id,
+              source_type: dto.source_type,
+              source_id: dto.source_id,
+              provider_id: dto.provider_id,
+            },
+          }),
+        });
+        data = await response.json();
+
+        if (!data.status) {
+          throw new RpcException({
+            statusCode: HttpStatus.BAD_GATEWAY,
+            message: 'Unable to initialize transaction',
+          } as ServiceError);
+        }
+
+        const transaction = queryRunner.manager.create(Transaction, {
+          ...dto,
+          gateway_reference: data.data.reference,
+        });
+        await queryRunner.manager.save(transaction);
+        await queryRunner.commitTransaction();
+        return data;
+      }
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Unable to create transaction',
+          } as ServiceError);
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async createWallet(dto: CreateWalletDto) {
+    try {
+      const existing = await this.walletRepo.findOne({
+        where: { user_id: dto.user_id },
+      });
+      if (existing) {
+        return existing;
+      }
+      const wallet = this.walletRepo.create({
+        user_id: dto.user_id,
+        currency: dto.currency ?? 'NGN',
+        balance: 0,
+      });
+      return await this.walletRepo.save(wallet);
+    } catch (error) {
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Unable to create wallet',
+          } as ServiceError);
+    }
+  }
+
+  async getWallet(userId: string) {
+    try {
+      return await this.walletRepo.findOne({ where: { user_id: userId } });
     } catch (error) {
       throw new RpcException({
-        statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Unable to create transaction',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Unable to retrieve wallet',
       } as ServiceError);
     }
   }
 
-  async findAll(query: PaginationDto): Promise<PaginationResponseDto<Transaction>> {
+  async verify(reference: string) {
+    try {
+      const paystackUrl = this.configService.get<string>(
+        'paystackConfig.paystackApiUrl',
+      );
+      const paystackSecretKey = this.configService.get<string>(
+        'paystackConfig.secretKey',
+      );
+
+      const response = await fetch(
+        `${paystackUrl}/transaction/verify/${reference}`,
+        {
+          headers: { Authorization: `Bearer ${paystackSecretKey}` },
+        },
+      );
+      const data: PaystackVerifyResponse = await response.json();
+
+      if (!data.status) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_GATEWAY,
+          message: 'Unable to verify transaction',
+        } as ServiceError);
+      }
+
+      const transaction = await this.transactionRepo.findOne({
+        where: { gateway_reference: reference },
+      });
+
+      if (transaction) {
+        const newStatus =
+          data.data.status === 'success'
+            ? PaymentStatus.PAID
+            : PaymentStatus.FAILED;
+        await this.transactionRepo.update(transaction.id, {
+          payment_status: newStatus,
+        });
+      }
+
+      return data;
+    } catch (error) {
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Unable to verify transaction',
+          } as ServiceError);
+    }
+  }
+
+  async handleWebhook(payload: { event: string; data: any }) {
+    if (payload.event !== 'charge.success') {
+      return { received: true };
+    }
+
+    try {
+      const reference = payload.data?.reference as string;
+      const verifyData = await this.verify(reference);
+
+      if (verifyData.data.status === 'success') {
+        const user = await firstValueFrom(
+          this.authClient.send(
+            AuthPatterns.FIND_BY_ID,
+            verifyData.data.metadata?.user_id,
+          ),
+        );
+
+        const emailDto: PaymentEmailDto = {
+          email: user.email,
+          name: user.fullName ?? user.email,
+          amount: verifyData.data.amount / 100,
+          currency: verifyData.data.currency,
+          reference: verifyData.data.reference,
+        };
+
+        this.notificationClient.emit(EmailPatterns.PAYMENT_SUCCESS, emailDto);
+      }
+
+      return { received: true };
+    } catch {
+      return { received: true };
+    }
+  }
+
+  async findAll(
+    query: PaginationDto,
+  ): Promise<PaginationResponseDto<Transaction>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
     const response: PaginationResponseDto<Transaction> = {

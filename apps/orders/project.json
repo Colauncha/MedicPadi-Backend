@@ -76,7 +76,7 @@
     "migration:generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "typeorm-ts-node-esm migration:generate apps/orders/src/migrations/ProfileMigration -d apps/orders/data-source.ts"
+        "command": "typeorm-ts-node-esm migration:generate apps/orders/src/migrations/OrdersMigration -d apps/orders/data-source.ts"
       }
     },
     "migration:run": {

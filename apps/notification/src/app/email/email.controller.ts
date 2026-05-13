@@ -6,6 +6,8 @@ import {
   WaitlistEmailDto,
   EmailPatterns,
   ResetPasswordEmailDto,
+  AppointmentEmailDto,
+  PaymentEmailDto,
 } from '@medicpadi-backend/contracts';
 
 @Controller()
@@ -13,31 +15,58 @@ export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @EventPattern(EmailPatterns.WELCOME)
-  welcome(@Payload() welcomeEmailDto: WelcomeEmailDto) {
-    console.log('Received welcome email event:', welcomeEmailDto);
-    return this.emailService.welcomeEmail(
-      welcomeEmailDto.email,
-      welcomeEmailDto.name,
-      welcomeEmailDto.verifyUrl,
-    );
+  welcome(@Payload() dto: WelcomeEmailDto) {
+    return this.emailService.welcomeEmail(dto.email, dto.name, dto.verifyUrl);
   }
 
   @EventPattern(EmailPatterns.WAITLIST)
-  waitlist(@Payload() waitlistEmailDto: WaitlistEmailDto) {
-    console.log('Received waitlist email event:', waitlistEmailDto);
-    return this.emailService.waitlistEmail(
-      waitlistEmailDto.email!,
-      waitlistEmailDto.name!,
-    );
+  waitlist(@Payload() dto: WaitlistEmailDto) {
+    return this.emailService.waitlistEmail(dto.email!, dto.name!);
   }
 
   @EventPattern(EmailPatterns.RESET_PASSWORD)
-  async resetPassword(@Payload() resetPasswordEmailDto: ResetPasswordEmailDto) {
-    console.log('Received reset password email event:', resetPasswordEmailDto);
-    return await this.emailService.resetPasswordEmail(
-      resetPasswordEmailDto.email,
-      resetPasswordEmailDto.name,
-      resetPasswordEmailDto.otp,
+  resetPassword(@Payload() dto: ResetPasswordEmailDto) {
+    return this.emailService.resetPasswordEmail(dto.email, dto.name, dto.otp);
+  }
+
+  @EventPattern(EmailPatterns.APPOINTMENT_CREATED)
+  appointmentCreated(@Payload() dto: AppointmentEmailDto) {
+    return this.emailService.appointmentCreatedEmail(
+      dto.email,
+      dto.patientName,
+      dto.doctorName,
+      dto.appointmentTime,
+      dto.joinLink,
+    );
+  }
+
+  @EventPattern(EmailPatterns.APPOINTMENT_CONFIRMED)
+  appointmentConfirmed(@Payload() dto: AppointmentEmailDto) {
+    return this.emailService.appointmentConfirmedEmail(
+      dto.email,
+      dto.patientName,
+      dto.appointmentTime,
+      dto.joinLink,
+    );
+  }
+
+  @EventPattern(EmailPatterns.APPOINTMENT_CANCELLED)
+  appointmentCancelled(@Payload() dto: AppointmentEmailDto) {
+    return this.emailService.appointmentCancelledEmail(
+      dto.email,
+      dto.patientName,
+      dto.appointmentTime,
+    );
+  }
+
+  @EventPattern(EmailPatterns.PAYMENT_SUCCESS)
+  paymentSuccess(@Payload() dto: PaymentEmailDto) {
+    return this.emailService.paymentSuccessEmail(
+      dto.email,
+      dto.name,
+      dto.amount,
+      dto.currency,
+      dto.reference,
     );
   }
 }

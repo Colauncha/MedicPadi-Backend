@@ -17,6 +17,9 @@ export class Transaction extends BaseClass {
   @Column({ type: 'uuid', nullable: true })
   source_id?: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  provider_id?: string;
+
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   amount!: number;
 

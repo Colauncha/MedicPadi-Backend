@@ -11,7 +11,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { RpcExceptionFilter } from '@medicpadi-backend/contracts';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
   app.use(cookieParser());
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);

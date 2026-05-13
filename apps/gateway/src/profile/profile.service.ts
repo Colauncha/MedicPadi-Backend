@@ -6,6 +6,7 @@ import {
   BusinessHoursDto,
   PaginationDto,
   AuthRole,
+  GetAuthDto,
 } from '@medicpadi-backend/contracts';
 import { getPatternFromRole } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -36,16 +37,18 @@ export class ProfileService {
 
   async retrieve(id: string) {
     try {
-      const user = await firstValueFrom(
+      let user = await firstValueFrom(
         this.authClient.send(AuthPatterns.FIND_BY_ID, id),
       );
+      let { passwordhash, ...rest } = user;
+      user = rest as GetAuthDto;
 
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(user.role);
 
       const profile = await firstValueFrom(
         this.profileClient.send(Pattern.RETRIEVE, id),
       );
-      return { user, profile };
+      return { rest, profile };
     } catch (error) {
       throw new BadRequestException(
         'Something went wrong while retieving profile',

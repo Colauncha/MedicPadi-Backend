@@ -43,6 +43,8 @@ export * from './lib/dtos/notification/update-notification.dto';
 export * from './lib/dtos/email/welcome.dto';
 export * from './lib/dtos/email/waitlist.dto';
 export * from './lib/dtos/email/reset-password.dto';
+export * from './lib/dtos/email/appointment-email.dto';
+export * from './lib/dtos/email/payment-email.dto';
 
 // Service DTOs
 export * from './lib/dtos/services/lab-tests/create-lab-test.dto';
@@ -80,6 +82,8 @@ export * from './lib/dtos/community/update-community-post.dto';
 // Transaction DTOs
 export * from './lib/dtos/transactions/create-transaction.dto';
 export * from './lib/dtos/transactions/update-transaction.dto';
+export * from './lib/dtos/transactions/create-wallet.dto';
+export * from './lib/dtos/transactions/create-wallet.dto';
 
 // Patterns
 export const AuthPatterns = authPatterns;
@@ -95,6 +99,7 @@ export * from './lib/patterns/transaction.patterns';
 export * from './lib/interfaces/profile.types';
 export * from './lib/interfaces/test-offered.interface';
 export * from './lib/interfaces/business-hours.interface';
+export * from './lib/interfaces/paystack.interface';
 
 // Entity
 export * from './lib/entity/base.entity';

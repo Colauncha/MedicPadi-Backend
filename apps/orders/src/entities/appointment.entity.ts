@@ -27,7 +27,7 @@ export class Appointment extends BaseClass {
   @Column({ type: 'text', nullable: true })
   join_link?: string;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'bigint', nullable: true })
   meeting_id?: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
