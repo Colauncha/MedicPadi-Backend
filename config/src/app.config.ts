@@ -36,6 +36,9 @@ const appConfig = registerAs('appConfig', () => ({
   ehrServiceHost: process.env['EHR_SERVICE_HOST'],
   transactionsServiceHost: process.env['TRANSACTIONS_SERVICE_HOST'],
 
+  // Internal service-to-service auth token
+  internalServiceToken: process.env['INTERNAL_SERVICE_TOKEN'],
+
   // Waitlist
   waitlist: process.env['WAITLIST_ACTIVE'],
 

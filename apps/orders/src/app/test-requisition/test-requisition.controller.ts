@@ -13,27 +13,27 @@ export class TestRequisitionController {
   constructor(private readonly testRequisitionService: TestRequisitionService) {}
 
   @MessagePattern(OrderPatterns.TEST_REQUISITIONS.CREATE)
-  create(@Payload() dto: CreateTestRequisitionDto) {
+  create(@Payload('data') dto: CreateTestRequisitionDto) {
     return this.testRequisitionService.create(dto);
   }
 
   @MessagePattern(OrderPatterns.TEST_REQUISITIONS.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.testRequisitionService.findAll(query);
   }
 
   @MessagePattern(OrderPatterns.TEST_REQUISITIONS.RETRIEVE)
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.testRequisitionService.findOne(id);
   }
 
   @MessagePattern(OrderPatterns.TEST_REQUISITIONS.UPDATE)
-  update(@Payload() dto: UpdateTestRequisitionDto) {
+  update(@Payload('data') dto: UpdateTestRequisitionDto) {
     return this.testRequisitionService.update(dto.id, dto);
   }
 
   @MessagePattern(OrderPatterns.TEST_REQUISITIONS.DELETE)
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.testRequisitionService.remove(id);
   }
 }

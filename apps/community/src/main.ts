@@ -1,7 +1,7 @@
 import { Logger, ValidationPipe, HttpStatus } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport, RpcException } from '@nestjs/microservices';
-import { MicroserviceLoggingInterceptor } from '@medicpadi-backend/utils';
+import { MicroserviceLoggingInterceptor, ServiceAuthGuard } from '@medicpadi-backend/utils';
 import { ServiceError } from '@medicpadi-backend/contracts';
 import { AppModule } from './app/app.module';
 
@@ -17,6 +17,7 @@ async function bootstrap() {
     },
   );
   app.useGlobalInterceptors(new MicroserviceLoggingInterceptor());
+  app.useGlobalGuards(new ServiceAuthGuard());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

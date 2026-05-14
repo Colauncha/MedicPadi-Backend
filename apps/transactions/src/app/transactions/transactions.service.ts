@@ -17,6 +17,7 @@ import {
   PaystackVerifyResponse,
   EmailPatterns,
 } from '@medicpadi-backend/contracts';
+import { withServiceAuth } from '@medicpadi-backend/utils';
 import { Transaction } from '../../entities/transaction.entity';
 import { Wallet } from '../../entities/wallet.entity';
 import { ConfigService } from '@nestjs/config';
@@ -36,6 +37,10 @@ export class TransactionsService {
     private readonly notificationClient: ClientProxy,
   ) {}
 
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
+
   async create(dto: CreateTransactionDto) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -49,7 +54,7 @@ export class TransactionsService {
         'paystackConfig.secretKey',
       );
       const user = await firstValueFrom(
-        this.authClient.send(AuthPatterns.FIND_BY_ID, dto.user_id),
+        this.authClient.send(AuthPatterns.FIND_BY_ID, withServiceAuth(dto.user_id, this.serviceToken)),
       );
 
       let data: PaystackInitializeResponse;
@@ -200,7 +205,7 @@ export class TransactionsService {
         const user = await firstValueFrom(
           this.authClient.send(
             AuthPatterns.FIND_BY_ID,
-            verifyData.data.metadata?.user_id,
+            withServiceAuth(verifyData.data.metadata?.user_id, this.serviceToken),
           ),
         );
 
@@ -212,7 +217,7 @@ export class TransactionsService {
           reference: verifyData.data.reference,
         };
 
-        this.notificationClient.emit(EmailPatterns.PAYMENT_SUCCESS, emailDto);
+        this.notificationClient.emit(EmailPatterns.PAYMENT_SUCCESS, withServiceAuth(emailDto, this.serviceToken));
       }
 
       return { received: true };

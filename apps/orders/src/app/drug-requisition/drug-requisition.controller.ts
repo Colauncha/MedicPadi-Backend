@@ -13,27 +13,27 @@ export class DrugRequisitionController {
   constructor(private readonly drugRequisitionService: DrugRequisitionService) {}
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.CREATE)
-  create(@Payload() dto: CreateDrugRequisitionDto) {
+  create(@Payload('data') dto: CreateDrugRequisitionDto) {
     return this.drugRequisitionService.create(dto);
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.drugRequisitionService.findAll(query);
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.RETRIEVE)
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.drugRequisitionService.findOne(id);
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.UPDATE)
-  update(@Payload() dto: UpdateDrugRequisitionDto) {
+  update(@Payload('data') dto: UpdateDrugRequisitionDto) {
     return this.drugRequisitionService.update(dto.id, dto);
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.DELETE)
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.drugRequisitionService.remove(id);
   }
 }

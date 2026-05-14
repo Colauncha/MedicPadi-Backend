@@ -7,7 +7,9 @@ import {
   ProfilePatterns,
   ServicePatterns,
 } from '@medicpadi-backend/contracts';
+import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ApiHideProperty } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppService {
@@ -17,7 +19,12 @@ export class AppService {
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy,
     @Inject('SERVICES_SERVICE') private readonly servicesClient: ClientProxy,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
 
   @ApiHideProperty()
   getData(): { message: string } {
@@ -33,17 +40,18 @@ export class AppService {
   }
 
   async getServiceStatus(): Promise<Record<string, any>> {
+    const token = this.serviceToken;
     const auth_status = await firstValueFrom(
-      this.authClient.send(AuthPatterns.STATUS, {}),
+      this.authClient.send(AuthPatterns.STATUS, withServiceAuth({}, token)),
     );
     const profile_status = await firstValueFrom(
-      this.profileClient.send(ProfilePatterns.STATUS, {}),
+      this.profileClient.send(ProfilePatterns.STATUS, withServiceAuth({}, token)),
     );
     const notification_status = await firstValueFrom(
-      this.notificationClient.send(NotificationPatterns.STATUS, {}),
+      this.notificationClient.send(NotificationPatterns.STATUS, withServiceAuth({}, token)),
     );
     const services_status = await firstValueFrom(
-      this.servicesClient.send(ServicePatterns.STATUS, {}),
+      this.servicesClient.send(ServicePatterns.STATUS, withServiceAuth({}, token)),
     );
     return {
       authService: this.authClient ? auth_status : 'Disconnected',

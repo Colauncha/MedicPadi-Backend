@@ -10,7 +10,7 @@ import {
   TransactionPatterns,
   CreateWalletDto,
 } from '@medicpadi-backend/contracts';
-import { getPatternFromRole } from '@medicpadi-backend/utils';
+import { getPatternFromRole, withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
@@ -26,10 +26,15 @@ export class AuthService {
     @Inject() private readonly configService: ConfigService,
   ) {}
 
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
+
   async create(createAuthDto: CreateAuthDto) {
     try {
+      const token = this.serviceToken;
       const user = await firstValueFrom(
-        this.authClient.send(AuthPatterns.CREATE, createAuthDto),
+        this.authClient.send(AuthPatterns.CREATE, withServiceAuth(createAuthDto, token)),
       );
 
       const { pattern: Pattern, dto: Dto } = await getPatternFromRole(
@@ -38,13 +43,13 @@ export class AuthService {
       Dto.user_id = user.id;
       try {
         const profile = await firstValueFrom(
-          this.profileClient.send(Pattern.CREATE, Dto),
+          this.profileClient.send(Pattern.CREATE, withServiceAuth(Dto, token)),
         );
 
         // Create wallet for the new user (fire-and-forget; non-blocking)
         const walletDto: CreateWalletDto = { user_id: user.id };
         this.transactionsClient
-          .send(TransactionPatterns.WALLET.CREATE, walletDto)
+          .send(TransactionPatterns.WALLET.CREATE, withServiceAuth(walletDto, token))
           .subscribe();
 
         if (profile && user) {
@@ -52,19 +57,19 @@ export class AuthService {
             const waitlistEmailDto = new WaitlistEmailDto();
             waitlistEmailDto.email = user.email;
             waitlistEmailDto.name = createAuthDto.fullName || 'User';
-            this.emailClient.emit(EmailPatterns.WAITLIST, waitlistEmailDto);
+            this.emailClient.emit(EmailPatterns.WAITLIST, withServiceAuth(waitlistEmailDto, token));
           } else {
             const welcomeEmailDto = new WelcomeEmailDto();
             welcomeEmailDto.email = user.email;
             welcomeEmailDto.name = createAuthDto.fullName || 'User';
             welcomeEmailDto.verifyUrl = `https://medicpadi.com/verify-email`;
-            this.emailClient.emit(EmailPatterns.WELCOME, welcomeEmailDto);
+            this.emailClient.emit(EmailPatterns.WELCOME, withServiceAuth(welcomeEmailDto, token));
           }
         }
         return { ...user, ...profile };
       } catch (error) {
         await firstValueFrom(
-          this.authClient.send(AuthPatterns.DELETE, user.id),
+          this.authClient.send(AuthPatterns.DELETE, withServiceAuth(user.id, token)),
         );
         throw error;
       }
@@ -75,7 +80,7 @@ export class AuthService {
 
   login(loginDto: LoginDto) {
     try {
-      return this.authClient.send(AuthPatterns.LOGIN, loginDto);
+      return this.authClient.send(AuthPatterns.LOGIN, withServiceAuth(loginDto, this.serviceToken));
     } catch (error) {
       throw error;
     }
@@ -85,7 +90,7 @@ export class AuthService {
     try {
       updateAuthDto.id = id;
       return await firstValueFrom(
-        this.authClient.send(AuthPatterns.UPDATE, updateAuthDto),
+        this.authClient.send(AuthPatterns.UPDATE, withServiceAuth(updateAuthDto, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -95,7 +100,7 @@ export class AuthService {
   async requestPasswordReset(email: string) {
     try {
       await firstValueFrom(
-        this.authClient.send(AuthPatterns.REQUEST_PASSWORD_RESET, email),
+        this.authClient.send(AuthPatterns.REQUEST_PASSWORD_RESET, withServiceAuth(email, this.serviceToken)),
       );
       return { message: 'Password reset requested successfully' };
     } catch (error) {
@@ -110,11 +115,7 @@ export class AuthService {
   ) {
     try {
       await firstValueFrom(
-        this.authClient.send(AuthPatterns.RESET_PASSWORD, {
-          otp,
-          email,
-          newPassword,
-        }),
+        this.authClient.send(AuthPatterns.RESET_PASSWORD, withServiceAuth({ otp, email, newPassword }, this.serviceToken)),
       );
       return { message: 'Password reset successfully' };
     } catch (error) {
@@ -124,7 +125,7 @@ export class AuthService {
 
   async delete(id: string) {
     try {
-      await firstValueFrom(this.authClient.send(AuthPatterns.DELETE, id));
+      await firstValueFrom(this.authClient.send(AuthPatterns.DELETE, withServiceAuth(id, this.serviceToken)));
       return { message: 'Account deleted successfully' };
     } catch (error) {
       throw error;

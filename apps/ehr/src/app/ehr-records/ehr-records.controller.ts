@@ -13,27 +13,27 @@ export class EhrRecordsController {
   constructor(private readonly ehrRecordsService: EhrRecordsService) {}
 
   @MessagePattern(EhrPatterns.EHR_RECORDS.CREATE)
-  create(@Payload() dto: CreateEhrRecordDto) {
+  create(@Payload('data') dto: CreateEhrRecordDto) {
     return this.ehrRecordsService.create(dto);
   }
 
   @MessagePattern(EhrPatterns.EHR_RECORDS.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.ehrRecordsService.findAll(query);
   }
 
   @MessagePattern(EhrPatterns.EHR_RECORDS.RETRIEVE)
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.ehrRecordsService.findOne(id);
   }
 
   @MessagePattern(EhrPatterns.EHR_RECORDS.UPDATE)
-  update(@Payload() dto: UpdateEhrRecordDto) {
+  update(@Payload('data') dto: UpdateEhrRecordDto) {
     return this.ehrRecordsService.update(dto.id, dto);
   }
 
   @MessagePattern(EhrPatterns.EHR_RECORDS.DELETE)
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.ehrRecordsService.remove(id);
   }
 }

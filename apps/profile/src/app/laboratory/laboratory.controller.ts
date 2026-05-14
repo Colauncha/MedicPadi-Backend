@@ -15,34 +15,34 @@ export class LaboratoryController {
   constructor(private readonly laboratoryService: LaboratoryService) {}
 
   @MessagePattern(LaboratoryPatterns.CREATE)
-  create(@Payload() createLaboratoryDto: CreateLaboratoryDto) {
+  create(@Payload('data') createLaboratoryDto: CreateLaboratoryDto) {
     return this.laboratoryService.create(createLaboratoryDto);
   }
 
   @MessagePattern(LaboratoryPatterns.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.laboratoryService.findAll(query);
   }
 
   @MessagePattern('findOneLaboratory')
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.laboratoryService.findOne(id);
   }
 
   @MessagePattern(LaboratoryPatterns.RETRIEVE)
-  retrieve(@Payload() id: string) {
+  retrieve(@Payload('data') id: string) {
     return this.laboratoryService.findOne(id);
   }
 
   @MessagePattern(LaboratoryPatterns.UPDATE)
-  async update(@Payload() updateLaboratoryDto: UpdateLaboratoryDto) {
+  async update(@Payload('data') updateLaboratoryDto: UpdateLaboratoryDto) {
     const { id, ...rest } = updateLaboratoryDto;
     return this.laboratoryService.update(id, rest);
   }
 
   @MessagePattern(LaboratoryPatterns.UPDATE_BUSINESS_HOURS)
   async updateBusinessHours(
-    @Payload() businessHoursDto: BusinessHoursDto & { id: string },
+    @Payload('data') businessHoursDto: BusinessHoursDto & { id: string },
   ) {
     const { id, ...rest } = businessHoursDto;
     if (!rest) {
@@ -61,7 +61,7 @@ export class LaboratoryController {
   }
 
   @MessagePattern('removeLaboratory')
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.laboratoryService.remove(id);
   }
 }

@@ -13,27 +13,27 @@ export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
 
   @MessagePattern(CommunityPatterns.GROUPS.CREATE)
-  create(@Payload() dto: CreateCommunityGroupDto) {
+  create(@Payload('data') dto: CreateCommunityGroupDto) {
     return this.groupsService.create(dto);
   }
 
   @MessagePattern(CommunityPatterns.GROUPS.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.groupsService.findAll(query);
   }
 
   @MessagePattern(CommunityPatterns.GROUPS.RETRIEVE)
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.groupsService.findOne(id);
   }
 
   @MessagePattern(CommunityPatterns.GROUPS.UPDATE)
-  update(@Payload() dto: UpdateCommunityGroupDto) {
+  update(@Payload('data') dto: UpdateCommunityGroupDto) {
     return this.groupsService.update(dto.id, dto);
   }
 
   @MessagePattern(CommunityPatterns.GROUPS.DELETE)
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.groupsService.remove(id);
   }
 }

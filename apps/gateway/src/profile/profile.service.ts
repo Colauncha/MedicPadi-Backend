@@ -8,16 +8,23 @@ import {
   AuthRole,
   GetAuthDto,
 } from '@medicpadi-backend/contracts';
-import { getPatternFromRole } from '@medicpadi-backend/utils';
+import { getPatternFromRole, withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ProfileService {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
+
   create(createProfileDto: ProfileDtoType) {
     return createProfileDto;
   }
@@ -28,7 +35,7 @@ export class ProfileService {
         query.role || AuthRole.PATIENT,
       );
       return await firstValueFrom(
-        this.profileClient.send(Pattern.FIND_ALL, query),
+        this.profileClient.send(Pattern.FIND_ALL, withServiceAuth(query, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -37,8 +44,9 @@ export class ProfileService {
 
   async retrieve(id: string) {
     try {
+      const token = this.serviceToken;
       let user = await firstValueFrom(
-        this.authClient.send(AuthPatterns.FIND_BY_ID, id),
+        this.authClient.send(AuthPatterns.FIND_BY_ID, withServiceAuth(id, token)),
       );
       let { passwordhash, ...rest } = user;
       user = rest as GetAuthDto;
@@ -46,7 +54,7 @@ export class ProfileService {
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(user.role);
 
       const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.RETRIEVE, id),
+        this.profileClient.send(Pattern.RETRIEVE, withServiceAuth(id, token)),
       );
       return { rest, profile };
     } catch (error) {
@@ -61,7 +69,7 @@ export class ProfileService {
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(role);
 
       const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.RETRIEVE, id),
+        this.profileClient.send(Pattern.RETRIEVE, withServiceAuth(id, this.serviceToken)),
       );
       return { profile };
     } catch (error) {
@@ -76,10 +84,7 @@ export class ProfileService {
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(user.role);
 
       const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.UPDATE, {
-          id: user.id,
-          ...updateProfileDto,
-        }),
+        this.profileClient.send(Pattern.UPDATE, withServiceAuth({ id: user.id, ...updateProfileDto }, this.serviceToken)),
       );
       return profile;
     } catch (error) {
@@ -95,10 +100,7 @@ export class ProfileService {
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(user.role);
 
       const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.UPDATE_BUSINESS_HOURS, {
-          id: user.id,
-          ...businessHoursDto,
-        }),
+        this.profileClient.send(Pattern.UPDATE_BUSINESS_HOURS, withServiceAuth({ id: user.id, ...businessHoursDto }, this.serviceToken)),
       );
       return profile;
     } catch (error) {
@@ -108,24 +110,6 @@ export class ProfileService {
       );
     }
   }
-
-  // Laboratory specific method
-  // async addLabTestOffered(id: string, testOffered: TestOfferedDto) {
-  //   try {
-  //     const response = await firstValueFrom(
-  //       this.profileClient.send(LaboratoryPatterns.ADD_TEST_OFFERED, {
-  //         id,
-  //         testOffered,
-  //       }),
-  //     );
-  //     return response;
-  //   } catch (error) {
-  //     throw new BadRequestException(
-  //       error,
-  //       'Something went wrong while adding test offered',
-  //     );
-  //   }
-  // }
 
   remove(id: string) {
     return `This action removes a #${id} profile`;

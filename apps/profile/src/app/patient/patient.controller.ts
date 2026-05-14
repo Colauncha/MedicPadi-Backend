@@ -14,32 +14,32 @@ export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
   @MessagePattern(PatientPatterns.CREATE)
-  create(@Payload() createPatientDto: CreatePatientDto) {
+  create(@Payload('data') createPatientDto: CreatePatientDto) {
     return this.patientService.create(createPatientDto);
   }
 
   @MessagePattern(PatientPatterns.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.patientService.findAll(query);
   }
 
   @MessagePattern('findOnePatient')
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.patientService.findOne(id);
   }
 
   @MessagePattern(PatientPatterns.RETRIEVE)
-  retrieve(@Payload() id: string) {
+  retrieve(@Payload('data') id: string) {
     return this.patientService.findOne(id);
   }
 
   @MessagePattern(PatientPatterns.UPDATE)
-  async update(@Payload() updatePatientDto: UpdatePatientDto) {
+  async update(@Payload('data') updatePatientDto: UpdatePatientDto) {
     return this.patientService.update(updatePatientDto.id, updatePatientDto);
   }
 
   @MessagePattern('removePatient')
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.patientService.remove(id);
   }
 }

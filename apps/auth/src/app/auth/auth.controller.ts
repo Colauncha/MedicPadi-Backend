@@ -19,38 +19,38 @@ export class AuthController {
   }
 
   @MessagePattern(AuthPatterns.CREATE)
-  create(@Payload() createAuthDto: CreateAuthDto) {
+  create(@Payload('data') createAuthDto: CreateAuthDto) {
     return this.authService.create(createAuthDto);
   }
 
   @MessagePattern(AuthPatterns.LOGIN)
-  login(@Payload() loginDto: LoginDto) {
+  login(@Payload('data') loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
   @MessagePattern(AuthPatterns.VERIFY)
-  verify(@Payload() token: string) {
+  verify(@Payload('data') token: string) {
     return this.authService.validateToken(token);
   }
 
   @MessagePattern(AuthPatterns.FIND_BY_ID)
-  findById(@Payload() id: string) {
+  findById(@Payload('data') id: string) {
     return this.authService.findById(id);
   }
 
   @MessagePattern(AuthPatterns.UPDATE)
-  update(@Payload() updateAuthDto: UpdateAuthDto) {
+  update(@Payload('data') updateAuthDto: UpdateAuthDto) {
     return this.authService.update(updateAuthDto);
   }
 
   @MessagePattern(AuthPatterns.REQUEST_PASSWORD_RESET)
-  requestPasswordReset(@Payload() email: string) {
+  requestPasswordReset(@Payload('data') email: string) {
     return this.authService.requestPasswordReset(email);
   }
 
   @MessagePattern(AuthPatterns.RESET_PASSWORD)
   resetPassword(
-    @Payload()
+    @Payload('data')
     payload: ResetPasswordDto,
   ) {
     const { otp, email, newPassword } = payload;
@@ -58,7 +58,7 @@ export class AuthController {
   }
 
   @MessagePattern(AuthPatterns.DELETE)
-  delete(@Payload() id: string) {
+  delete(@Payload('data') id: string) {
     return this.authService.delete(id);
   }
 }

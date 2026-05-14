@@ -5,6 +5,7 @@ import {
   UpdateTransactionDto,
   PaginationDto,
 } from '@medicpadi-backend/contracts';
+import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { createHmac } from 'crypto';
@@ -18,9 +19,13 @@ export class TransactionsService {
     @Inject() private readonly configService: ConfigService,
   ) {}
 
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
+
   async create(dto: CreateTransactionDto) {
     return firstValueFrom(
-      this.transactionsClient.send(TransactionPatterns.TRANSACTIONS.CREATE, dto),
+      this.transactionsClient.send(TransactionPatterns.TRANSACTIONS.CREATE, withServiceAuth(dto, this.serviceToken)),
     );
   }
 
@@ -28,7 +33,7 @@ export class TransactionsService {
     return firstValueFrom(
       this.transactionsClient.send(
         TransactionPatterns.TRANSACTIONS.FIND_ALL,
-        query,
+        withServiceAuth(query, this.serviceToken),
       ),
     );
   }
@@ -37,17 +42,14 @@ export class TransactionsService {
     return firstValueFrom(
       this.transactionsClient.send(
         TransactionPatterns.TRANSACTIONS.RETRIEVE,
-        id,
+        withServiceAuth(id, this.serviceToken),
       ),
     );
   }
 
   async update(id: string, dto: UpdateTransactionDto) {
     return firstValueFrom(
-      this.transactionsClient.send(TransactionPatterns.TRANSACTIONS.UPDATE, {
-        id,
-        ...dto,
-      }),
+      this.transactionsClient.send(TransactionPatterns.TRANSACTIONS.UPDATE, withServiceAuth({ id, ...dto }, this.serviceToken)),
     );
   }
 
@@ -55,7 +57,7 @@ export class TransactionsService {
     return firstValueFrom(
       this.transactionsClient.send(
         TransactionPatterns.TRANSACTIONS.DELETE,
-        id,
+        withServiceAuth(id, this.serviceToken),
       ),
     );
   }
@@ -64,7 +66,7 @@ export class TransactionsService {
     return firstValueFrom(
       this.transactionsClient.send(
         TransactionPatterns.TRANSACTIONS.VERIFY,
-        reference,
+        withServiceAuth(reference, this.serviceToken),
       ),
     );
   }
@@ -80,7 +82,7 @@ export class TransactionsService {
     }
 
     return firstValueFrom(
-      this.transactionsClient.send(TransactionPatterns.TRANSACTIONS.WEBHOOK, body),
+      this.transactionsClient.send(TransactionPatterns.TRANSACTIONS.WEBHOOK, withServiceAuth(body, this.serviceToken)),
     );
   }
 }

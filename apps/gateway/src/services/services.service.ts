@@ -7,27 +7,33 @@ import {
   CreatePharmacyDrugDto,
   UpdatePharmacyDrugDto,
 } from '@medicpadi-backend/contracts';
+import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ServicesService {
   constructor(
     @Inject('SERVICES_SERVICE') private readonly servicesClient: ClientProxy,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
 
   //////////////////////////////////////////////////////////////////////
   // Lab Tests methods ////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////
   async createLabTest(createLabTestDto: CreateLabTestDto) {
     try {
-      const service = await firstValueFrom(
+      return await firstValueFrom(
         this.servicesClient.send(
           ServicePatterns.LAB_TESTS.CREATE,
-          createLabTestDto,
+          withServiceAuth(createLabTestDto, this.serviceToken),
         ),
       );
-      return service;
     } catch (error) {
       throw error;
     }
@@ -36,7 +42,7 @@ export class ServicesService {
   async findAllLabTests(query: PaginationDto) {
     try {
       return await firstValueFrom(
-        this.servicesClient.send(ServicePatterns.LAB_TESTS.FIND_ALL, query),
+        this.servicesClient.send(ServicePatterns.LAB_TESTS.FIND_ALL, withServiceAuth(query, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -46,7 +52,7 @@ export class ServicesService {
   async findOneLabTest(id: string) {
     try {
       return await firstValueFrom(
-        this.servicesClient.send(ServicePatterns.LAB_TESTS.RETRIEVE, id),
+        this.servicesClient.send(ServicePatterns.LAB_TESTS.RETRIEVE, withServiceAuth(id, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -56,10 +62,7 @@ export class ServicesService {
   async updateLabTest(id: string, updateLabTestDto: UpdateLabTestDto) {
     try {
       return await firstValueFrom(
-        this.servicesClient.send(ServicePatterns.LAB_TESTS.UPDATE, {
-          id,
-          ...updateLabTestDto,
-        }),
+        this.servicesClient.send(ServicePatterns.LAB_TESTS.UPDATE, withServiceAuth({ id, ...updateLabTestDto }, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -69,7 +72,7 @@ export class ServicesService {
   async removeLabTest(id: string) {
     try {
       return await firstValueFrom(
-        this.servicesClient.send(ServicePatterns.LAB_TESTS.DELETE, id),
+        this.servicesClient.send(ServicePatterns.LAB_TESTS.DELETE, withServiceAuth(id, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -81,13 +84,12 @@ export class ServicesService {
   ////////////////////////////////////////////////////////////////////
   async createPharmacyDrug(createPharmacyDrugDto: CreatePharmacyDrugDto) {
     try {
-      const service = await firstValueFrom(
+      return await firstValueFrom(
         this.servicesClient.send(
           ServicePatterns.PHARMCY_DRUGS.CREATE,
-          createPharmacyDrugDto,
+          withServiceAuth(createPharmacyDrugDto, this.serviceToken),
         ),
       );
-      return service;
     } catch (error) {
       throw error;
     }
@@ -96,7 +98,7 @@ export class ServicesService {
   async findAllPharmacyDrugs(query: PaginationDto) {
     try {
       return await firstValueFrom(
-        this.servicesClient.send(ServicePatterns.PHARMCY_DRUGS.FIND_ALL, query),
+        this.servicesClient.send(ServicePatterns.PHARMCY_DRUGS.FIND_ALL, withServiceAuth(query, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -106,7 +108,7 @@ export class ServicesService {
   async findOnePharmacyDrug(id: string) {
     try {
       return await firstValueFrom(
-        this.servicesClient.send(ServicePatterns.PHARMCY_DRUGS.RETRIEVE, id),
+        this.servicesClient.send(ServicePatterns.PHARMCY_DRUGS.RETRIEVE, withServiceAuth(id, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -119,10 +121,7 @@ export class ServicesService {
   ) {
     try {
       return await firstValueFrom(
-        this.servicesClient.send(ServicePatterns.PHARMCY_DRUGS.UPDATE, {
-          id,
-          ...updatePharmacyDrugDto,
-        }),
+        this.servicesClient.send(ServicePatterns.PHARMCY_DRUGS.UPDATE, withServiceAuth({ id, ...updatePharmacyDrugDto }, this.serviceToken)),
       );
     } catch (error) {
       throw error;
@@ -132,7 +131,7 @@ export class ServicesService {
   async removePharmacyDrug(id: string) {
     try {
       return await firstValueFrom(
-        this.servicesClient.send(ServicePatterns.PHARMCY_DRUGS.DELETE, id),
+        this.servicesClient.send(ServicePatterns.PHARMCY_DRUGS.DELETE, withServiceAuth(id, this.serviceToken)),
       );
     } catch (error) {
       throw error;

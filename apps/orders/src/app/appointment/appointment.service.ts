@@ -19,9 +19,11 @@ import {
   PaymentGateway,
   PaystackInitializeResponse,
 } from '@medicpadi-backend/contracts';
+import { withServiceAuth } from '@medicpadi-backend/utils';
 import { Appointment } from '../../entities/appointment.entity';
 import { ZoomService } from './providers/zoom.service';
 import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppointmentService {
@@ -36,7 +38,12 @@ export class AppointmentService {
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
 
   async create(dto: CreateAppointmentDto) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -66,15 +73,16 @@ export class AppointmentService {
         } as ServiceError);
       }
 
+      const token = this.serviceToken;
       const [doctor, patient, patientAuth] = await Promise.all([
         firstValueFrom(
-          this.profileClient.send(DoctorPatterns.RETRIEVE, dto.provider_id),
+          this.profileClient.send(DoctorPatterns.RETRIEVE, withServiceAuth(dto.provider_id, token)),
         ),
         firstValueFrom(
-          this.profileClient.send(PatientPatterns.RETRIEVE, dto.patient_id),
+          this.profileClient.send(PatientPatterns.RETRIEVE, withServiceAuth(dto.patient_id, token)),
         ),
         firstValueFrom(
-          this.authClient.send(AuthPatterns.FIND_BY_ID, dto.patient_id),
+          this.authClient.send(AuthPatterns.FIND_BY_ID, withServiceAuth(dto.patient_id, token)),
         ),
       ]);
 
@@ -110,7 +118,7 @@ export class AppointmentService {
       };
 
       const initTransaction: PaystackInitializeResponse = await firstValueFrom(
-        this.transactionsClient.send('transactions.create', transactionDto),
+        this.transactionsClient.send('transactions.create', withServiceAuth(transactionDto, token)),
       );
 
       await queryRunner.commitTransaction();
@@ -123,7 +131,7 @@ export class AppointmentService {
         appointmentTime: appointmentTime.toISOString(),
         joinLink: savedAppointment.join_link,
       };
-      this.notificationClient.emit(EmailPatterns.APPOINTMENT_CREATED, emailDto);
+      this.notificationClient.emit(EmailPatterns.APPOINTMENT_CREATED, withServiceAuth(emailDto, token));
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { meeting_link: _, ...appointmentData } = savedAppointment;
@@ -231,8 +239,9 @@ export class AppointmentService {
       await this.appointmentRepo.save(existing);
 
       // Notify patient their appointment was confirmed — fire-and-forget
+      const token = this.serviceToken;
       this.authClient
-        .send(AuthPatterns.FIND_BY_ID, existing.patient_id)
+        .send(AuthPatterns.FIND_BY_ID, withServiceAuth(existing.patient_id, token))
         .subscribe((patientAuth) => {
           const emailDto: AppointmentEmailDto = {
             email: patientAuth.email,
@@ -243,7 +252,7 @@ export class AppointmentService {
           };
           this.notificationClient.emit(
             EmailPatterns.APPOINTMENT_CONFIRMED,
-            emailDto,
+            withServiceAuth(emailDto, token),
           );
         });
 
@@ -273,8 +282,9 @@ export class AppointmentService {
       await this.appointmentRepo.remove(existing);
 
       // Notify patient of cancellation — fire-and-forget
+      const token = this.serviceToken;
       this.authClient
-        .send(AuthPatterns.FIND_BY_ID, existing.patient_id)
+        .send(AuthPatterns.FIND_BY_ID, withServiceAuth(existing.patient_id, token))
         .subscribe((patientAuth) => {
           const emailDto: AppointmentEmailDto = {
             email: patientAuth.email,
@@ -284,7 +294,7 @@ export class AppointmentService {
           };
           this.notificationClient.emit(
             EmailPatterns.APPOINTMENT_CANCELLED,
-            emailDto,
+            withServiceAuth(emailDto, token),
           );
         });
 

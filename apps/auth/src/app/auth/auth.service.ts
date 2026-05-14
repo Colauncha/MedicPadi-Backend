@@ -15,7 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { CACHE_MANAGER, Cache, CacheKey } from '@nestjs/cache-manager';
-import { generateOtp } from '@medicpadi-backend/utils';
+import { generateOtp, withServiceAuth } from '@medicpadi-backend/utils';
 import { firstValueFrom } from 'rxjs';
 import Redis from 'ioredis';
 
@@ -30,6 +30,10 @@ export class AuthService {
     private readonly notificationClient: ClientProxy,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
 
   getStatus() {
     return {
@@ -181,7 +185,7 @@ export class AuthService {
     resetDto.name = 'User';
     resetDto.otp = resetToken;
     await firstValueFrom(
-      this.notificationClient.emit(EmailPatterns.RESET_PASSWORD, resetDto),
+      this.notificationClient.emit(EmailPatterns.RESET_PASSWORD, withServiceAuth(resetDto, this.serviceToken)),
     );
     console.log('Redis set result:', redisRet);
     return {

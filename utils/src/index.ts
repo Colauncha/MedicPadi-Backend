@@ -4,6 +4,10 @@ export * from './lib/interceptors/microservice-logging.interceptor';
 // Helpers
 export * from './lib/helpers/generate-otp';
 export * from './lib/helpers/profilePatternFromRole';
+export * from './lib/helpers/with-service-auth';
+
+// Guards
+export * from './lib/guards/service-auth.guard';
 
 // Modules
 export * from './lib/redis/redis.module';

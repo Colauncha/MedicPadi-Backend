@@ -13,27 +13,27 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @MessagePattern(CommunityPatterns.POSTS.CREATE)
-  create(@Payload() dto: CreateCommunityPostDto) {
+  create(@Payload('data') dto: CreateCommunityPostDto) {
     return this.postsService.create(dto);
   }
 
   @MessagePattern(CommunityPatterns.POSTS.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.postsService.findAll(query);
   }
 
   @MessagePattern(CommunityPatterns.POSTS.RETRIEVE)
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.postsService.findOne(id);
   }
 
   @MessagePattern(CommunityPatterns.POSTS.UPDATE)
-  update(@Payload() dto: UpdateCommunityPostDto) {
+  update(@Payload('data') dto: UpdateCommunityPostDto) {
     return this.postsService.update(dto.id, dto);
   }
 
   @MessagePattern(CommunityPatterns.POSTS.DELETE)
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.postsService.remove(id);
   }
 }

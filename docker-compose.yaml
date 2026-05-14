@@ -10,6 +10,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - medicpadi_internal
     restart: always
 
   redis:
@@ -17,6 +19,8 @@ services:
     container_name: medicpadi-redis
     ports:
       - "6379:6379"
+    networks:
+      - medicpadi_internal
     restart: always
     volumes:
       - redis_data:/var/lib/redis/data
@@ -31,98 +35,105 @@ services:
       - postgres
     env_file:
       - ./apps/gateway/.env.staging
+    networks:
+      - medicpadi_internal
     restart: always
 
   # Auth Service
   auth-service:
     image: colauncha/medicpadi-auth:main
     container_name: medicpadi-auth
-    ports:
-      - "3001:3001"
     depends_on:
       - postgres
-      - redis      
+      - redis
     env_file:
       - ./apps/auth/.env.staging
+    networks:
+      - medicpadi_internal
     restart: always
 
-  # Profile Services
+  # Profile Service
   profile-service:
     image: colauncha/medicpadi-profile:main
     container_name: medicpadi-profile
-    ports:
-      - "3002:3002"
     depends_on:
       - postgres
     env_file:
       - ./apps/profile/.env.staging
+    networks:
+      - medicpadi_internal
     restart: always
-  
+
   # Notification Service
   notification-service:
     image: colauncha/medicpadi-notification:main
     container_name: medicpadi-notification
-    ports:
-      - "3003:3003"
     depends_on:
       - postgres
     env_file:
       - ./apps/notification/.env.staging
+    networks:
+      - medicpadi_internal
     restart: always
+
   services-service:
     image: colauncha/medicpadi-services:main
     container_name: medicpadi-services
-    ports:
-      - "3004:3004"
     depends_on:
       - postgres
     env_file:
       - ./apps/services/.env.staging
+    networks:
+      - medicpadi_internal
     restart: always
 
   orders-service:
     image: colauncha/medicpadi-orders:main
     container_name: medicpadi-orders
-    ports:
-      - "3005:3005"
     depends_on:
       - postgres
     env_file:
       - ./apps/orders/.env.staging
+    networks:
+      - medicpadi_internal
     restart: always
 
   # ehr-service:
   #   image: colauncha/medicpadi-ehr:main
   #   container_name: medicpadi-ehr
-  #   ports:
-  #     - "3006:3006"
   #   depends_on:
   #     - postgres
   #   env_file:
   #     - ./apps/ehr/.env.staging
+  #   networks:
+  #     - medicpadi_internal
   #   restart: always
 
   # transactions-service:
   #   image: colauncha/medicpadi-transaction:main
   #   container_name: medicpadi-transaction
-  #   ports:
-  #     - "3008:3008"
   #   depends_on:
   #     - postgres
   #   env_file:
   #     - ./apps/transaction/.env.staging
-    # restart: always
+  #   networks:
+  #     - medicpadi_internal
+  #   restart: always
 
   # community-service:
   #   image: colauncha/medicpadi-community:main
   #   container_name: medicpadi-community
-  #   ports:
-  #     - "3007:3007"
   #   depends_on:
   #     - postgres
   #   env_file:
   #     - ./apps/community/.env.staging
+  #   networks:
+  #     - medicpadi_internal
   #   restart: always
+
+networks:
+  medicpadi_internal:
+    driver: bridge
 
 volumes:
   postgres_data:

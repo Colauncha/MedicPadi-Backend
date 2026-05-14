@@ -7,7 +7,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { MicroserviceLoggingInterceptor } from '@medicpadi-backend/utils';
+import { MicroserviceLoggingInterceptor, ServiceAuthGuard } from '@medicpadi-backend/utils';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -28,6 +28,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new MicroserviceLoggingInterceptor());
+  app.useGlobalGuards(new ServiceAuthGuard());
   await app.listen();
   Logger.log(`🚀 Notification Application is running on port 3003`);
 }

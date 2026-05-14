@@ -14,47 +14,47 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @MessagePattern(TransactionPatterns.TRANSACTIONS.CREATE)
-  create(@Payload() dto: CreateTransactionDto) {
+  create(@Payload('data') dto: CreateTransactionDto) {
     return this.transactionsService.create(dto);
   }
 
   @MessagePattern(TransactionPatterns.TRANSACTIONS.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.transactionsService.findAll(query);
   }
 
   @MessagePattern(TransactionPatterns.TRANSACTIONS.RETRIEVE)
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.transactionsService.findOne(id);
   }
 
   @MessagePattern(TransactionPatterns.TRANSACTIONS.UPDATE)
-  update(@Payload() dto: UpdateTransactionDto) {
+  update(@Payload('data') dto: UpdateTransactionDto) {
     return this.transactionsService.update(dto.id, dto);
   }
 
   @MessagePattern(TransactionPatterns.TRANSACTIONS.DELETE)
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.transactionsService.remove(id);
   }
 
   @MessagePattern(TransactionPatterns.TRANSACTIONS.VERIFY)
-  verify(@Payload() reference: string) {
+  verify(@Payload('data') reference: string) {
     return this.transactionsService.verify(reference);
   }
 
   @MessagePattern(TransactionPatterns.TRANSACTIONS.WEBHOOK)
-  handleWebhook(@Payload() payload: { event: string; data: any }) {
+  handleWebhook(@Payload('data') payload: { event: string; data: any }) {
     return this.transactionsService.handleWebhook(payload);
   }
 
   @MessagePattern(TransactionPatterns.WALLET.CREATE)
-  createWallet(@Payload() dto: CreateWalletDto) {
+  createWallet(@Payload('data') dto: CreateWalletDto) {
     return this.transactionsService.createWallet(dto);
   }
 
   @MessagePattern(TransactionPatterns.WALLET.RETRIEVE)
-  getWallet(@Payload() userId: string) {
+  getWallet(@Payload('data') userId: string) {
     return this.transactionsService.getWallet(userId);
   }
 }

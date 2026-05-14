@@ -13,27 +13,27 @@ export class LabTestsController {
   constructor(private readonly labTestsService: LabTestsService) {}
 
   @MessagePattern(ServicePatterns.LAB_TESTS.CREATE)
-  create(@Payload() createLabTestDto: CreateLabTestDto) {
+  create(@Payload('data') createLabTestDto: CreateLabTestDto) {
     return this.labTestsService.create(createLabTestDto);
   }
 
   @MessagePattern(ServicePatterns.LAB_TESTS.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.labTestsService.findAll(query);
   }
 
   @MessagePattern(ServicePatterns.LAB_TESTS.RETRIEVE)
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.labTestsService.findOne(id);
   }
 
   @MessagePattern(ServicePatterns.LAB_TESTS.UPDATE)
-  update(@Payload() updateLabTestDto: UpdateLabTestDto) {
+  update(@Payload('data') updateLabTestDto: UpdateLabTestDto) {
     return this.labTestsService.update(updateLabTestDto.id, updateLabTestDto);
   }
 
   @MessagePattern(ServicePatterns.LAB_TESTS.DELETE)
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.labTestsService.remove(id);
   }
 }

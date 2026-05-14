@@ -11,7 +11,7 @@ import {
   RpcException,
   Transport,
 } from '@nestjs/microservices';
-import { MicroserviceLoggingInterceptor } from '@medicpadi-backend/utils';
+import { MicroserviceLoggingInterceptor, ServiceAuthGuard } from '@medicpadi-backend/utils';
 import { ServiceError } from '@medicpadi-backend/contracts';
 
 async function bootstrap() {
@@ -26,6 +26,7 @@ async function bootstrap() {
     },
   );
   app.useGlobalInterceptors(new MicroserviceLoggingInterceptor());
+  app.useGlobalGuards(new ServiceAuthGuard());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

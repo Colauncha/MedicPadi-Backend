@@ -15,22 +15,22 @@ export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @EventPattern(EmailPatterns.WELCOME)
-  welcome(@Payload() dto: WelcomeEmailDto) {
+  welcome(@Payload('data') dto: WelcomeEmailDto) {
     return this.emailService.welcomeEmail(dto.email, dto.name, dto.verifyUrl);
   }
 
   @EventPattern(EmailPatterns.WAITLIST)
-  waitlist(@Payload() dto: WaitlistEmailDto) {
+  waitlist(@Payload('data') dto: WaitlistEmailDto) {
     return this.emailService.waitlistEmail(dto.email!, dto.name!);
   }
 
   @EventPattern(EmailPatterns.RESET_PASSWORD)
-  resetPassword(@Payload() dto: ResetPasswordEmailDto) {
+  resetPassword(@Payload('data') dto: ResetPasswordEmailDto) {
     return this.emailService.resetPasswordEmail(dto.email, dto.name, dto.otp);
   }
 
   @EventPattern(EmailPatterns.APPOINTMENT_CREATED)
-  appointmentCreated(@Payload() dto: AppointmentEmailDto) {
+  appointmentCreated(@Payload('data') dto: AppointmentEmailDto) {
     return this.emailService.appointmentCreatedEmail(
       dto.email,
       dto.patientName,
@@ -41,7 +41,7 @@ export class EmailController {
   }
 
   @EventPattern(EmailPatterns.APPOINTMENT_CONFIRMED)
-  appointmentConfirmed(@Payload() dto: AppointmentEmailDto) {
+  appointmentConfirmed(@Payload('data') dto: AppointmentEmailDto) {
     return this.emailService.appointmentConfirmedEmail(
       dto.email,
       dto.patientName,
@@ -51,7 +51,7 @@ export class EmailController {
   }
 
   @EventPattern(EmailPatterns.APPOINTMENT_CANCELLED)
-  appointmentCancelled(@Payload() dto: AppointmentEmailDto) {
+  appointmentCancelled(@Payload('data') dto: AppointmentEmailDto) {
     return this.emailService.appointmentCancelledEmail(
       dto.email,
       dto.patientName,
@@ -60,7 +60,7 @@ export class EmailController {
   }
 
   @EventPattern(EmailPatterns.PAYMENT_SUCCESS)
-  paymentSuccess(@Payload() dto: PaymentEmailDto) {
+  paymentSuccess(@Payload('data') dto: PaymentEmailDto) {
     return this.emailService.paymentSuccessEmail(
       dto.email,
       dto.name,

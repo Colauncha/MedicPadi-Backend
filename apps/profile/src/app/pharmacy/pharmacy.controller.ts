@@ -16,33 +16,33 @@ export class PharmacyController {
   constructor(private readonly pharmacyService: PharmacyService) {}
 
   @MessagePattern(PharmacyPatterns.CREATE)
-  create(@Payload() createPharmacyDto: CreatePharmacyDto) {
+  create(@Payload('data') createPharmacyDto: CreatePharmacyDto) {
     return this.pharmacyService.create(createPharmacyDto);
   }
 
   @MessagePattern(PharmacyPatterns.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.pharmacyService.findAll(query);
   }
 
   @MessagePattern('findOnePharmacy')
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.pharmacyService.findOne(id);
   }
 
   @MessagePattern(PharmacyPatterns.RETRIEVE)
-  retrieve(@Payload() id: string) {
+  retrieve(@Payload('data') id: string) {
     return this.pharmacyService.findOne(id);
   }
 
   @MessagePattern(PharmacyPatterns.UPDATE)
-  async update(@Payload() updatePharmacyDto: UpdatePharmacyDto) {
+  async update(@Payload('data') updatePharmacyDto: UpdatePharmacyDto) {
     return this.pharmacyService.update(updatePharmacyDto.id, updatePharmacyDto);
   }
 
   @MessagePattern(PharmacyPatterns.UPDATE_BUSINESS_HOURS)
   async updateBusinessHours(
-    @Payload() businessHoursDto: BusinessHoursDto & { id: string },
+    @Payload('data') businessHoursDto: BusinessHoursDto & { id: string },
   ) {
     const { id, ...rest } = businessHoursDto;
     if (!rest) {
@@ -61,7 +61,7 @@ export class PharmacyController {
   }
 
   @MessagePattern('removePharmacy')
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.pharmacyService.remove(id);
   }
 }

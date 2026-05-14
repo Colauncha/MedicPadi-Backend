@@ -13,32 +13,32 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @MessagePattern(AdminPatterns.CREATE)
-  create(@Payload() createAdminDto: CreateAdminDto) {
+  create(@Payload('data') createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
 
   @MessagePattern(AdminPatterns.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.adminService.findAll(query);
   }
 
   @MessagePattern('findOneAdmin')
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.adminService.findOne(id);
   }
 
   @MessagePattern(AdminPatterns.RETRIEVE)
-  retrieve(@Payload() id: string) {
+  retrieve(@Payload('data') id: string) {
     return this.adminService.findOne(id);
   }
 
   @MessagePattern(AdminPatterns.UPDATE)
-  async update(@Payload() updateAdminDto: UpdateAdminDto) {
+  async update(@Payload('data') updateAdminDto: UpdateAdminDto) {
     return await this.adminService.update(updateAdminDto.id, updateAdminDto);
   }
 
   @MessagePattern('removeAdmin')
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.adminService.remove(id);
   }
 }

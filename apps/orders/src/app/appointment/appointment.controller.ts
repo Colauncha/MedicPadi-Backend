@@ -13,27 +13,27 @@ export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.CREATE)
-  create(@Payload() dto: CreateAppointmentDto) {
+  create(@Payload('data') dto: CreateAppointmentDto) {
     return this.appointmentService.create(dto);
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.FIND_ALL)
-  findAll(@Payload() query: PaginationDto) {
+  findAll(@Payload('data') query: PaginationDto) {
     return this.appointmentService.findAll(query);
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.RETRIEVE)
-  findOne(@Payload() id: string) {
+  findOne(@Payload('data') id: string) {
     return this.appointmentService.findOne(id);
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.UPDATE)
-  update(@Payload() dto: UpdateAppointmentDto) {
+  update(@Payload('data') dto: UpdateAppointmentDto) {
     return this.appointmentService.update(dto.id, dto);
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.DELETE)
-  remove(@Payload() id: string) {
+  remove(@Payload('data') id: string) {
     return this.appointmentService.remove(id);
   }
 }
