@@ -36,4 +36,7 @@ export class EhrRecordsController {
   remove(@Payload('data') id: string) {
     return this.ehrRecordsService.remove(id);
   }
+
+  // Endpoint to handle incoming EHR records from external sources (e.g., providers)
+  // Links | PDFs | Word Docs | FHIR Resources
 }

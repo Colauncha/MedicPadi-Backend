@@ -50,3 +50,6 @@ Thumbs.db
 .nx
 .nx/*
 .nx/
+
+transferEnvToServer.sh
+createRemoteDB.sh

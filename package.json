@@ -2,7 +2,10 @@
   "name": "@medicpadi-backend/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "envToServer": "sh transferEnvToServer.sh",
+    "createRemoteDB": "sh createRemoteDB.sh"
+  },
   "private": true,
   "dependencies": {
     "@keyv/redis": "^5.1.6",
