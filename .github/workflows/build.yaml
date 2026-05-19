@@ -22,8 +22,8 @@ jobs:
           - notification
           - services
           - orders
-          # - transactions
-          # - ehr
+          - transactions
+          - ehr
           # - community
 
     steps:
