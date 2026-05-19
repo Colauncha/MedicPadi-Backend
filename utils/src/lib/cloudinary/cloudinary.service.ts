@@ -25,4 +25,22 @@ export class CloudinaryService {
       upload.end(file.buffer);
     });
   }
+
+  async uploadDocument(file: Express.Multer.File, folder: string): Promise<{ public_id: string; secure_url: string }> {
+    return new Promise((resolve, reject) => {
+      const upload = this.cloudinary.uploader.upload_stream(
+        {
+          folder,
+          resource_type: 'raw',
+          format: 'pdf',
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result as { public_id: string; secure_url: string });
+        },
+      );
+
+      upload.end(file.buffer);
+    });
+  }
 }

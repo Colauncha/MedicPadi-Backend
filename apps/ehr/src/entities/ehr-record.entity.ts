@@ -15,6 +15,9 @@ export class EhrRecord extends BaseClass {
   @Column({ type: 'uuid', nullable: true })
   source_id?: string;
 
-  @Column({ type: 'text', nullable: false })
-  content_encrypted!: string;
+  @Column({ type: 'text', nullable: true })
+  content_encrypted?: string;
+
+  @Column({ type: 'text', nullable: true })
+  document_url?: string;
 }

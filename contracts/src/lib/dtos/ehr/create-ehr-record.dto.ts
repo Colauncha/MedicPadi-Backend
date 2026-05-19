@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  IsUrl,
 } from 'class-validator';
 import { EhrSourceType } from '../../enums/ehr.enum';
 
@@ -28,8 +29,13 @@ export class CreateEhrRecordDto {
   @IsOptional()
   source_id?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  @IsNotEmpty()
-  content_encrypted!: string;
+  @IsOptional()
+  content_encrypted?: string;
+
+  @ApiPropertyOptional({ description: 'URL to the uploaded document (pdf, docx, doc)' })
+  @IsUrl()
+  @IsOptional()
+  document_url?: string;
 }

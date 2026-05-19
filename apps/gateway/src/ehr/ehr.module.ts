@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { EhrService } from './ehr.service';
 import { EhrController } from './ehr.controller';
+import { DocumentConverterService } from './document-converter.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { CloudinaryModule } from '@medicpadi-backend/utils';
 
 @Module({
   imports: [
+    CloudinaryModule,
     ClientsModule.registerAsync([
       {
         name: 'EHR_SERVICE',
@@ -32,6 +35,6 @@ import { ConfigService } from '@nestjs/config';
     ]),
   ],
   controllers: [EhrController],
-  providers: [EhrService],
+  providers: [EhrService, DocumentConverterService],
 })
 export class EhrModule {}

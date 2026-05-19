@@ -1,5 +1,5 @@
 export const EhrPatterns = {
-  STATUS: 'ehr.status',
+  GET_STATUS: 'ehr.status',
   EHR_RECORDS: {
     CREATE: 'ehr.records.create',
     UPDATE: 'ehr.records.update',

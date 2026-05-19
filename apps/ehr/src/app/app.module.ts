@@ -6,6 +6,7 @@ import { EhrRecordsModule } from './ehr-records/ehr-records.module';
 import { ConsentModule } from './consent/consent.module';
 import { EhrRecord } from '../entities/ehr-record.entity';
 import { ConsentGrant } from '../entities/consent-grant.entity';
+import { ClientsModule } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -26,9 +27,29 @@ import { ConsentGrant } from '../entities/consent-grant.entity';
         password: configService.get<string>('dbConfig.password'),
         database: configService.get<string>('dbConfig.database'),
         synchronize: configService.get<boolean>('dbConfig.synchronize'),
-        autoLoadEntities: configService.get<boolean>('dbConfig.autoLoadEntities'),
+        autoLoadEntities: configService.get<boolean>(
+          'dbConfig.autoLoadEntities',
+        ),
       }),
     }),
+    ClientsModule.registerAsync([
+      {
+        name: 'NOTIFICATION_SERVICE',
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: async (configService: ConfigService) => ({
+          transport: 1, // Transport.TCP
+          options: {
+            host: configService.get<string>(
+              'serviceConfig.notificationServiceHost',
+            ),
+            port: configService.get<number>(
+              'serviceConfig.notificationServicePort',
+            ),
+          },
+        }),
+      },
+    ]),
     EhrRecordsModule,
     ConsentModule,
   ],
