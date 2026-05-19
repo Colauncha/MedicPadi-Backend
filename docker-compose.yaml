@@ -110,12 +110,12 @@ services:
     restart: always
 
   transactions-service:
-    image: colauncha/medicpadi-transaction:main
-    container_name: medicpadi-transaction
+    image: colauncha/medicpadi-transactions:main
+    container_name: medicpadi-transactions
     depends_on:
       - postgres
     env_file:
-      - ./apps/transaction/.env.staging
+      - ./apps/transactions/.env.staging
     networks:
       - medicpadi_internal
     restart: always
