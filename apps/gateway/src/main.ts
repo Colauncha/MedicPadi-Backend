@@ -19,15 +19,35 @@ async function bootstrap() {
 
   // Swagger Config
   const config = new DocumentBuilder()
-    .setTitle('MedicPadi')
+    .setTitle('MedicPadi API')
     .setDescription(
-      'API documentation for the MedicPadi gateway app, use API as https://api.medicpadi.com/',
+      `## MedicPadi REST API
+
+MedicPadi is a telemedicine and healthcare management platform connecting patients with doctors, pharmacies, and laboratories.
+
+### Authentication
+Most endpoints require a valid JWT bearer token. Obtain a token via **POST /api/auth/login**, then click **Authorize** above and enter \`Bearer <token>\`.
+
+### Roles
+| Role | Key |
+|------|-----|
+| Patient | \`patient\` |
+| Doctor / Consultant | \`consultant\` |
+| Pharmacy | \`pharmacy\` |
+| Laboratory | \`lab\` |
+| Admin | \`admin\` |
+
+Each endpoint documents which roles are permitted in its description.`,
     )
     .setTermsOfService('http://localhost:3000/terms')
     .setLicense('MIT License', 'https://opensource.org/license/mit/')
     .addServer('http://localhost:3000', 'Development server')
     .addServer('https://api.medicpadi.com', 'Staging server')
     .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .build();
 
   // Instantiate swagger document

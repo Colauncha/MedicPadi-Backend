@@ -24,26 +24,45 @@ import {
   AdminAuthGuard,
   RequestWithUser,
 } from '../guards/auth/auth.guard';
-import { ApiExtraModels } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiExtraModels,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('auth')
 @ApiExtraModels(CreateAuthDto, LoginDto, UpdateAuthDto)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  /*
-   * This endpoint creats a user.
-   *
-   * Note: The enum for user roles includes
-   * {'Doctor': 'consultant', 'Patient': 'patient', 'Pharmacy': 'pharmacy', 'Laboratory': 'lab'}
-   */
   @Post()
+  @ApiOperation({
+    summary: 'Register a new user',
+    description:
+      'Creates a new user account. The `role` field determines the account type: `patient`, `consultant` (doctor), `pharmacy`, or `lab`.',
+  })
+  @ApiResponse({ status: 201, description: 'User created successfully.' })
+  @ApiResponse({ status: 400, description: 'Validation error or email already in use.' })
   create(@Body() createAuthDto: CreateAuthDto) {
     const response = this.authService.create(createAuthDto);
     return response;
   }
 
   @Post('login')
+  @ApiOperation({
+    summary: 'Log in',
+    description:
+      'Authenticates a user with email and password. Returns a JWT access token in the response body and also sets an `auth_token` HttpOnly cookie.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful. Returns `{ message, token: { access_token } }`.',
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials.' })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
@@ -57,6 +76,11 @@ export class AuthController {
   }
 
   @Get('logout')
+  @ApiOperation({
+    summary: 'Log out',
+    description: 'Clears the `auth_token` cookie, effectively ending the session.',
+  })
+  @ApiResponse({ status: 200, description: 'Logout successful.' })
   logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('auth_token');
     return { message: 'Logout successful' };
@@ -64,6 +88,14 @@ export class AuthController {
 
   @UseGuards(AdminAuthGuard)
   @Patch('/admin/update')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Admin: update any account',
+    description: 'Allows an admin to update account credentials for any user. Requires the `admin` role.',
+  })
+  @ApiResponse({ status: 200, description: 'Account updated.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions — admin role required.' })
   adminUpdate(
     @Body() updateAuthDto: UpdateAuthDto,
     @Req() request: RequestWithUser,
@@ -74,6 +106,14 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Patch('/update')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Update own account credentials',
+    description: 'Allows the authenticated user to update their own email or password.',
+  })
+  @ApiResponse({ status: 200, description: 'Account updated.' })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   update(
     @Body() updateAcctDto: UpdateAcctDto,
     @Req() request: RequestWithUser,
@@ -83,11 +123,24 @@ export class AuthController {
   }
 
   @Post('/request-password-reset')
+  @ApiOperation({
+    summary: 'Request a password reset OTP',
+    description: 'Sends a one-time password (OTP) to the provided email address to initiate a password reset.',
+  })
+  @ApiQuery({ name: 'email', required: true, description: 'The email address of the account to reset.' })
+  @ApiResponse({ status: 200, description: 'OTP sent if the email exists.' })
+  @ApiResponse({ status: 400, description: 'Invalid or missing email.' })
   async requestPasswordReset(@Query('email') email: string) {
     return await this.authService.requestPasswordReset(email);
   }
 
   @Post('/reset-password')
+  @ApiOperation({
+    summary: 'Reset password with OTP',
+    description: 'Resets the account password using the OTP received via email. The OTP expires after a short window.',
+  })
+  @ApiResponse({ status: 200, description: 'Password reset successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid OTP, expired OTP, or validation error.' })
   async resetPassword(
     @Body()
     resetPasswordDto: ResetPasswordDto,
@@ -98,6 +151,15 @@ export class AuthController {
 
   @UseGuards(AdminAuthGuard)
   @Post('/delete')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Admin: delete a user account',
+    description: 'Permanently deletes a user account by ID. Requires the `admin` role.',
+  })
+  @ApiResponse({ status: 200, description: 'Account deleted.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions — admin role required.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
   async delete(@Body('id') id: string) {
     try {
       return await this.authService.delete(id);
