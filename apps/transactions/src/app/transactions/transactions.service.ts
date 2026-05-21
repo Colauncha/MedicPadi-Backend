@@ -38,7 +38,9 @@ export class TransactionsService {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   async create(dto: CreateTransactionDto) {
@@ -54,7 +56,10 @@ export class TransactionsService {
         'paystackConfig.secretKey',
       );
       const user = await firstValueFrom(
-        this.authClient.send(AuthPatterns.FIND_BY_ID, withServiceAuth(dto.user_id, this.serviceToken)),
+        this.authClient.send(
+          AuthPatterns.FIND_BY_ID,
+          withServiceAuth(dto.user_id, this.serviceToken),
+        ),
       );
 
       let data: PaystackInitializeResponse;
@@ -90,6 +95,7 @@ export class TransactionsService {
         const transaction = queryRunner.manager.create(Transaction, {
           ...dto,
           gateway_reference: data.data.reference,
+          access_code: data.data.access_code,
         });
         await queryRunner.manager.save(transaction);
         await queryRunner.commitTransaction();
@@ -205,7 +211,10 @@ export class TransactionsService {
         const user = await firstValueFrom(
           this.authClient.send(
             AuthPatterns.FIND_BY_ID,
-            withServiceAuth(verifyData.data.metadata?.user_id, this.serviceToken),
+            withServiceAuth(
+              verifyData.data.metadata?.user_id,
+              this.serviceToken,
+            ),
           ),
         );
 
@@ -217,7 +226,10 @@ export class TransactionsService {
           reference: verifyData.data.reference,
         };
 
-        this.notificationClient.emit(EmailPatterns.PAYMENT_SUCCESS, withServiceAuth(emailDto, this.serviceToken));
+        this.notificationClient.emit(
+          EmailPatterns.PAYMENT_SUCCESS,
+          withServiceAuth(emailDto, this.serviceToken),
+        );
       }
 
       return { received: true };
@@ -258,6 +270,17 @@ export class TransactionsService {
   async findOne(id: string) {
     try {
       return await this.transactionRepo.findOne({ where: { id } });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to get transaction',
+      } as ServiceError);
+    }
+  }
+
+  async findByOrderId(id: string) {
+    try {
+      return await this.transactionRepo.findOne({ where: { source_id: id } });
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,

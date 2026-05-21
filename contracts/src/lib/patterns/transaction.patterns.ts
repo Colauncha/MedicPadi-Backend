@@ -4,6 +4,7 @@ export const TransactionPatterns = {
     CREATE: 'transactions.create',
     UPDATE: 'transactions.update',
     RETRIEVE: 'transactions.retrieve',
+    FIND_BY_ORDER_ID: 'transactions.findByOrderId',
     FIND_ALL: 'transactions.findAll',
     DELETE: 'transactions.delete',
     VERIFY: 'transactions.verify',

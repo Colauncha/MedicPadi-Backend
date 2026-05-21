@@ -28,6 +28,11 @@ export class TransactionsController {
     return this.transactionsService.findOne(id);
   }
 
+  @MessagePattern(TransactionPatterns.TRANSACTIONS.FIND_BY_ORDER_ID)
+  findByOrderId(@Payload('data') id: string) {
+    return this.transactionsService.findByOrderId(id);
+  }
+
   @MessagePattern(TransactionPatterns.TRANSACTIONS.UPDATE)
   update(@Payload('data') dto: UpdateTransactionDto) {
     return this.transactionsService.update(dto.id, dto);

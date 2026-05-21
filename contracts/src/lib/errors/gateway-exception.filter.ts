@@ -9,9 +9,17 @@ export class RpcExceptionFilter implements ExceptionFilter {
 
     const err = exception.getError() as any;
 
-    response.status(err.statusCode || 500).json({
-      statusCode: err.statusCode || 500,
-      message: err.message || 'Internal error',
-    });
+    if (process.env['NODE_ENV'] === 'development') {
+      console.error('RPC Exception:', err);
+      response.status(err.statusCode || 500).json({
+        statusCode: err.statusCode || 500,
+        message: err.message || 'Internal error',
+      });
+    } else {
+      response.status(err.statusCode || 500).json({
+        statusCode: err.statusCode || 500,
+        message: err.message || 'Internal error',
+      });
+    }
   }
 }

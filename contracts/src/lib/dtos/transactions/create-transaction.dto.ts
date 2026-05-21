@@ -50,4 +50,9 @@ export class CreateTransactionDto {
   @IsString()
   @IsOptional()
   gateway_reference?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  access_code?: string;
 }

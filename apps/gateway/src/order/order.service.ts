@@ -45,9 +45,14 @@ export class OrderService {
 
   async findOneAppointment(id: string, role: string) {
     let resultObj: any = null;
-    let result = firstValueFrom(
-      this.orderClient.send(OrderPatterns.APPOINTMENTS.RETRIEVE, withServiceAuth(id, this.serviceToken)),
+    let result = await firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.RETRIEVE,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
+
+    console.log('Order Service - findOneAppointment result:', result);
 
     if (role === 'patient') {
       resultObj = Object.assign(new PatientGetAppointmentDto(), result);

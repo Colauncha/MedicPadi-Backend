@@ -18,12 +18,15 @@ import {
   TransactionSourceType,
   PaymentGateway,
   PaystackInitializeResponse,
+  AppointmentPaymentStatus,
+  TransactionPatterns,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { Appointment } from '../../entities/appointment.entity';
 import { ZoomService } from './providers/zoom.service';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { access } from 'fs';
 
 @Injectable()
 export class AppointmentService {
@@ -133,10 +136,12 @@ export class AppointmentService {
       };
       this.notificationClient.emit(EmailPatterns.APPOINTMENT_CREATED, withServiceAuth(emailDto, token));
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { meeting_link: _, ...appointmentData } = savedAppointment;
-      return { appointment: appointmentData, payment: initTransaction.data };
+      return { payment: initTransaction.data };
     } catch (error) {
+      console.error(
+        'Error creating appointment:',
+        error instanceof Error ? error.stack : error,
+      );
       await queryRunner.rollbackTransaction();
       if (zoomMeetingId) {
         await this.zoomService.deleteMeeting(zoomMeetingId).catch(() => {});
@@ -185,11 +190,40 @@ export class AppointmentService {
 
   async findOne(id: string) {
     try {
-      return await this.appointmentRepo.findOne({ where: { id } });
+      let appointment = await this.appointmentRepo.findOne({ where: { id } });
+      if (!appointment) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Appointment not found',
+        } as ServiceError);
+      }
+      if (appointment.paymentStatus === AppointmentPaymentStatus.P_PENDING) {
+        const token = this.serviceToken;
+        const transaction = await firstValueFrom(
+          this.transactionsClient.send(
+            TransactionPatterns.TRANSACTIONS.FIND_BY_ORDER_ID,
+            withServiceAuth(appointment.id, token),
+          ),
+        );
+        let gatewayUrl =
+          transaction.gateway === PaymentGateway.PAYSTACK
+            ? 'https://checkout.paystack.com'
+            : '';
+        return {
+          authorization_url: `${gatewayUrl}/${transaction.access_code}`,
+          reference: transaction.gateway_reference,
+          access_code: transaction.access_code,
+        };
+      }
+      return appointment;
     } catch (error) {
+      if (error instanceof RpcException) {
+        throw error;
+      }
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get appointment',
+        error: error instanceof Error ? error.message : String(error),
       } as ServiceError);
     }
   }
@@ -269,7 +303,7 @@ export class AppointmentService {
 
   async remove(id: string) {
     try {
-      const existing = await this.findOne(id);
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
       if (!existing) {
         throw new RpcException({
           statusCode: HttpStatus.NOT_FOUND,

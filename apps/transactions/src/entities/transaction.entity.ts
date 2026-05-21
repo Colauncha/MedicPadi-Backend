@@ -38,4 +38,7 @@ export class Transaction extends BaseClass {
 
   @Column({ type: 'varchar', nullable: true })
   gateway_reference?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  access_code?: string;
 }
