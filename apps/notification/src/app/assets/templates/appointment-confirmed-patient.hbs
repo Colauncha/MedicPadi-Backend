@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Your Appointment Has Been Cancelled</title>
+  <title>Your Appointment Has Been Confirmed</title>
 </head>
 
 <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
@@ -23,7 +23,7 @@
           <!-- Title -->
           <tr>
             <td align="center">
-              <h2 style="margin:0; color:#222;">Appointment Cancelled</h2>
+              <h2 style="margin:0; color:#222;">Appointment Confirmed</h2>
             </td>
           </tr>
 
@@ -32,38 +32,36 @@
             <td style="padding-top:20px; color:#555; font-size:15px; line-height:1.6;">
               Hi {{patientName}},
               <br /><br />
-              We're writing to let you know that your appointment scheduled for
-              <strong>{{appointmentTime}}</strong> has been cancelled.
+              Great news! Your doctor has <strong>confirmed</strong> your upcoming appointment.
               <br /><br />
-              {{#if doctorsNote}}
-              <strong>Doctor's Note:</strong>
-              <blockquote style="margin:10px 0; padding:10px 20px; background:#f9f9f9; border-left:4px solid #ccc; color:#333;">
-                {{doctorsNote}}
-              </blockquote>
-              {{/if}}
               <table width="100%" cellpadding="0" cellspacing="0"
-                     style="background:#fff7ed; border-radius:6px; border-left:4px solid #f59e0b;">
+                     style="background:#f0fdf4; border-radius:6px; border-left:4px solid #16a34a;">
                 <tr>
-                  <td style="padding:12px 16px; font-size:14px; color:#9a3412;">
-                    If you did not request this cancellation or believe this is an error,
-                    please contact our support team as soon as possible.
+                  <td style="padding:12px 16px; font-size:14px; color:#333;">
+                    <strong>Date &amp; Time:</strong> {{appointmentTime}}
                   </td>
                 </tr>
               </table>
               <br />
-              You can book a new appointment at any time through the MedicPadi platform.
+              {{#if paymentLink}}
+              You can make the payment for the appointment using the button below to unlock the session.
+              {{else}}
+              Your doctor will reach out to you with further details before the appointment.
+              {{/if}}
             </td>
           </tr>
 
           <!-- CTA -->
+          {{#if paymentLink}}
           <tr>
             <td align="center" style="padding-top:30px;">
-              <a href="{{websiteUrl}}"
+              <a href="{{paymentLink}}"
                  style="background:rgb(68,18,203); color:white; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:bold;">
-                Book a New Appointment
+                Make Payment
               </a>
             </td>
           </tr>
+          {{/if}}
 
           <!-- Footer -->
           <tr>

@@ -6,6 +6,8 @@ export const OrderPatterns = {
     RETRIEVE: 'orders.appointments.retrieve',
     FIND_ALL: 'orders.appointments.findAll',
     DELETE: 'orders.appointments.delete',
+    ACCEPT: 'orders.appointments.accept',
+    COMPLETE_PAYMENT: 'orders.appointments.completePayment',
   },
   PRESCRIPTIONS: {
     CREATE: 'orders.prescriptions.create',

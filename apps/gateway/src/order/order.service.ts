@@ -26,20 +26,28 @@ export class OrderService {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   // Appointments
 
   async createAppointment(dto: CreateAppointmentDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.APPOINTMENTS.CREATE, withServiceAuth(dto, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.CREATE,
+        withServiceAuth(dto, this.serviceToken),
+      ),
     );
   }
 
   async findAllAppointments(query: PaginationDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.APPOINTMENTS.FIND_ALL, withServiceAuth(query, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.FIND_ALL,
+        withServiceAuth(query, this.serviceToken),
+      ),
     );
   }
 
@@ -65,13 +73,28 @@ export class OrderService {
 
   async updateAppointment(id: string, dto: UpdateAppointmentDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.APPOINTMENTS.UPDATE, withServiceAuth({ id, ...dto }, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.UPDATE,
+        withServiceAuth({ id, ...dto }, this.serviceToken),
+      ),
+    );
+  }
+
+  async acceptAppointment(id: string) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.ACCEPT,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
   }
 
   async removeAppointment(id: string) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.APPOINTMENTS.DELETE, withServiceAuth(id, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.DELETE,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
   }
 
@@ -79,31 +102,46 @@ export class OrderService {
 
   async createPrescription(dto: CreatePrescriptionDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.PRESCRIPTIONS.CREATE, withServiceAuth(dto, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.PRESCRIPTIONS.CREATE,
+        withServiceAuth(dto, this.serviceToken),
+      ),
     );
   }
 
   async findAllPrescriptions(query: PaginationDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.PRESCRIPTIONS.FIND_ALL, withServiceAuth(query, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.PRESCRIPTIONS.FIND_ALL,
+        withServiceAuth(query, this.serviceToken),
+      ),
     );
   }
 
   async findOnePrescription(id: string) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.PRESCRIPTIONS.RETRIEVE, withServiceAuth(id, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.PRESCRIPTIONS.RETRIEVE,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
   }
 
   async updatePrescription(id: string, dto: UpdatePrescriptionDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.PRESCRIPTIONS.UPDATE, withServiceAuth({ id, ...dto }, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.PRESCRIPTIONS.UPDATE,
+        withServiceAuth({ id, ...dto }, this.serviceToken),
+      ),
     );
   }
 
   async removePrescription(id: string) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.PRESCRIPTIONS.DELETE, withServiceAuth(id, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.PRESCRIPTIONS.DELETE,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
   }
 
@@ -111,31 +149,46 @@ export class OrderService {
 
   async createDrugRequisition(dto: CreateDrugRequisitionDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.DRUG_REQUISITIONS.CREATE, withServiceAuth(dto, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.DRUG_REQUISITIONS.CREATE,
+        withServiceAuth(dto, this.serviceToken),
+      ),
     );
   }
 
   async findAllDrugRequisitions(query: PaginationDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.DRUG_REQUISITIONS.FIND_ALL, withServiceAuth(query, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.DRUG_REQUISITIONS.FIND_ALL,
+        withServiceAuth(query, this.serviceToken),
+      ),
     );
   }
 
   async findOneDrugRequisition(id: string) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.DRUG_REQUISITIONS.RETRIEVE, withServiceAuth(id, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.DRUG_REQUISITIONS.RETRIEVE,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
   }
 
   async updateDrugRequisition(id: string, dto: UpdateDrugRequisitionDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.DRUG_REQUISITIONS.UPDATE, withServiceAuth({ id, ...dto }, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.DRUG_REQUISITIONS.UPDATE,
+        withServiceAuth({ id, ...dto }, this.serviceToken),
+      ),
     );
   }
 
   async removeDrugRequisition(id: string) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.DRUG_REQUISITIONS.DELETE, withServiceAuth(id, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.DRUG_REQUISITIONS.DELETE,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
   }
 
@@ -143,31 +196,46 @@ export class OrderService {
 
   async createTestRequisition(dto: CreateTestRequisitionDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.TEST_REQUISITIONS.CREATE, withServiceAuth(dto, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.TEST_REQUISITIONS.CREATE,
+        withServiceAuth(dto, this.serviceToken),
+      ),
     );
   }
 
   async findAllTestRequisitions(query: PaginationDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.TEST_REQUISITIONS.FIND_ALL, withServiceAuth(query, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.TEST_REQUISITIONS.FIND_ALL,
+        withServiceAuth(query, this.serviceToken),
+      ),
     );
   }
 
   async findOneTestRequisition(id: string) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.TEST_REQUISITIONS.RETRIEVE, withServiceAuth(id, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.TEST_REQUISITIONS.RETRIEVE,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
   }
 
   async updateTestRequisition(id: string, dto: UpdateTestRequisitionDto) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.TEST_REQUISITIONS.UPDATE, withServiceAuth({ id, ...dto }, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.TEST_REQUISITIONS.UPDATE,
+        withServiceAuth({ id, ...dto }, this.serviceToken),
+      ),
     );
   }
 
   async removeTestRequisition(id: string) {
     return firstValueFrom(
-      this.orderClient.send(OrderPatterns.TEST_REQUISITIONS.DELETE, withServiceAuth(id, this.serviceToken)),
+      this.orderClient.send(
+        OrderPatterns.TEST_REQUISITIONS.DELETE,
+        withServiceAuth(id, this.serviceToken),
+      ),
     );
   }
 }

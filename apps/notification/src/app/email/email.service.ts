@@ -56,49 +56,82 @@ export class EmailService {
     email: string,
     patientName: string,
     doctorName: string,
+    doctorEmail: string | undefined,
     appointmentTime: string,
-    joinLink?: string,
+    acceptLink?: string,
   ) {
-    return this.mailerService.sendMail({
-      to: email,
-      subject: 'Your Appointment Has Been Booked',
-      template: 'appointment-created',
-      context: {
-        patientName,
-        doctorName,
-        appointmentTime: new Date(appointmentTime).toLocaleString(),
-        joinLink,
-        websiteUrl: 'https://medicpadi.com',
-        year: new Date().getFullYear(),
-      },
-      attachments: [this.logoAttachment],
-    });
+    return Promise.all([
+      this.mailerService.sendMail({
+        to: email,
+        subject: 'Your Appointment Has Been Booked',
+        template: 'appointment-created-patient',
+        context: {
+          patientName,
+          doctorName,
+          appointmentTime: new Date(appointmentTime).toLocaleString(),
+          websiteUrl: 'https://medicpadi.com',
+          year: new Date().getFullYear(),
+        },
+        attachments: [this.logoAttachment],
+      }),
+      this.mailerService.sendMail({
+        to: doctorEmail,
+        subject: 'New Appointment Request',
+        template: 'appointment-created-doctor',
+        context: {
+          patientName,
+          doctorName,
+          appointmentTime: new Date(appointmentTime).toLocaleString(),
+          acceptLink,
+          websiteUrl: 'https://medicpadi.com',
+          year: new Date().getFullYear(),
+        },
+        attachments: [this.logoAttachment],
+      }),
+    ]);
   }
 
   async appointmentConfirmedEmail(
     email: string,
     patientName: string,
+    doctorName: string,
+    doctorEmail: string | undefined,
     appointmentTime: string,
-    joinLink?: string,
+    paymentLink?: string,
   ) {
-    return this.mailerService.sendMail({
-      to: email,
-      subject: 'Your Appointment Has Been Confirmed',
-      template: 'appointment-confirmed',
-      context: {
-        patientName,
-        appointmentTime: new Date(appointmentTime).toLocaleString(),
-        joinLink,
-        websiteUrl: 'https://medicpadi.com',
-        year: new Date().getFullYear(),
-      },
-      attachments: [this.logoAttachment],
-    });
+    return Promise.all([
+      this.mailerService.sendMail({
+        to: email,
+        subject: 'Your Appointment Has Been Confirmed',
+        template: 'appointment-confirmed',
+        context: {
+          patientName,
+          appointmentTime: new Date(appointmentTime).toLocaleString(),
+          paymentLink,
+          websiteUrl: 'https://medicpadi.com',
+          year: new Date().getFullYear(),
+        },
+        attachments: [this.logoAttachment],
+      }),
+      this.mailerService.sendMail({
+        to: doctorEmail,
+        subject: 'Appointment Confirmed',
+        template: 'appointment-confirmed-doctor',
+        context: {
+          doctorName,
+          appointmentTime: new Date(appointmentTime).toLocaleString(),
+          websiteUrl: 'https://medicpadi.com',
+          year: new Date().getFullYear(),
+        },
+        attachments: [this.logoAttachment],
+      }),
+    ]);
   }
 
   async appointmentCancelledEmail(
     email: string,
     patientName: string,
+    doctorsNote: string | undefined,
     appointmentTime: string,
   ) {
     return this.mailerService.sendMail({
@@ -107,12 +140,52 @@ export class EmailService {
       template: 'appointment-cancelled',
       context: {
         patientName,
+        doctorsNote,
         appointmentTime: new Date(appointmentTime).toLocaleString(),
         websiteUrl: 'https://medicpadi.com',
         year: new Date().getFullYear(),
       },
       attachments: [this.logoAttachment],
     });
+  }
+
+  async appointmentPaymentConfirmedEmail(
+    email: string,
+    patientName: string,
+    doctorName: string,
+    doctorEmail: string | undefined,
+    appointmentTime: string,
+    joinLink?: string,
+    meetingLink?: string,
+  ) {
+    return Promise.all([
+      this.mailerService.sendMail({
+        to: email,
+        subject: 'Payment Successful for Your Appointment',
+        template: 'appointment-payment-success',
+        context: {
+          patientName,
+          appointmentTime: new Date(appointmentTime).toLocaleString(),
+          joinLink,
+          websiteUrl: 'https://medicpadi.com',
+          year: new Date().getFullYear(),
+        },
+        attachments: [this.logoAttachment],
+      }),
+      this.mailerService.sendMail({
+        to: doctorEmail,
+        subject: 'Patient Has Made Payment for Appointment',
+        template: 'appointment-payment-success-doctor',
+        context: {
+          doctorName,
+          appointmentTime: new Date(appointmentTime).toLocaleString(),
+          meetingLink,
+          websiteUrl: 'https://medicpadi.com',
+          year: new Date().getFullYear(),
+        },
+        attachments: [this.logoAttachment],
+      }),
+    ]);
   }
 
   async paymentSuccessEmail(

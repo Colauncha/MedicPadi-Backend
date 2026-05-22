@@ -35,8 +35,9 @@ export class EmailController {
       dto.email,
       dto.patientName,
       dto.doctorName,
+      dto.doctorEmail,
       dto.appointmentTime,
-      dto.joinLink,
+      dto.acceptLink,
     );
   }
 
@@ -45,8 +46,23 @@ export class EmailController {
     return this.emailService.appointmentConfirmedEmail(
       dto.email,
       dto.patientName,
+      dto.doctorName,
+      dto.doctorEmail,
+      dto.appointmentTime,
+      dto.paymentLink,
+    );
+  }
+
+  @EventPattern(EmailPatterns.APPOINTMENT_PAYMENT_CONFIRMED)
+  appointmentPaymentConfirmed(@Payload('data') dto: AppointmentEmailDto) {
+    return this.emailService.appointmentPaymentConfirmedEmail(
+      dto.email,
+      dto.patientName,
+      dto.doctorName,
+      dto.doctorEmail,
       dto.appointmentTime,
       dto.joinLink,
+      dto.meetingLink,
     );
   }
 
@@ -55,6 +71,7 @@ export class EmailController {
     return this.emailService.appointmentCancelledEmail(
       dto.email,
       dto.patientName,
+      dto.doctorsNote,
       dto.appointmentTime,
     );
   }

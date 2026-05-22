@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Your Appointment Has Been Confirmed</title>
+  <title>New Appointment request</title>
 </head>
 
 <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
@@ -23,45 +23,52 @@
           <!-- Title -->
           <tr>
             <td align="center">
-              <h2 style="margin:0; color:#222;">Appointment Confirmed</h2>
+              <h2 style="margin:0; color:#222;">New Appointment Request</h2>
             </td>
           </tr>
 
           <!-- Body -->
           <tr>
             <td style="padding-top:20px; color:#555; font-size:15px; line-height:1.6;">
-              Hi {{patientName}},
+              Hi {{doctorName}},
               <br /><br />
-              Great news! Your doctor has <strong>confirmed</strong> your upcoming appointment.
+              You have a new appointment with <strong>{{patientName}}</strong>.
               <br /><br />
               <table width="100%" cellpadding="0" cellspacing="0"
-                     style="background:#f0fdf4; border-radius:6px; border-left:4px solid #16a34a;">
+                     style="background:#f8f4ff; border-radius:6px; padding:16px; border-left:4px solid rgb(68,18,203);">
                 <tr>
                   <td style="padding:12px 16px; font-size:14px; color:#333;">
-                    <strong>Date &amp; Time:</strong> {{appointmentTime}}
+                    <strong>Date &amp; Time:</strong> {{appointmentTime}}<br />
                   </td>
                 </tr>
               </table>
               <br />
-              {{#if joinLink}}
-              You can join the consultation using the button below at the scheduled time.
+              {{#if acceptLink}}
+              Use the button below to accept the appointment.
               {{else}}
-              Your doctor will reach out to you with further details before the appointment.
+              Further details will be provided soon.
               {{/if}}
             </td>
           </tr>
 
           <!-- CTA -->
-          {{#if joinLink}}
+          {{#if acceptLink}}
           <tr>
             <td align="center" style="padding-top:30px;">
-              <a href="{{joinLink}}"
+              <a href="{{acceptLink}}"
                  style="background:rgb(68,18,203); color:white; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:bold;">
-                Join Consultation
+                Accept Appointment
               </a>
             </td>
           </tr>
           {{/if}}
+
+          <!-- Disclaimer -->
+          <tr>
+            <td style="padding-top:24px; font-size:13px; color:#555; line-height:1.6;">
+              If you believe this mail doesn't belong to you, please contact our support team immediately.
+            </td>
+          </tr>
 
           <!-- Footer -->
           <tr>

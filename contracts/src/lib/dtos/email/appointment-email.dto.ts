@@ -4,6 +4,10 @@ export class AppointmentEmailDto {
   @IsEmail()
   email!: string;
 
+  @IsOptional()
+  @IsEmail()
+  doctorEmail?: string;
+
   @IsString()
   patientName!: string;
 
@@ -16,4 +20,20 @@ export class AppointmentEmailDto {
   @IsOptional()
   @IsString()
   joinLink?: string;
+
+  @IsOptional()
+  @IsString()
+  meetingLink?: string;
+
+  @IsOptional()
+  @IsString()
+  acceptLink?: string;
+
+  @IsOptional()
+  @IsString()
+  paymentLink?: string;
+
+  @IsOptional()
+  @IsString()
+  doctorsNote?: string;
 }

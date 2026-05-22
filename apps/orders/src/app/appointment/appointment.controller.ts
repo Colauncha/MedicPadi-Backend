@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateAppointmentDto,
   OrderPatterns,
@@ -30,6 +30,16 @@ export class AppointmentController {
   @MessagePattern(OrderPatterns.APPOINTMENTS.UPDATE)
   update(@Payload('data') dto: UpdateAppointmentDto) {
     return this.appointmentService.update(dto.id, dto);
+  }
+
+  @MessagePattern(OrderPatterns.APPOINTMENTS.ACCEPT)
+  accept(@Payload('data') id: string) {
+    return this.appointmentService.accept(id);
+  }
+
+  @EventPattern(OrderPatterns.APPOINTMENTS.COMPLETE_PAYMENT)
+  completePayment(@Payload('data') id: string) {
+    return this.appointmentService.completePayment(id);
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.DELETE)

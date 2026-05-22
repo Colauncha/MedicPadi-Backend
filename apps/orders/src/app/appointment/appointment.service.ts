@@ -45,7 +45,18 @@ export class AppointmentService {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
+  }
+
+  private get serverUrls(): { frontend: string; backend: string } {
+    return {
+      frontend: this.configService.get<string>('appConfig.frontendUrl') ||
+      'https://medicpadi.com',
+      backend: this.configService.get<string>('appConfig.backendUrl') ||
+      'http://localhost:3000/api',
+    }
   }
 
   async create(dto: CreateAppointmentDto) {
@@ -77,15 +88,30 @@ export class AppointmentService {
       }
 
       const token = this.serviceToken;
-      const [doctor, patient, patientAuth] = await Promise.all([
+      const [doctor, patient, patientAuth, doctorAuth] = await Promise.all([
         firstValueFrom(
-          this.profileClient.send(DoctorPatterns.RETRIEVE, withServiceAuth(dto.provider_id, token)),
+          this.profileClient.send(
+            DoctorPatterns.RETRIEVE,
+            withServiceAuth(dto.provider_id, token),
+          ),
         ),
         firstValueFrom(
-          this.profileClient.send(PatientPatterns.RETRIEVE, withServiceAuth(dto.patient_id, token)),
+          this.profileClient.send(
+            PatientPatterns.RETRIEVE,
+            withServiceAuth(dto.patient_id, token),
+          ),
         ),
         firstValueFrom(
-          this.authClient.send(AuthPatterns.FIND_BY_ID, withServiceAuth(dto.patient_id, token)),
+          this.authClient.send(
+            AuthPatterns.FIND_BY_ID,
+            withServiceAuth(dto.patient_id, token),
+          ),
+        ),
+        firstValueFrom(
+          this.authClient.send(
+            AuthPatterns.FIND_BY_ID,
+            withServiceAuth(dto.provider_id, token),
+          ),
         ),
       ]);
 
@@ -111,37 +137,30 @@ export class AppointmentService {
       const appointment = queryRunner.manager.create(Appointment, { ...dto });
       const savedAppointment = await queryRunner.manager.save(appointment);
 
-      const transactionDto: CreateTransactionDto = {
-        user_id: dto.patient_id || '',
-        source_type: TransactionSourceType.APPOINTMENT,
-        source_id: savedAppointment.id,
-        provider_id: dto.provider_id,
-        amount: dto.sessionCost,
-        gateway: PaymentGateway.PAYSTACK,
-      };
-
-      const initTransaction: PaystackInitializeResponse = await firstValueFrom(
-        this.transactionsClient.send('transactions.create', withServiceAuth(transactionDto, token)),
-      );
-
       await queryRunner.commitTransaction();
 
       // Notify patient — fire-and-forget
       const emailDto: AppointmentEmailDto = {
         email: patientAuth.email,
-        patientName: `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() || patientAuth.email,
-        doctorName: `Dr. ${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim(),
+        doctorEmail: doctorAuth.email,
+        patientName:
+          `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
+          patientAuth.email,
+        doctorName:
+          `Dr. ${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim() ||
+          doctorAuth.email,
         appointmentTime: appointmentTime.toISOString(),
-        joinLink: savedAppointment.join_link,
+        // acceptLink: `${this.serverUrls.frontend}/appointments/${savedAppointment.id}/?accept=true`, // TODO: frontend route for accepting appointment
+        acceptLink: `${this.serverUrls.backend}/orders/appointments/${savedAppointment.id}/accept`, // TODO: change to frontend route for accepting appointment
       };
-      this.notificationClient.emit(EmailPatterns.APPOINTMENT_CREATED, withServiceAuth(emailDto, token));
-
-      return { payment: initTransaction.data };
-    } catch (error) {
-      console.error(
-        'Error creating appointment:',
-        error instanceof Error ? error.stack : error,
+      this.notificationClient.emit(
+        EmailPatterns.APPOINTMENT_CREATED,
+        withServiceAuth(emailDto, token),
       );
+
+      const { join_link, meeting_id, meeting_link, ...rest } = savedAppointment;
+      return rest;
+    } catch (error) {
       await queryRunner.rollbackTransaction();
       if (zoomMeetingId) {
         await this.zoomService.deleteMeeting(zoomMeetingId).catch(() => {});
@@ -272,23 +291,68 @@ export class AppointmentService {
       existing.status = AppointmentStatus.CONFIRMED;
       await this.appointmentRepo.save(existing);
 
-      // Notify patient their appointment was confirmed — fire-and-forget
+      const transactionDto: CreateTransactionDto = {
+        user_id: existing.patient_id || '',
+        source_type: TransactionSourceType.APPOINTMENT,
+        source_id: existing.id,
+        provider_id: existing.provider_id,
+        amount: existing.sessionCost || 0,
+        gateway: PaymentGateway.PAYSTACK,
+      };
+
       const token = this.serviceToken;
-      this.authClient
-        .send(AuthPatterns.FIND_BY_ID, withServiceAuth(existing.patient_id, token))
-        .subscribe((patientAuth) => {
-          const emailDto: AppointmentEmailDto = {
-            email: patientAuth.email,
-            patientName: patientAuth.fullName ?? patientAuth.email,
-            doctorName: '',
-            appointmentTime: existing.appointment_time?.toISOString() ?? '',
-            joinLink: existing.join_link,
-          };
-          this.notificationClient.emit(
-            EmailPatterns.APPOINTMENT_CONFIRMED,
-            withServiceAuth(emailDto, token),
-          );
-        });
+
+      const initTransaction: PaystackInitializeResponse = await firstValueFrom(
+        this.transactionsClient.send(
+          TransactionPatterns.TRANSACTIONS.CREATE,
+          withServiceAuth(transactionDto, token),
+        ),
+      );
+
+      // Notify patient their appointment was confirmed — fire-and-forget
+      const [doctor, patient, patientAuth, doctorAuth] = await Promise.all([
+        firstValueFrom(
+          this.profileClient.send(
+            DoctorPatterns.RETRIEVE,
+            withServiceAuth(existing.provider_id, token),
+          ),
+        ),
+        firstValueFrom(
+          this.profileClient.send(
+            PatientPatterns.RETRIEVE,
+            withServiceAuth(existing.patient_id, token),
+          ),
+        ),
+        firstValueFrom(
+          this.authClient.send(
+            AuthPatterns.FIND_BY_ID,
+            withServiceAuth(existing.patient_id, token),
+          ),
+        ),
+        firstValueFrom(
+          this.authClient.send(
+            AuthPatterns.FIND_BY_ID,
+            withServiceAuth(existing.provider_id, token),
+          ),
+        ),
+      ]);
+      const emailDto: AppointmentEmailDto = {
+        email: patientAuth.email,
+        doctorEmail: doctorAuth.email,
+        patientName:
+          `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
+          patientAuth.email,
+        doctorName:
+          `${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim() ||
+          doctorAuth.email,
+        appointmentTime: existing.appointment_time?.toISOString() ?? '',
+        paymentLink: initTransaction.data.authorization_url,
+      };
+
+      this.notificationClient.emit(
+        EmailPatterns.APPOINTMENT_CONFIRMED,
+        withServiceAuth(emailDto, token),
+      );
 
       return existing;
     } catch (error) {
@@ -297,6 +361,125 @@ export class AppointmentService {
         : new RpcException({
             statusCode: HttpStatus.REQUEST_TIMEOUT,
             message: 'Unable to accept appointment',
+          } as ServiceError);
+    }
+  }
+
+  async completePayment(id: string) {
+    try {
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Appointment not found',
+        } as ServiceError);
+      }
+      existing.paymentStatus = AppointmentPaymentStatus.P_CONFIRMED;
+      await this.appointmentRepo.save(existing);
+
+      // Notify patient of payment confirmation — fire-and-forget
+      const token = this.serviceToken;
+      const [doctor, patient, patientAuth, doctorAuth] = await Promise.all([
+        firstValueFrom(
+          this.profileClient.send(
+            DoctorPatterns.RETRIEVE,
+            withServiceAuth(existing.provider_id, token),
+          ),
+        ),
+        firstValueFrom(
+          this.profileClient.send(
+            PatientPatterns.RETRIEVE,
+            withServiceAuth(existing.patient_id, token),
+          ),
+        ),
+        firstValueFrom(
+          this.authClient.send(
+            AuthPatterns.FIND_BY_ID,
+            withServiceAuth(existing.patient_id, token),
+          ),
+        ),
+        firstValueFrom(
+          this.authClient.send(
+            AuthPatterns.FIND_BY_ID,
+            withServiceAuth(existing.provider_id, token),
+          ),
+        ),
+      ]);
+
+      const emailDto: AppointmentEmailDto = {
+        email: patientAuth.email,
+        doctorEmail: doctorAuth.email,
+        patientName:
+          `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
+          patientAuth.email,
+        doctorName:
+          `${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim() ||
+          doctorAuth.email,
+        appointmentTime: existing.appointment_time?.toISOString() ?? '',
+        joinLink: existing.join_link || '',
+        meetingLink: existing.meeting_link || '',
+      };
+
+      this.notificationClient.emit(
+        EmailPatterns.APPOINTMENT_PAYMENT_CONFIRMED,
+        withServiceAuth(emailDto, token),
+      );
+    } catch (error) {
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: 'Unable to complete appointment payment',
+            error: error instanceof Error ? error.message : String(error),
+          } as ServiceError);
+    }
+  }
+
+  async cancel(id: string, reason: string) {
+    try {
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Appointment not found',
+        } as ServiceError);
+      }
+      if (existing.meeting_id) {
+        await this.zoomService.deleteMeeting(existing.meeting_id);
+      }
+      await this.appointmentRepo.update(
+        { id },
+        { status: AppointmentStatus.CANCELLED, doctorsNote: reason },
+      );
+
+      // Notify patient of cancellation — fire-and-forget
+      const token = this.serviceToken;
+      this.authClient
+        .send(
+          AuthPatterns.FIND_BY_ID,
+          withServiceAuth(existing.patient_id, token),
+        )
+        .subscribe((patientAuth) => {
+          const emailDto: AppointmentEmailDto = {
+            email: patientAuth.email,
+            patientName: patientAuth.fullName ?? patientAuth.email,
+            doctorName: '',
+            doctorsNote: reason,
+            appointmentTime: existing.appointment_time?.toISOString() ?? '',
+          };
+          this.notificationClient.emit(
+            EmailPatterns.APPOINTMENT_CANCELLED,
+            withServiceAuth(emailDto, token),
+          );
+        });
+
+      return { message: 'Appointment removed successfully' };
+    } catch (error) {
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: 'Unable to remove appointment',
           } as ServiceError);
     }
   }
@@ -318,7 +501,10 @@ export class AppointmentService {
       // Notify patient of cancellation — fire-and-forget
       const token = this.serviceToken;
       this.authClient
-        .send(AuthPatterns.FIND_BY_ID, withServiceAuth(existing.patient_id, token))
+        .send(
+          AuthPatterns.FIND_BY_ID,
+          withServiceAuth(existing.patient_id, token),
+        )
         .subscribe((patientAuth) => {
           const emailDto: AppointmentEmailDto = {
             email: patientAuth.email,

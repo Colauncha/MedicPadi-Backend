@@ -46,6 +46,10 @@ const appConfig = registerAs('appConfig', () => ({
   redisHost: process.env['REDIS_HOST'],
   redisPort: parseInt(process.env['REDIS_PORT'] || '6379'),
   ttl: parseInt(process.env['TTL'] || '3600'),
+
+  // routes
+  frontendUrl: process.env['FRONTEND_URL'] || 'https://medicpadi.com',
+  gatewayUrl: process.env['GATEWAY_URL'] || 'http://localhost:3000',
 }));
 
 export default appConfig;

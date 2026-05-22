@@ -16,6 +16,7 @@ import {
   PaystackInitializeResponse,
   PaystackVerifyResponse,
   EmailPatterns,
+  OrderPatterns,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { Transaction } from '../../entities/transaction.entity';
@@ -33,6 +34,7 @@ export class TransactionsService {
     private readonly dataSource: DataSource,
     @Inject() private readonly configService: ConfigService,
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+    @Inject('ORDER_SERVICE') private readonly orderClient: ClientProxy,
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy,
   ) {}
@@ -41,6 +43,15 @@ export class TransactionsService {
     return this.configService.getOrThrow<string>(
       'appConfig.internalServiceToken',
     );
+  }
+
+  private get tranxSourceMap() {
+    return {
+      appointment: OrderPatterns.APPOINTMENTS,
+      drug_requisition: OrderPatterns.DRUG_REQUISITIONS,
+      test_requisition: OrderPatterns.TEST_REQUISITIONS,
+      subscription: 'Subscription',
+    };
   }
 
   async create(dto: CreateTransactionDto) {
@@ -180,7 +191,7 @@ export class TransactionsService {
       if (transaction) {
         const newStatus =
           data.data.status === 'success'
-            ? PaymentStatus.PAID
+            ? PaymentStatus.ESCROW
             : PaymentStatus.FAILED;
         await this.transactionRepo.update(transaction.id, {
           payment_status: newStatus,
@@ -216,6 +227,20 @@ export class TransactionsService {
               this.serviceToken,
             ),
           ),
+        );
+
+        let existingTranx = await this.transactionRepo.findOne({
+          where: { gateway_reference: reference },
+        });
+
+        if (existingTranx) {
+          existingTranx.payment_status = PaymentStatus.ESCROW;
+          await this.transactionRepo.save(existingTranx);
+        }
+
+        this.orderClient.emit(
+          'orders.appointments.completePayment',
+          withServiceAuth(existingTranx?.source_id, this.serviceToken),
         );
 
         const emailDto: PaymentEmailDto = {
