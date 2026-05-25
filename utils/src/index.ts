@@ -5,6 +5,7 @@ export * from './lib/interceptors/microservice-logging.interceptor';
 export * from './lib/helpers/generate-otp';
 export * from './lib/helpers/profilePatternFromRole';
 export * from './lib/helpers/with-service-auth';
+export * from './lib/helpers/log-error';
 
 // Guards
 export * from './lib/guards/service-auth.guard';

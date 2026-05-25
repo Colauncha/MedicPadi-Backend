@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
@@ -21,7 +21,7 @@ import {
   AppointmentPaymentStatus,
   TransactionPatterns,
 } from '@medicpadi-backend/contracts';
-import { withServiceAuth } from '@medicpadi-backend/utils';
+import { withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { Appointment } from '../../entities/appointment.entity';
 import { ZoomService } from './providers/zoom.service';
 import { firstValueFrom } from 'rxjs';
@@ -30,6 +30,8 @@ import { access } from 'fs';
 
 @Injectable()
 export class AppointmentService {
+  private logger = new Logger(AppointmentService.name);
+
   constructor(
     @InjectRepository(Appointment)
     private readonly appointmentRepo: Repository<Appointment>,
@@ -162,6 +164,7 @@ export class AppointmentService {
       const { join_link, meeting_id, meeting_link, ...rest } = savedAppointment;
       return rest;
     } catch (error) {
+      logError(error, `${AppointmentService.name}.create`);
       await queryRunner.rollbackTransaction();
       if (zoomMeetingId) {
         await this.zoomService.deleteMeeting(zoomMeetingId).catch(() => {});
@@ -200,6 +203,7 @@ export class AppointmentService {
       response.data = result[0];
       response.total = result[1];
     } catch (error) {
+      logError(error, `${AppointmentService.name}.findAll`);
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get appointments',
@@ -237,6 +241,7 @@ export class AppointmentService {
       }
       return appointment;
     } catch (error) {
+      logError(error, `${AppointmentService.name}.findOne`);
       if (error instanceof RpcException) {
         throw error;
       }
@@ -271,6 +276,7 @@ export class AppointmentService {
       const result = await this.appointmentRepo.update({ id }, dto);
       return result.raw;
     } catch (error) {
+      logError(error, `${AppointmentService.name}.update`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
@@ -360,6 +366,7 @@ export class AppointmentService {
 
       return existing;
     } catch (error) {
+      logError(error, `${AppointmentService.name}.accept`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
@@ -430,6 +437,7 @@ export class AppointmentService {
         withServiceAuth(emailDto, token),
       );
     } catch (error) {
+      logError(error, `${AppointmentService.name}.completePayment`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
@@ -480,6 +488,7 @@ export class AppointmentService {
 
       return { message: 'Appointment removed successfully' };
     } catch (error) {
+      logError(error, `${AppointmentService.name}.cancel`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
@@ -525,6 +534,7 @@ export class AppointmentService {
 
       return { message: 'Appointment removed successfully' };
     } catch (error) {
+      logError(error, `${AppointmentService.name}.remove`);
       throw error instanceof RpcException
         ? error
         : new RpcException({

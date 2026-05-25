@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   CreateAuthDto,
   AuthPatterns,
@@ -10,13 +10,15 @@ import {
   TransactionPatterns,
   CreateWalletDto,
 } from '@medicpadi-backend/contracts';
-import { getPatternFromRole, withServiceAuth } from '@medicpadi-backend/utils';
+import { getPatternFromRole, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger(AuthService.name);
+
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
@@ -67,6 +69,7 @@ export class AuthService {
       }
       return { ...user, ...profile };
     } catch (error) {
+      logError(error, `${AuthService.name}.create`);
       await firstValueFrom(
         this.authClient.send(AuthPatterns.DELETE, withServiceAuth(user.id, token)),
       );

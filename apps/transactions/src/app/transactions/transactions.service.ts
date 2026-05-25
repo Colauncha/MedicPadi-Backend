@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
@@ -18,7 +18,7 @@ import {
   EmailPatterns,
   OrderPatterns,
 } from '@medicpadi-backend/contracts';
-import { withServiceAuth } from '@medicpadi-backend/utils';
+import { withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { Transaction } from '../../entities/transaction.entity';
 import { Wallet } from '../../entities/wallet.entity';
 import { ConfigService } from '@nestjs/config';
@@ -26,6 +26,8 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class TransactionsService {
+  private logger = new Logger(TransactionsService.name);
+
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepo: Repository<Transaction>,
@@ -115,6 +117,7 @@ export class TransactionsService {
         return data;
       }
     } catch (error) {
+      logError(error, `${TransactionsService.name}.create`);
       await queryRunner.rollbackTransaction();
       throw error instanceof RpcException
         ? error
@@ -142,6 +145,7 @@ export class TransactionsService {
       });
       return await this.walletRepo.save(wallet);
     } catch (error) {
+      logError(error, `${TransactionsService.name}.createWallet`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
@@ -155,6 +159,7 @@ export class TransactionsService {
     try {
       return await this.walletRepo.findOne({ where: { user_id: userId } });
     } catch (error) {
+      logError(error, `${TransactionsService.name}.getWallet`);
       throw new RpcException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Unable to retrieve wallet',
