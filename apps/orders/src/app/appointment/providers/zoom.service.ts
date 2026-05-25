@@ -34,7 +34,7 @@ export class ZoomService {
 
     try {
       const response = await axios.post(
-        `${API_URL}users/me/meetings`,
+        `${API_URL}/users/me/meetings`,
         {
           topic,
           type: 2,
