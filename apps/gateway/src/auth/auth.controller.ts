@@ -161,10 +161,6 @@ export class AuthController {
   @ApiResponse({ status: 403, description: 'Insufficient permissions — admin role required.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
   async delete(@Body('id') id: string) {
-    try {
-      return await this.authService.delete(id);
-    } catch (error) {
-      throw error;
-    }
+    return await this.authService.delete(id);
   }
 }

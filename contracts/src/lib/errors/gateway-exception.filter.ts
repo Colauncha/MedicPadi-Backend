@@ -1,28 +1,29 @@
 import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-@Catch(RpcException)
+@Catch()
 export class RpcExceptionFilter implements ExceptionFilter {
-  catch(exception: RpcException, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
 
-    const err = exception.getError() as any;
+    const err = exception instanceof RpcException ? (exception.getError() as any) : exception;
+    const statusCode = err?.statusCode || (err?.status) || 500;
+    const message = err?.message || 'Internal server error';
 
     if (process.env['NODE_ENV'] === 'development') {
-      console.error('RPC Exception:', err);
-      response.status(err.statusCode || 500).json({
-        statusCode: err.statusCode || 500,
-        message: err.message || 'Internal error',
-        error: err.error,
-        stack: err.stack,
+      console.error('Exception:', err);
+      response.status(statusCode).json({
+        statusCode,
+        message,
+        error: err?.error || (err instanceof Error ? err.message : undefined),
+        stack: err?.stack || (err instanceof Error ? err.stack : undefined),
       });
     } else {
-      console.error('RPC Exception:', err);
-      response.status(err.statusCode || 500).json({
-        statusCode: err.statusCode || 500,
-        message: err.message || 'Internal error',
-        error: JSON.stringify(err),
+      console.error('Exception:', message);
+      response.status(statusCode).json({
+        statusCode,
+        message,
       });
     }
   }
