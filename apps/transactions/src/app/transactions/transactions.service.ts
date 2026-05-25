@@ -207,6 +207,7 @@ export class TransactionsService {
 
       return data;
     } catch (error) {
+      logError(error, `${TransactionsService.name}.verify`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
@@ -291,6 +292,7 @@ export class TransactionsService {
       response.data = result[0];
       response.total = result[1];
     } catch (error) {
+      logError(error, `${TransactionsService.name}.findAll`);
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get transactions',
@@ -303,6 +305,7 @@ export class TransactionsService {
     try {
       return await this.transactionRepo.findOne({ where: { id } });
     } catch (error) {
+      logError(error, `${TransactionsService.name}.findOne`);
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get transaction',
@@ -314,6 +317,7 @@ export class TransactionsService {
     try {
       return await this.transactionRepo.findOne({ where: { source_id: id } });
     } catch (error) {
+      logError(error, `${TransactionsService.name}.findByOrderId`);
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get transaction',
@@ -333,6 +337,7 @@ export class TransactionsService {
       const result = await this.transactionRepo.update({ id }, dto);
       return result.raw;
     } catch (error) {
+      logError(error, `${TransactionsService.name}.update`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
@@ -354,6 +359,7 @@ export class TransactionsService {
       await this.transactionRepo.remove(existing);
       return { message: 'Transaction removed successfully' };
     } catch (error) {
+      logError(error, `${TransactionsService.name}.remove`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
