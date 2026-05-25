@@ -14,11 +14,15 @@ export class RpcExceptionFilter implements ExceptionFilter {
       response.status(err.statusCode || 500).json({
         statusCode: err.statusCode || 500,
         message: err.message || 'Internal error',
+        error: err.error,
+        stack: err.stack,
       });
     } else {
+      console.error('RPC Exception:', err);
       response.status(err.statusCode || 500).json({
         statusCode: err.statusCode || 500,
         message: err.message || 'Internal error',
+        error: JSON.stringify(err),
       });
     }
   }

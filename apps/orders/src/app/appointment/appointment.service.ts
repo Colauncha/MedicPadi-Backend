@@ -115,6 +115,7 @@ export class AppointmentService {
         ),
       ]);
 
+
       const meeting = await this.zoomService.createMeeting(
         `Appointment between ${dto.patient_id} and ${dto.provider_id}`,
         appointmentTime.toISOString(),
@@ -299,6 +300,7 @@ export class AppointmentService {
         amount: existing.sessionCost || 0,
         gateway: PaymentGateway.PAYSTACK,
       };
+      console.log('Transaction DTO:', transactionDto);
 
       const token = this.serviceToken;
 
@@ -308,6 +310,8 @@ export class AppointmentService {
           withServiceAuth(transactionDto, token),
         ),
       );
+
+      console.log('Initialized Transaction:', initTransaction);
 
       // Notify patient their appointment was confirmed — fire-and-forget
       const [doctor, patient, patientAuth, doctorAuth] = await Promise.all([
@@ -361,6 +365,7 @@ export class AppointmentService {
         : new RpcException({
             statusCode: HttpStatus.REQUEST_TIMEOUT,
             message: 'Unable to accept appointment',
+            error: error instanceof Error ? error.message : String(error),
           } as ServiceError);
     }
   }

@@ -66,12 +66,14 @@ export class TransactionsService {
       const paystackSecretKey = this.configService.get<string>(
         'paystackConfig.secretKey',
       );
+      console.log('Creating transaction with DTO:', dto);
       const user = await firstValueFrom(
         this.authClient.send(
           AuthPatterns.FIND_BY_ID,
           withServiceAuth(dto.user_id, this.serviceToken),
         ),
       );
+      console.log('User data retrieved:', user);
 
       let data: PaystackInitializeResponse;
 

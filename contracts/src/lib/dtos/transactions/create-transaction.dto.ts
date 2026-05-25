@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 import { PaymentGateway, TransactionSourceType } from '../../enums/transaction.enum';
 import { PaymentStatus } from '../../enums/payment-status.enum';
+import { Type } from 'class-transformer';
 
 export class CreateTransactionDto {
   @ApiProperty()
@@ -34,6 +35,7 @@ export class CreateTransactionDto {
   @ApiProperty()
   @IsNumber()
   @IsPositive()
+  @Type(() => Number)
   amount!: number;
 
   @ApiPropertyOptional()

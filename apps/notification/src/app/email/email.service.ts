@@ -103,7 +103,7 @@ export class EmailService {
       this.mailerService.sendMail({
         to: email,
         subject: 'Your Appointment Has Been Confirmed',
-        template: 'appointment-confirmed',
+        template: 'appointment-confirmed-patient',
         context: {
           patientName,
           appointmentTime: new Date(appointmentTime).toLocaleString(),
