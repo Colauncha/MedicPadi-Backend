@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import {
   ProfileDtoType,
   UpdateProfileDtoType,
@@ -8,13 +8,15 @@ import {
   AuthRole,
   GetAuthDto,
 } from '@medicpadi-backend/contracts';
-import { getPatternFromRole, withServiceAuth } from '@medicpadi-backend/utils';
+import { getPatternFromRole, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ProfileService {
+  private logger = new Logger(ProfileService.name);
+
   constructor(
     @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
@@ -38,6 +40,7 @@ export class ProfileService {
         this.profileClient.send(Pattern.FIND_ALL, withServiceAuth(query, this.serviceToken)),
       );
     } catch (error) {
+      logError(error, `${ProfileService.name}.findAll`);
       throw error;
     }
   }
