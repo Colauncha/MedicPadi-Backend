@@ -41,4 +41,4 @@ jobs:
             
             # 3. Clean up old, unused Docker images to save server disk space.
             echo "Cleaning up unused Docker images..."
-            docker image prune -af
+            docker image prune -f
