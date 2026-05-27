@@ -38,10 +38,6 @@ services:
     networks:
       - medicpadi_internal
     restart: always
-    # Allow external internet access if needed
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
   # Auth Service
   auth-service:
@@ -79,10 +75,6 @@ services:
     networks:
       - medicpadi_internal
     restart: always
-    # Allow external internet access for email/SMS APIs
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
   services-service:
     image: colauncha/medicpadi-services:main
@@ -105,10 +97,6 @@ services:
     networks:
       - medicpadi_internal
     restart: always
-    # Allow external internet access for Zoom API calls
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
   ehr-service:
     image: colauncha/medicpadi-ehr:main
@@ -131,10 +119,6 @@ services:
     networks:
       - medicpadi_internal
     restart: always
-    # Allow external internet access for Paystack API calls
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
 
   # community-service:
   #   image: colauncha/medicpadi-community:main
