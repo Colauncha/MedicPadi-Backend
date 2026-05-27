@@ -1,6 +1,8 @@
 import { Logger } from '@nestjs/common';
 
-const isDevelopment = process.env['NODE_ENV'] === 'development';
+const isDevelopment =
+  process.env['NODE_ENV'] === 'development' ||
+  process.env['NODE_ENV'] === 'staging';
 
 export function logError(error: unknown, context: string = 'Error'): void {
   if (!isDevelopment) return;

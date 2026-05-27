@@ -15,7 +15,10 @@ export class RpcExceptionFilter implements ExceptionFilter {
 
     this.logError(exception, err);
 
-    if (process.env['NODE_ENV'] === 'development') {
+    if (
+      process.env['NODE_ENV'] === 'development' ||
+      process.env['NODE_ENV'] === 'staging'
+    ) {
       response.status(statusCode).json({
         statusCode,
         message,
@@ -31,10 +34,14 @@ export class RpcExceptionFilter implements ExceptionFilter {
   }
 
   private logError(exception: any, err: any): void {
-    if (process.env['NODE_ENV'] !== 'development') return;
+    // if (process.env['NODE_ENV'] !== 'development') return;
+    if (process.env['NODE_ENV'] === 'production') return;
 
     if (exception instanceof RpcException) {
-      this.logger.error(`RPC Exception: ${err?.message || 'Unknown error'}`, err?.stack);
+      this.logger.error(
+        `RPC Exception: ${err?.message || 'Unknown error'}`,
+        err?.stack,
+      );
     } else if (exception instanceof Error) {
       this.logger.error(`${exception.message}`, exception.stack);
     } else {
