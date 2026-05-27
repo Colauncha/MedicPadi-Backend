@@ -23,12 +23,14 @@ import { AuthModule } from './auth/auth.module';
         return {
           type: 'postgres',
           entities: [Auth],
+          migrations: [__dirname + '/database/migrations/*.ts'],
           host: configService.get<string>('dbConfig.host'),
           port: configService.get<number>('dbConfig.port'),
           username: configService.get<string>('dbConfig.username'),
           password: configService.get<string>('dbConfig.password'),
           database: configService.get<string>('dbConfig.database'),
           synchronize: configService.get<boolean>('dbConfig.synchronize'),
+          migrationsRun: configService.get<boolean>('dbConfig.migrationsRun'),
           autoLoadEntities: configService.get<boolean>(
             'dbConfig.autoLoadEntities',
           ),

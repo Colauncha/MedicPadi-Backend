@@ -14,6 +14,8 @@ const dbConfig = registerAs('dbConfig', () => ({
   database: process.env['DB_NAME'],
   synchronize: toBoolean(process.env['DB_SYNC']),
   autoLoadEntities: toBoolean(process.env['DB_AUTOLOAD']),
+  migrationsRun: toBoolean(process.env['DB_MIGRATIONS_RUN']),
+  migrations: process.env['DB_MIGRATIONS']?.split(',') || [],
 }));
 
 export default dbConfig;
