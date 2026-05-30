@@ -51,7 +51,7 @@ jobs:
 
             # GitHub Actions injects the value directly before sending this script to SSH
             # Convert JSON array (e.g. ["auth","gateway"]) to space-separated names
-            SERVICE_LIST=$(echo '${{ steps.services.outputs.services }}' | tr -d '[]"' | tr ',' ' ')
+            SERVICE_LIST=$(echo '${{ steps.services.outputs.services }}-service' | tr -d '[]"' | tr ',' ' ')
             echo "Deploying: $SERVICE_LIST"
 
             # Pull only the images that were freshly pushed
