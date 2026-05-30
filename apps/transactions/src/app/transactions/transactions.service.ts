@@ -221,7 +221,7 @@ export class TransactionsService {
     if (payload.event !== 'charge.success') {
       return { received: true };
     }
-    console.log('Payload data from paystack', payload);
+    console.log('Payload from paystack', payload);
 
     try {
       const reference = payload.data?.reference as string;
