@@ -54,11 +54,13 @@ export class AppointmentService {
 
   private get serverUrls(): { frontend: string; backend: string } {
     return {
-      frontend: this.configService.get<string>('appConfig.frontendUrl') ||
-      'https://medicpadi.com',
-      backend: this.configService.get<string>('appConfig.backendUrl') ||
-      'http://localhost:3000/api',
-    }
+      frontend:
+        this.configService.get<string>('appConfig.frontendUrl') ||
+        'https://medicpadi.com',
+      backend:
+        this.configService.get<string>('appConfig.backendUrl') ||
+        'http://localhost:3000/api',
+    };
   }
 
   async create(dto: CreateAppointmentDto) {
@@ -116,7 +118,6 @@ export class AppointmentService {
           ),
         ),
       ]);
-
 
       const meeting = await this.zoomService.createMeeting(
         `Appointment between ${dto.patient_id} and ${dto.provider_id}`,
@@ -444,6 +445,35 @@ export class AppointmentService {
         : new RpcException({
             statusCode: HttpStatus.REQUEST_TIMEOUT,
             message: 'Unable to complete appointment payment',
+            error: error instanceof Error ? error.message : String(error),
+          } as ServiceError);
+    }
+  }
+
+  async completeAppointment(id: string) {
+    try {
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Appointment not found',
+        } as ServiceError);
+      }
+      if (existing.paymentStatus !== AppointmentPaymentStatus.P_CONFIRMED) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Payment not confirmed for this appointment',
+        } as ServiceError);
+      }
+      existing.status = AppointmentStatus.COMPLETED;
+      await this.appointmentRepo.save(existing);
+    } catch (error) {
+      logError(error, `${AppointmentService.name}.completeAppointment`);
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: 'Unable to complete appointment',
             error: error instanceof Error ? error.message : String(error),
           } as ServiceError);
     }
