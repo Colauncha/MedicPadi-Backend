@@ -24,7 +24,7 @@ const appConfig = registerAs('appConfig', () => ({
   ordersServicePort: parseInt(process.env['ORDERS_SERVICE_PORT'] || '3005'),
   ehrServicePort: parseInt(process.env['EHR_SERVICE_PORT'] || '3006'),
   transactionsServicePort: parseInt(
-    process.env['TRANSACTIONS_SERVICE_PORT'] || '3007',
+    process.env['TRANSACTIONS_SERVICE_PORT'] || '3008',
   ),
 
   // Service hosts
