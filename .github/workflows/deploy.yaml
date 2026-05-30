@@ -7,38 +7,63 @@ on:
       - completed
 
 jobs:
-  build-and-deploy:
+  deploy:
+    name: Deploy changed services
     if: >
       ${{
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.head_branch == 'main'
       }}
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Download built services list
+        uses: actions/download-artifact@v4
+        with:
+          name: built-services
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Read services to deploy
+        id: services
+        run: |
+          SERVICES=$(cat built-services.json)
+          echo "services=$SERVICES" >> $GITHUB_OUTPUT
+          echo "Services to deploy: $SERVICES"
+
+      - name: Skip deploy — no services were built
+        if: steps.services.outputs.services == '[]'
+        run: echo "No services were built in the triggering workflow. Nothing to deploy."
 
       - name: Deploy to AWS VM via SSH
+        if: steps.services.outputs.services != '[]'
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          BUILT_SERVICES: ${{ steps.services.outputs.services }}
         with:
           host: ${{ secrets.MEDICPADI_AWS_HOST }}
           username: ${{ secrets.MEDICPADI_AWS_USER }}
           key: ${{ secrets.MEDICPADI_AWS_KEY }}
+          envs: BUILT_SERVICES
           script: |
-            # Navigate to the project directory. This is a crucial first step.
+            # Navigate to the project directory
             cd /var/www/MedicPadi/MedicPadi-Backend || exit 1
 
-            # 0. Run git pull natively to update the dir
+            # Update compose file and config from git
             git pull
-            
-            # 1. Pull the latest images from Docker Hub as defined in your compose file.
-            echo "Pulling latest Docker images..."
-            docker compose -f docker-compose.yaml pull
-            
-            # 2. Gracefully restart the services with the new images.
-            echo "Restarting services with updated images..."
-            docker compose -f docker-compose.yaml up -d --remove-orphans
-            
-            # 3. Clean up old, unused Docker images to save server disk space.
+
+            # Convert JSON array (e.g. ["auth","gateway"]) to space-separated names
+            SERVICE_LIST=$(echo "$BUILT_SERVICES" | tr -d '[]"' | tr ',' ' ')
+            echo "Deploying: $SERVICE_LIST"
+
+            # Pull only the images that were freshly pushed
+            echo "Pulling updated Docker images..."
+            docker compose -f docker-compose.yaml pull $SERVICE_LIST
+
+            # Restart only the changed services; --no-deps leaves their dependencies untouched
+            echo "Restarting updated services..."
+            docker compose -f docker-compose.yaml up -d --no-deps --remove-orphans $SERVICE_LIST
+
+            # Remove dangling images left over from the previous builds
             echo "Cleaning up unused Docker images..."
             docker image prune -f
