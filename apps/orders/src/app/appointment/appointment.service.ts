@@ -465,6 +465,7 @@ export class AppointmentService {
           message: 'Payment not confirmed for this appointment',
         } as ServiceError);
       }
+      console.log('Completing appointment:', existing);
       existing.status = AppointmentStatus.COMPLETED;
       await this.appointmentRepo.save(existing);
     } catch (error) {
