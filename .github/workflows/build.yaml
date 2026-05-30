@@ -6,25 +6,105 @@ on:
       - main
     paths-ignore:
       - 'README.md'
+      - '.github/*'
+  workflow_dispatch:
+    inputs:
+      build_all:
+        description: 'Build all services (ignores change detection)'
+        type: boolean
+        default: false
+      services:
+        description: 'Specific services to build, comma-separated (e.g. auth,gateway). Leave empty to use change detection.'
+        type: string
+        default: ''
 
 jobs:
+  detect-changes:
+    name: Detect changed services
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.set-matrix.outputs.services }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PNPM and Node.js
+        uses: digi-fry/setup-pnpm-node-action@v1
+        with:
+          node-version: 20
+          pnpm-version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Determine services to build
+        id: set-matrix
+        run: |
+          ALL_SERVICES='["gateway","auth","profile","notification","services","orders","transactions","ehr"]'
+
+          # workflow_dispatch: build_all=true → rebuild everything
+          if [[ "${{ github.event.inputs.build_all }}" == "true" ]]; then
+            echo "Building all services (forced)"
+            echo "services=$ALL_SERVICES" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # workflow_dispatch: specific services listed
+          if [[ -n "${{ github.event.inputs.services }}" ]]; then
+            SERVICES=$(echo "${{ github.event.inputs.services }}" | tr ',' '\n' | xargs -I{} echo '"{}"' | paste -sd ',' | sed 's/^/[/;s/$/]/')
+            echo "Building specific services: $SERVICES"
+            echo "services=$SERVICES" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Push to main: use nx affected to find what changed
+          BASE_SHA="${{ github.event.before }}"
+          HEAD_SHA="${{ github.sha }}"
+
+          echo "Detecting affected projects between $BASE_SHA and $HEAD_SHA"
+          AFFECTED=$(pnpm nx show projects --affected --base="$BASE_SHA" --head="$HEAD_SHA" 2>/dev/null || echo "")
+          echo "Nx affected output: $AFFECTED"
+
+          VALID_SERVICES=("gateway" "auth" "profile" "notification" "services" "orders" "transactions" "ehr")
+          RESULT=()
+          for service in "${VALID_SERVICES[@]}"; do
+            if echo "$AFFECTED" | grep -wq "$service"; then
+              RESULT+=("\"$service\"")
+            fi
+          done
+
+          if [ ${#RESULT[@]} -eq 0 ]; then
+            echo "No affected deployable services detected — skipping build"
+            echo "services=[]" >> $GITHUB_OUTPUT
+          else
+            MATRIX="[$(IFS=,; echo "${RESULT[*]}")]"
+            echo "Affected services: $MATRIX"
+            echo "services=$MATRIX" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Save services list to artifact
+        run: echo '${{ steps.set-matrix.outputs.services }}' > built-services.json
+
+      - name: Upload built services list
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-services
+          path: built-services.json
+          retention-days: 1
+
   build-and-push:
     name: Build and Push ${{ matrix.service }}
+    needs: detect-changes
+    if: needs.detect-changes.outputs.services != '[]'
     runs-on: ubuntu-latest
 
     strategy:
       max-parallel: 4
       matrix:
-        service:
-          - gateway
-          - auth
-          - profile
-          - notification
-          - services
-          - orders
-          - transactions
-          - ehr
-          # - community
+        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
 
     steps:
       # 1. Checkout the repository
@@ -38,37 +118,33 @@ jobs:
           node-version: 20
           pnpm-version: 10
 
-      # # 3. Enable pnpm via Corepack (Best Practice)
-      # - name: Enable Corepack
-      #   run: corepack enable
-
-      # 4. Install dependencies
+      # 3. Install dependencies
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 5. Nx Build stage
+      # 4. Nx Build stage
       - name: Build ${{ matrix.service }} with Nx
         run: pnpm nx build ${{ matrix.service }} --configuration=development
 
-      # 6. Extract Docker metadata
+      # 5. Extract Docker metadata
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ secrets.DOCKER_USERNAME }}/medicpadi-${{ matrix.service }}
 
-      # 7. Set up Docker Buildx
+      # 6. Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 8. Log in to Docker Hub
+      # 7. Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 9. Build and push Docker image
+      # 8. Build and push Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
