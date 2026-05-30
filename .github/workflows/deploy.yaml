@@ -38,13 +38,10 @@ jobs:
       - name: Deploy to AWS VM via SSH
         if: steps.services.outputs.services != '[]'
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          BUILT_SERVICES: ${{ steps.services.outputs.services }}
         with:
           host: ${{ secrets.MEDICPADI_AWS_HOST }}
           username: ${{ secrets.MEDICPADI_AWS_USER }}
           key: ${{ secrets.MEDICPADI_AWS_KEY }}
-          envs: BUILT_SERVICES
           script: |
             # Navigate to the project directory
             cd /var/www/MedicPadi/MedicPadi-Backend || exit 1
@@ -52,8 +49,9 @@ jobs:
             # Update compose file and config from git
             git pull
 
+            # GitHub Actions injects the value directly before sending this script to SSH
             # Convert JSON array (e.g. ["auth","gateway"]) to space-separated names
-            SERVICE_LIST=$(echo "$BUILT_SERVICES" | tr -d '[]"' | tr ',' ' ')
+            SERVICE_LIST=$(echo '${{ steps.services.outputs.services }}' | tr -d '[]"' | tr ',' ' ')
             echo "Deploying: $SERVICE_LIST"
 
             # Pull only the images that were freshly pushed
