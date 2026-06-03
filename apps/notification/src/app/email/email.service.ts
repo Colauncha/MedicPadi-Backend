@@ -188,6 +188,88 @@ export class EmailService {
     ]);
   }
 
+  async testRequisitionDeclinedEmail(
+    patientEmail: string,
+    patientName: string,
+    labName: string | undefined,
+    requisitionId: string,
+    notes: string | undefined,
+  ) {
+    return this.mailerService.sendMail({
+      to: patientEmail,
+      subject: 'Your Lab Test Requisition Has Been Declined',
+      template: 'test-requisition-declined-patient',
+      context: {
+        patientName,
+        labName: labName ?? 'the laboratory',
+        requisitionId,
+        notes,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
+  async testRequisitionAcceptedEmail(
+    patientEmail: string,
+    patientName: string,
+    labName: string | undefined,
+    paymentLink: string,
+  ) {
+    return this.mailerService.sendMail({
+      to: patientEmail,
+      subject: 'Your Lab Test Requisition Has Been Accepted',
+      template: 'test-requisition-accepted-patient',
+      context: {
+        patientName,
+        labName: labName ?? 'the laboratory',
+        paymentLink,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
+  async testRequisitionCreatedEmail(
+    patientEmail: string,
+    patientName: string,
+    labEmail: string | undefined,
+    labName: string | undefined,
+    requisitionId: string,
+  ) {
+    return Promise.all([
+      this.mailerService.sendMail({
+        to: patientEmail,
+        subject: 'Your Lab Test Requisition Has Been Submitted',
+        template: 'test-requisition-created-patient',
+        context: {
+          patientName,
+          labName: labName ?? 'the laboratory',
+          requisitionId,
+          websiteUrl: 'https://medicpadi.com',
+          year: new Date().getFullYear(),
+        },
+        attachments: [this.logoAttachment],
+      }),
+      labEmail &&
+        this.mailerService.sendMail({
+          to: labEmail,
+          subject: 'New Lab Test Requisition',
+          template: 'test-requisition-created-lab',
+          context: {
+            labName: labName ?? 'Lab',
+            patientName,
+            requisitionId,
+            websiteUrl: 'https://medicpadi.com',
+            year: new Date().getFullYear(),
+          },
+          attachments: [this.logoAttachment],
+        }),
+    ]);
+  }
+
   async paymentSuccessEmail(
     email: string,
     name: string,

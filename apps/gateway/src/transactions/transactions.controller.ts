@@ -54,6 +54,7 @@ export class TransactionsController {
     @Req() req: RawBodyRequest<Request>,
     @Body() body: any,
   ) {
+    console.log('Received Paystack webhook:', body);
     return this.transactionsService.handleWebhook(
       signature,
       req.rawBody!,

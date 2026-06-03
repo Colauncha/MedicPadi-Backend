@@ -22,6 +22,7 @@ import {
   CreateTestRequisitionDto,
   UpdateTestRequisitionDto,
   PaginationDto,
+  DeclineTestRequisitionDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { Roles } from '../guards/decorators/roles.decorator';
@@ -107,7 +108,7 @@ export class OrderController {
   @ApiResponse({ status: 200, description: 'Appointment found.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   @ApiResponse({ status: 404, description: 'Appointment not found.' })
-  acceptAppointment(@Param('id') id: string, @Req() req: RequestWithUser) {
+  acceptAppointment(@Param('id') id: string) {
     return this.orderService.acceptAppointment(id);
   }
 
@@ -443,5 +444,54 @@ export class OrderController {
   @ApiResponse({ status: 404, description: 'Test requisition not found.' })
   removeTestRequisition(@Param('id') id: string) {
     return this.orderService.removeTestRequisition(id);
+  }
+
+  @Get('/test-requisitions/:id/accept')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Accept a test requisition',
+    description:
+      'Marks a pending test requisition as accepted. Accessible by `lab` and `admin` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the test requisition.' })
+  @ApiResponse({ status: 200, description: 'Test requisition accepted.' })
+  @ApiResponse({ status: 400, description: 'Requisition is not pending.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions.' })
+  @ApiResponse({ status: 404, description: 'Test requisition not found.' })
+  acceptTestRequisition(@Param('id') id: string) {
+    return this.orderService.acceptTestRequisition(id);
+  }
+
+  @Get('/test-requisitions/:id/decline')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Decline a test requisition',
+    description:
+      'Marks a pending test requisition as declined/cancelled. Accessible by `lab` and `admin` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the test requisition.' })
+  @ApiResponse({ status: 200, description: 'Test requisition declined.' })
+  @ApiResponse({ status: 400, description: 'Requisition is not pending.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions.' })
+  @ApiResponse({ status: 404, description: 'Test requisition not found.' })
+  declineTestRequisition(@Param('id') dto: DeclineTestRequisitionDto) {
+    return this.orderService.declineTestRequisition(dto);
+  }
+
+  @Get('/test-requisitions/lab/:labId/patients')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'List patients for a lab',
+    description:
+      'Returns all distinct patients who have submitted test requisitions to the specified lab. Accessible by `lab` and `admin` roles.',
+  })
+  @ApiParam({ name: 'labId', description: 'UUID of the lab.' })
+  @ApiResponse({ status: 200, description: 'List of patients.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions.' })
+  listTestRequisitionPatients(@Param('labId') labId: string) {
+    return this.orderService.listTestRequisitionPatients(labId);
   }
 }

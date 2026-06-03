@@ -19,4 +19,7 @@ export const EmailPatterns = {
   APPOINTMENT_CANCELLED: 'email.appointment.cancelled',
   APPOINTMENT_PAYMENT_CONFIRMED: 'email.appointment.payment.confirmed',
   PAYMENT_SUCCESS: 'email.payment.success',
+  TEST_REQUISITION_CREATED: 'email.testRequisition.created',
+  TEST_REQUISITION_ACCEPTED: 'email.testRequisition.accepted',
+  TEST_REQUISITION_DECLINED: 'email.testRequisition.declined',
 };

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Lab Test Requisition Has Been Declined</title>
+</head>
+
+<body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
+
+  <table align="center" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+
+        <table width="600" cellpadding="0" cellspacing="0" style="background:white; padding:40px; border-radius:8px;">
+
+          <!-- Logo -->
+          <tr>
+            <td align="center" style="padding-bottom:20px;">
+              <img src="cid:logo" alt="MedicPadi Logo" width="80" />
+            </td>
+          </tr>
+
+          <!-- Title -->
+          <tr>
+            <td align="center">
+              <h2 style="margin:0; color:#222;">Test Requisition Declined</h2>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding-top:20px; color:#555; font-size:15px; line-height:1.6;">
+              Hi {{patientName}},
+              <br /><br />
+              We're sorry to inform you that <strong>{{labName}}</strong> has declined your lab test requisition.
+              <br /><br />
+              {{#if notes}}
+              <strong>Reason:</strong>
+              <blockquote style="margin:10px 0; padding:10px 20px; background:#f9f9f9; border-left:4px solid #ccc; color:#333;">
+                {{notes}}
+              </blockquote>
+              {{/if}}
+              <table width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#fff7ed; border-radius:6px; border-left:4px solid #f59e0b;">
+                <tr>
+                  <td style="padding:12px 16px; font-size:14px; color:#9a3412;">
+                    <strong>Requisition ID:</strong> {{requisitionId}}<br />
+                    If you believe this is an error, please contact our support team.
+                  </td>
+                </tr>
+              </table>
+              <br />
+              You can submit a new requisition to a different laboratory at any time through the MedicPadi platform.
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td align="center" style="padding-top:30px;">
+              <a href="{{websiteUrl}}"
+                 style="background:rgb(68,18,203); color:white; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:bold;">
+                Find a Laboratory
+              </a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding-top:40px; font-size:12px; color:#888; text-align:center;">
+              © {{year}} MedicPadi. All rights reserved.
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

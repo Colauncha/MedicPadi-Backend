@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Lab Test Requisition Has Been Submitted</title>
+</head>
+
+<body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
+
+  <table align="center" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+
+        <table width="600" cellpadding="0" cellspacing="0" style="background:white; padding:40px; border-radius:8px;">
+
+          <!-- Logo -->
+          <tr>
+            <td align="center" style="padding-bottom:20px;">
+              <img src="cid:logo" alt="MedicPadi Logo" width="80" />
+            </td>
+          </tr>
+
+          <!-- Title -->
+          <tr>
+            <td align="center">
+              <h2 style="margin:0; color:#222;">Lab Test Requisition Submitted</h2>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding-top:20px; color:#555; font-size:15px; line-height:1.6;">
+              Hi {{patientName}},
+              <br /><br />
+              Your lab test requisition has been successfully submitted to <strong>{{labName}}</strong>.
+              You will be notified once the lab reviews and accepts your request.
+              <br /><br />
+              <table width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#f8f4ff; border-radius:6px; border-left:4px solid rgb(68,18,203);">
+                <tr>
+                  <td style="padding:12px 16px; font-size:14px; color:#333;">
+                    <strong>Requisition ID:</strong> {{requisitionId}}<br />
+                    <strong>Laboratory:</strong> {{labName}}
+                  </td>
+                </tr>
+              </table>
+              <br />
+              A payment link will be sent to you once the lab accepts your requisition.
+            </td>
+          </tr>
+
+          <!-- Disclaimer -->
+          <tr>
+            <td style="padding-top:24px; font-size:13px; color:#555; line-height:1.6;">
+              If you did not submit this requisition, please contact our support team immediately.
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding-top:40px; font-size:12px; color:#888; text-align:center;">
+              © {{year}} MedicPadi. All rights reserved.
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

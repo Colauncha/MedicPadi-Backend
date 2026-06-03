@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateLaboratoryDto } from './create-laboratory.dto';
-import { IsObject, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { BusinessHours } from 'contracts/src/lib/interfaces/business-hours.interface';
 
@@ -13,4 +13,19 @@ export class UpdateLaboratoryDto extends PartialType(CreateLaboratoryDto) {
   @IsOptional()
   @IsObject()
   profilePicture?: { public_id: string; url: string };
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  about?: string | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  yearsOfService?: number | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  awards?: number | null;
 }

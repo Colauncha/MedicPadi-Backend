@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
@@ -26,8 +26,6 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class TransactionsService {
-  private logger = new Logger(TransactionsService.name);
-
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepo: Repository<Transaction>,
@@ -47,14 +45,12 @@ export class TransactionsService {
     );
   }
 
-  private get tranxSourceMap() {
-    return {
-      appointment: OrderPatterns.APPOINTMENTS,
-      drug_requisition: OrderPatterns.DRUG_REQUISITIONS,
-      test_requisition: OrderPatterns.TEST_REQUISITIONS,
-      subscription: 'Subscription',
-    };
-  }
+  private readonly tranxSourceMap = {
+    appointment: OrderPatterns.APPOINTMENTS,
+    drug_requisition: OrderPatterns.DRUG_REQUISITIONS,
+    test_requisition: OrderPatterns.TEST_REQUISITIONS,
+    subscription: null,
+  };
 
   async create(dto: CreateTransactionDto) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -247,10 +243,15 @@ export class TransactionsService {
           await this.transactionRepo.save(existingTranx);
         }
 
-        this.orderClient.emit(
-          'orders.appointments.completePayment',
-          withServiceAuth(existingTranx?.source_id, this.serviceToken),
-        );
+        const sourcePatterns = existingTranx?.source_type
+          ? (this.tranxSourceMap[existingTranx.source_type] as any)
+          : null;
+        if (sourcePatterns?.COMPLETE_PAYMENT) {
+          this.orderClient.emit(
+            sourcePatterns.COMPLETE_PAYMENT,
+            withServiceAuth(existingTranx?.source_id, this.serviceToken),
+          );
+        }
 
         const emailDto: PaymentEmailDto = {
           email: user.email,

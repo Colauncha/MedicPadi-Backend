@@ -45,6 +45,7 @@ export * from './lib/dtos/email/waitlist.dto';
 export * from './lib/dtos/email/reset-password.dto';
 export * from './lib/dtos/email/appointment-email.dto';
 export * from './lib/dtos/email/payment-email.dto';
+export * from './lib/dtos/email/test-requisition-email.dto';
 
 // Service DTOs
 export * from './lib/dtos/services/lab-tests/create-lab-test.dto';
@@ -66,6 +67,7 @@ export * from './lib/dtos/orders/drug-requisition/update-drug-requisition.dto';
 export * from './lib/dtos/orders/test-requisition/create-test-requisition-item.dto';
 export * from './lib/dtos/orders/test-requisition/create-test-requisition.dto';
 export * from './lib/dtos/orders/test-requisition/update-test-requisition.dto';
+export * from './lib/dtos/orders/test-requisition/decline-test-requisition.dto';
 
 // EHR DTOs
 export * from './lib/dtos/ehr/create-ehr-record.dto';

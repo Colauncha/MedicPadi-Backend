@@ -8,6 +8,7 @@ import {
   ResetPasswordEmailDto,
   AppointmentEmailDto,
   PaymentEmailDto,
+  TestRequisitionEmailDto,
 } from '@medicpadi-backend/contracts';
 
 @Controller()
@@ -73,6 +74,38 @@ export class EmailController {
       dto.patientName,
       dto.doctorsNote,
       dto.appointmentTime,
+    );
+  }
+
+  @EventPattern(EmailPatterns.TEST_REQUISITION_DECLINED)
+  testRequisitionDeclined(@Payload('data') dto: TestRequisitionEmailDto) {
+    return this.emailService.testRequisitionDeclinedEmail(
+      dto.patientEmail,
+      dto.patientName,
+      dto.labName,
+      dto.requisitionId,
+      dto.notes,
+    );
+  }
+
+  @EventPattern(EmailPatterns.TEST_REQUISITION_ACCEPTED)
+  testRequisitionAccepted(@Payload('data') dto: TestRequisitionEmailDto) {
+    return this.emailService.testRequisitionAcceptedEmail(
+      dto.patientEmail,
+      dto.patientName,
+      dto.labName,
+      dto.paymentLink ?? '',
+    );
+  }
+
+  @EventPattern(EmailPatterns.TEST_REQUISITION_CREATED)
+  testRequisitionCreated(@Payload('data') dto: TestRequisitionEmailDto) {
+    return this.emailService.testRequisitionCreatedEmail(
+      dto.patientEmail,
+      dto.patientName,
+      dto.labEmail,
+      dto.labName,
+      dto.requisitionId,
     );
   }
 

@@ -69,4 +69,28 @@ export class Doctor extends BaseClass {
     public_id: '',
     url: '',
   };
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  placeOfWork?: string | null;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  about?: string | null;
+
+  @Column({
+    type: 'number',
+    nullable: true,
+  })
+  yearsOfService?: number | null;
+
+  @Column({
+    type: 'number',
+    nullable: true,
+  })
+  awards?: number | null;
 }

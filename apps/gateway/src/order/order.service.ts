@@ -12,6 +12,7 @@ import {
   PatientGetAppointmentDto,
   DoctorGetAppointmentDto,
   PaginationDto,
+  DeclineTestRequisitionDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -235,6 +236,33 @@ export class OrderService {
       this.orderClient.send(
         OrderPatterns.TEST_REQUISITIONS.DELETE,
         withServiceAuth(id, this.serviceToken),
+      ),
+    );
+  }
+
+  async acceptTestRequisition(id: string) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.TEST_REQUISITIONS.ACCEPT,
+        withServiceAuth(id, this.serviceToken),
+      ),
+    );
+  }
+
+  async declineTestRequisition(dto: DeclineTestRequisitionDto) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.TEST_REQUISITIONS.DECLINE,
+        withServiceAuth(dto, this.serviceToken),
+      ),
+    );
+  }
+
+  async listTestRequisitionPatients(labId: string) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.TEST_REQUISITIONS.LIST_PATIENTS,
+        withServiceAuth(labId, this.serviceToken),
       ),
     );
   }

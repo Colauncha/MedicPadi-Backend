@@ -46,7 +46,10 @@ export class AuthController {
       'Creates a new user account. The `role` field determines the account type: `patient`, `consultant` (doctor), `pharmacy`, or `lab`.',
   })
   @ApiResponse({ status: 201, description: 'User created successfully.' })
-  @ApiResponse({ status: 400, description: 'Validation error or email already in use.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error or email already in use.',
+  })
   create(@Body() createAuthDto: CreateAuthDto) {
     const response = this.authService.create(createAuthDto);
     return response;
@@ -60,7 +63,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Login successful. Returns `{ message, token: { access_token } }`.',
+    description:
+      'Login successful. Returns `{ message, token: { access_token } }`.',
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials.' })
   async login(
@@ -78,7 +82,8 @@ export class AuthController {
   @Get('logout')
   @ApiOperation({
     summary: 'Log out',
-    description: 'Clears the `auth_token` cookie, effectively ending the session.',
+    description:
+      'Clears the `auth_token` cookie, effectively ending the session.',
   })
   @ApiResponse({ status: 200, description: 'Logout successful.' })
   logout(@Res({ passthrough: true }) response: Response) {
@@ -91,11 +96,15 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Admin: update any account',
-    description: 'Allows an admin to update account credentials for any user. Requires the `admin` role.',
+    description:
+      'Allows an admin to update account credentials for any user. Requires the `admin` role.',
   })
   @ApiResponse({ status: 200, description: 'Account updated.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — admin role required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — admin role required.',
+  })
   adminUpdate(
     @Body() updateAuthDto: UpdateAuthDto,
     @Req() request: RequestWithUser,
@@ -109,7 +118,8 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Update own account credentials',
-    description: 'Allows the authenticated user to update their own email or password.',
+    description:
+      'Allows the authenticated user to update their own email or password.',
   })
   @ApiResponse({ status: 200, description: 'Account updated.' })
   @ApiResponse({ status: 400, description: 'Validation error.' })
@@ -125,9 +135,14 @@ export class AuthController {
   @Post('/request-password-reset')
   @ApiOperation({
     summary: 'Request a password reset OTP',
-    description: 'Sends a one-time password (OTP) to the provided email address to initiate a password reset.',
+    description:
+      'Sends a one-time password (OTP) to the provided email address to initiate a password reset.',
   })
-  @ApiQuery({ name: 'email', required: true, description: 'The email address of the account to reset.' })
+  @ApiQuery({
+    name: 'email',
+    required: true,
+    description: 'The email address of the account to reset.',
+  })
   @ApiResponse({ status: 200, description: 'OTP sent if the email exists.' })
   @ApiResponse({ status: 400, description: 'Invalid or missing email.' })
   async requestPasswordReset(@Query('email') email: string) {
@@ -137,10 +152,14 @@ export class AuthController {
   @Post('/reset-password')
   @ApiOperation({
     summary: 'Reset password with OTP',
-    description: 'Resets the account password using the OTP received via email. The OTP expires after a short window.',
+    description:
+      'Resets the account password using the OTP received via email. The OTP expires after a short window.',
   })
   @ApiResponse({ status: 200, description: 'Password reset successfully.' })
-  @ApiResponse({ status: 400, description: 'Invalid OTP, expired OTP, or validation error.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid OTP, expired OTP, or validation error.',
+  })
   async resetPassword(
     @Body()
     resetPasswordDto: ResetPasswordDto,
@@ -154,13 +173,29 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Admin: delete a user account',
-    description: 'Permanently deletes a user account by ID. Requires the `admin` role.',
+    description:
+      'Permanently deletes a user account by ID. Requires the `admin` role.',
   })
   @ApiResponse({ status: 200, description: 'Account deleted.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — admin role required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — admin role required.',
+  })
   @ApiResponse({ status: 404, description: 'User not found.' })
   async delete(@Body('id') id: string) {
     return await this.authService.delete(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/wallet')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Retrieve user wallet',
+    description: 'Fetches the wallet information for the authenticated user.',
+  })
+  async getUserWallet(@Req() request: RequestWithUser) {
+    const user = request.user;
+    return await this.authService.getUserWallet(user.id);
   }
 }

@@ -51,4 +51,22 @@ export class Pharmacy extends BaseClass {
     saturday: { start: 9, end: 17 },
     sunday: { start: 'closed', end: 'closed' },
   };
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  about?: string | null;
+
+  @Column({
+    type: 'number',
+    nullable: true,
+  })
+  yearsOfService?: number | null;
+
+  @Column({
+    type: 'number',
+    nullable: true,
+  })
+  awards?: number | null;
 }

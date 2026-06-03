@@ -29,5 +29,9 @@ export const OrderPatterns = {
     RETRIEVE: 'orders.testRequisitions.retrieve',
     FIND_ALL: 'orders.testRequisitions.findAll',
     DELETE: 'orders.testRequisitions.delete',
+    ACCEPT: 'orders.testRequisitions.accept',
+    DECLINE: 'orders.testRequisitions.decline',
+    LIST_PATIENTS: 'orders.testRequisitions.listPatients',
+    COMPLETE_PAYMENT: 'orders.testRequisitions.completePayment',
   },
 };

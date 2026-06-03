@@ -1,4 +1,4 @@
-import { BaseClass } from '@medicpadi-backend/contracts';
+import { BaseClass, TestItemStatus } from '@medicpadi-backend/contracts';
 import { Column, Entity } from 'typeorm';
 
 @Entity('test_requisition_items')
@@ -20,6 +20,13 @@ export class TestRequisitionItem extends BaseClass {
 
   @Column({ type: 'varchar', nullable: true })
   result_file_url?: string;
+
+  @Column({
+    type: 'enum',
+    enum: TestItemStatus,
+    default: TestItemStatus.PENDING,
+  })
+  status!: TestItemStatus;
 
   @Column({ type: 'timestamp', nullable: true })
   completed_at?: Date;
