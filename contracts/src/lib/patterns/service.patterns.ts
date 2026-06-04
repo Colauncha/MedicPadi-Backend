@@ -14,4 +14,11 @@ export const ServicePatterns = {
     FIND_ALL: 'services.pharmcyDrugs.findAll',
     DELETE: 'services.pharmcyDrugs.delete',
   },
+  DEPARTMENTS: {
+    CREATE: 'services.departments.create',
+    UPDATE: 'services.departments.update',
+    RETRIEVE: 'services.departments.retrieve',
+    FIND_ALL: 'services.departments.findAll',
+    DELETE: 'services.departments.delete',
+  },
 };

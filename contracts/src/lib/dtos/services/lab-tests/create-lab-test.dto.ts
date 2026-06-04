@@ -1,31 +1,33 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBoolean,
-  IsDate,
-  IsDateString,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
-import { v4 as uuid4 } from 'uuid';
 
 export class CreateLabTestDto {
-  @ApiProperty()
-  @IsString()
+  @ApiPropertyOptional()
+  @IsUUID()
+  @IsOptional()
   user_id?: string;
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   name!: string;
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   shortName!: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  description!: string;
+  @IsOptional()
+  description?: string;
 
   @ApiProperty()
   @IsNumber()
@@ -38,4 +40,13 @@ export class CreateLabTestDto {
   @ApiProperty()
   @IsNumber()
   TAT!: number;
+
+  @ApiProperty()
+  @IsBoolean()
+  hasImage!: boolean;
+
+  @ApiProperty()
+  @IsUUID()
+  @IsNotEmpty()
+  department_id!: string;
 }

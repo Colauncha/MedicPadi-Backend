@@ -3,11 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PharmacyDrugsModule } from './pharmacy-drugs/pharmacy-drugs.module';
 import { LabTestsModule } from './lab-tests/lab-tests.module';
+import { DepartmentModule } from './department/department.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { serviceConfig, dbConfig } from '@medicpadi-backend/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LabTest } from '../entities/lab-test.entity';
 import { PharmacyDrug } from '../entities/pharmacy-drug.entity';
+import { Department } from '../entities/department.entity';
 
 @Module({
   imports: [
@@ -27,7 +29,7 @@ import { PharmacyDrug } from '../entities/pharmacy-drug.entity';
         console.log('Database configuration:', configService.get('dbConfig'));
         return {
           type: 'postgres',
-          entities: [LabTest, PharmacyDrug],
+          entities: [LabTest, PharmacyDrug, Department],
           migrations: [__dirname + '/database/migrations/*.ts'],
           host: configService.get<string>('dbConfig.host'),
           port: configService.get<number>('dbConfig.port'),
@@ -44,6 +46,7 @@ import { PharmacyDrug } from '../entities/pharmacy-drug.entity';
     }),
     PharmacyDrugsModule,
     LabTestsModule,
+    DepartmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -6,6 +6,8 @@ import {
   UpdateLabTestDto,
   CreatePharmacyDrugDto,
   UpdatePharmacyDrugDto,
+  CreateDepartmentDto,
+  UpdateDepartmentDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -136,5 +138,54 @@ export class ServicesService {
     } catch (error) {
       throw error;
     }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // Departments methods //////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////
+
+  async createDepartment(dto: CreateDepartmentDto) {
+    return firstValueFrom(
+      this.servicesClient.send(
+        ServicePatterns.DEPARTMENTS.CREATE,
+        withServiceAuth(dto, this.serviceToken),
+      ),
+    );
+  }
+
+  async findAllDepartments(query: PaginationDto) {
+    return firstValueFrom(
+      this.servicesClient.send(
+        ServicePatterns.DEPARTMENTS.FIND_ALL,
+        withServiceAuth(query, this.serviceToken),
+      ),
+    );
+  }
+
+  async findOneDepartment(id: string) {
+    return firstValueFrom(
+      this.servicesClient.send(
+        ServicePatterns.DEPARTMENTS.RETRIEVE,
+        withServiceAuth(id, this.serviceToken),
+      ),
+    );
+  }
+
+  async updateDepartment(id: string, dto: UpdateDepartmentDto) {
+    return firstValueFrom(
+      this.servicesClient.send(
+        ServicePatterns.DEPARTMENTS.UPDATE,
+        withServiceAuth({ id, ...dto }, this.serviceToken),
+      ),
+    );
+  }
+
+  async removeDepartment(id: string) {
+    return firstValueFrom(
+      this.servicesClient.send(
+        ServicePatterns.DEPARTMENTS.DELETE,
+        withServiceAuth(id, this.serviceToken),
+      ),
+    );
   }
 }

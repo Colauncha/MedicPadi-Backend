@@ -50,6 +50,8 @@ export * from './lib/dtos/email/test-requisition-email.dto';
 // Service DTOs
 export * from './lib/dtos/services/lab-tests/create-lab-test.dto';
 export * from './lib/dtos/services/lab-tests/update-lab-test.dto';
+export * from './lib/dtos/services/department/create-department.dto';
+export * from './lib/dtos/services/department/update-department.dto';
 export * from './lib/dtos/services/pharmacy-drugs/create-pharmacy-drug.dto';
 export * from './lib/dtos/services/pharmacy-drugs/update-pharmacy-drug.dto';
 

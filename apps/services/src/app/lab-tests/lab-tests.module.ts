@@ -3,9 +3,10 @@ import { LabTestsService } from './lab-tests.service';
 import { LabTestsController } from './lab-tests.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LabTest } from '../../entities/lab-test.entity';
+import { Department } from '../../entities/department.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LabTest])],
+  imports: [TypeOrmModule.forFeature([LabTest, Department])],
   controllers: [LabTestsController],
   providers: [LabTestsService],
 })

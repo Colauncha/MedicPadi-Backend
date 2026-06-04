@@ -18,6 +18,8 @@ import {
   PaginationDto,
   UpdateLabTestDto,
   UpdatePharmacyDrugDto,
+  CreateDepartmentDto,
+  UpdateDepartmentDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { Roles } from '../guards/decorators/roles.decorator';
@@ -212,5 +214,94 @@ export class ServicesController {
   @ApiResponse({ status: 404, description: 'Drug not found.' })
   removePharmacyDrug(@Param('id') id: string) {
     return this.servicesService.removePharmacyDrug(id);
+  }
+
+  // ──────────────────────────────────────────────
+  // Departments
+  // ──────────────────────────────────────────────
+
+  @Post('/lab/departments')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Create a department',
+    description:
+      'Creates a new department for the authenticated laboratory. Accessible by `lab` and `admin` roles.',
+  })
+  @ApiResponse({ status: 201, description: 'Department created.' })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions — lab or admin role required.' })
+  createDepartment(
+    @Body() dto: CreateDepartmentDto,
+    @Req() request: RequestWithUser,
+  ) {
+    return this.servicesService.createDepartment({
+      ...dto,
+      user_id: request.user.id,
+    });
+  }
+
+  @Get('/lab/departments')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN, AuthRole.CONSULTANT, AuthRole.PATIENT)
+  @ApiOperation({
+    summary: 'List departments',
+    description:
+      'Returns a paginated list of lab departments. Accessible by `lab`, `admin`, `consultant`, and `patient` roles.',
+  })
+  @ApiResponse({ status: 200, description: 'Paginated list of departments.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  findAllDepartments(@Query() query: PaginationDto) {
+    return this.servicesService.findAllDepartments(query);
+  }
+
+  @Get('/lab/departments/:id')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN, AuthRole.CONSULTANT, AuthRole.PATIENT)
+  @ApiOperation({
+    summary: 'Get a department by ID',
+    description:
+      'Returns a single department. Accessible by `lab`, `admin`, `consultant`, and `patient` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the department.' })
+  @ApiResponse({ status: 200, description: 'Department found.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 404, description: 'Department not found.' })
+  findOneDepartment(@Param('id') id: string) {
+    return this.servicesService.findOneDepartment(id);
+  }
+
+  @Patch('/lab/departments/:id')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Update a department',
+    description:
+      'Updates an existing department. Accessible by `lab` and `admin` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the department to update.' })
+  @ApiResponse({ status: 200, description: 'Department updated.' })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions — lab or admin role required.' })
+  @ApiResponse({ status: 404, description: 'Department not found.' })
+  updateDepartment(
+    @Param('id') id: string,
+    @Body() dto: UpdateDepartmentDto,
+  ) {
+    return this.servicesService.updateDepartment(id, dto);
+  }
+
+  @Delete('/lab/departments/:id')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Delete a department',
+    description:
+      'Removes a department. Will fail if lab tests are still assigned to it. Accessible by `lab` and `admin` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the department to delete.' })
+  @ApiResponse({ status: 200, description: 'Department deleted.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions — lab or admin role required.' })
+  @ApiResponse({ status: 404, description: 'Department not found.' })
+  removeDepartment(@Param('id') id: string) {
+    return this.servicesService.removeDepartment(id);
   }
 }
