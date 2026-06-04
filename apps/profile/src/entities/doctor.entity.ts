@@ -83,13 +83,13 @@ export class Doctor extends BaseClass {
   about?: string | null;
 
   @Column({
-    type: 'number',
+    type: 'int',
     nullable: true,
   })
   yearsOfService?: number | null;
 
   @Column({
-    type: 'number',
+    type: 'int',
     nullable: true,
   })
   awards?: number | null;
