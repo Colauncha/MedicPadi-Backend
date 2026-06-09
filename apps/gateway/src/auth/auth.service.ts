@@ -4,7 +4,7 @@ import {
   AuthPatterns,
   LoginDto,
   UpdateAuthDto,
-  EmailPatterns,
+  NotificationEvents,
   WaitlistEmailDto,
   WelcomeEmailDto,
   TransactionPatterns,
@@ -47,6 +47,23 @@ export class AuthService {
       createAuthDto.role,
     );
     Dto.user_id = user.id;
+    Dto.firstName =
+      createAuthDto.role.startsWith('patient') ||
+      createAuthDto.role.startsWith('consultant') ||
+      createAuthDto.role.startsWith('admin')
+        ? createAuthDto.fullName?.split(' ')[0]
+        : '';
+    Dto.lastName =
+      createAuthDto.role.startsWith('patient') ||
+      createAuthDto.role.startsWith('consultant') ||
+      createAuthDto.role.startsWith('admin')
+        ? createAuthDto.fullName?.split(' ')[1]
+        : '';
+    Dto.name =
+      createAuthDto.role.startsWith('pharmacy') ||
+      createAuthDto.role.startsWith('lab')
+        ? createAuthDto.fullName
+        : undefined;
     try {
       const profile = await firstValueFrom(
         this.profileClient.send(Pattern.CREATE, withServiceAuth(Dto, token)),
@@ -67,7 +84,7 @@ export class AuthService {
           waitlistEmailDto.email = user.email;
           waitlistEmailDto.name = createAuthDto.fullName || 'User';
           this.emailClient.emit(
-            EmailPatterns.WAITLIST,
+            NotificationEvents.WAITLIST,
             withServiceAuth(waitlistEmailDto, token),
           );
         } else {
@@ -76,7 +93,7 @@ export class AuthService {
           welcomeEmailDto.name = createAuthDto.fullName || 'User';
           welcomeEmailDto.verifyUrl = `https://medicpadi.com/verify-email`;
           this.emailClient.emit(
-            EmailPatterns.WELCOME,
+            NotificationEvents.WELCOME,
             withServiceAuth(welcomeEmailDto, token),
           );
         }

@@ -4,6 +4,7 @@ export enum NotificationType {
   PRESCRIPTION = 'prescription',
   PAYMENT = 'payment',
   SYSTEM = 'system',
+  OTHER = 'other',
 }
 
 export enum NotificationChannel {

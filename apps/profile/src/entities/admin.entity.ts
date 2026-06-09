@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { BaseClass } from '@medicpadi-backend/contracts';
+import { BaseClass, SettingsDto } from '@medicpadi-backend/contracts';
 
 @Entity()
 export class Admin extends BaseClass {
@@ -28,4 +28,10 @@ export class Admin extends BaseClass {
     nullable: false,
   })
   permissions?: string[];
+
+  @Column({
+    type: 'simple-json',
+    nullable: true,
+  })
+  settings: SettingsDto = new SettingsDto();
 }

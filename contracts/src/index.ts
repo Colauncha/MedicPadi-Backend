@@ -34,18 +34,21 @@ export * from './lib/dtos/profile/laboratory/create-laboratory.dto';
 export * from './lib/dtos/profile/laboratory/update-laboratory.dto';
 export * from './lib/dtos/profile/update-business-hours.dto';
 export * from './lib/dtos/profile/pagination.dto';
+export * from './lib/dtos/profile/settings.dto';
 
 // Notification DTOs
 export * from './lib/dtos/notification/create-notification.dto';
 export * from './lib/dtos/notification/update-notification.dto';
 
-// Email DTOs
+// Notification event DTOs (slim domain-event payloads emitted by callers)
+export * from './lib/dtos/notification/events/appointment.event.dto';
+export * from './lib/dtos/notification/events/requisition.event.dto';
+export * from './lib/dtos/notification/events/payment.event.dto';
+
+// Auth-triggered email DTOs (callers already hold this data at emit time)
 export * from './lib/dtos/email/welcome.dto';
 export * from './lib/dtos/email/waitlist.dto';
 export * from './lib/dtos/email/reset-password.dto';
-export * from './lib/dtos/email/appointment-email.dto';
-export * from './lib/dtos/email/payment-email.dto';
-export * from './lib/dtos/email/test-requisition-email.dto';
 
 // Service DTOs
 export * from './lib/dtos/services/lab-tests/create-lab-test.dto';

@@ -3,6 +3,7 @@ import {
   BloodGroup,
   Genotype,
   PatientGender,
+  SettingsDto,
 } from '@medicpadi-backend/contracts';
 import { Column, Entity } from 'typeorm';
 
@@ -70,4 +71,10 @@ export class Patient extends BaseClass {
     public_id: '',
     url: '',
   };
+
+  @Column({
+    type: 'simple-json',
+    nullable: true,
+  })
+  settings: SettingsDto = new SettingsDto();
 }

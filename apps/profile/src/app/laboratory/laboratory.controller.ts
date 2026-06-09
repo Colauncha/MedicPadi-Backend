@@ -7,6 +7,7 @@ import {
   LaboratoryPatterns,
   PaginationDto,
   ServiceError,
+  SettingsDto,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
 
@@ -58,6 +59,12 @@ export class LaboratoryController {
       } as ServiceError);
     }
     return this.laboratoryService.updateBusinessHours(id, rest);
+  }
+
+  @MessagePattern(LaboratoryPatterns.UPDATE_SETTINGS)
+  async updateSettings(@Payload('data') data: SettingsDto & { id: string }) {
+    const { id, ...settings } = data;
+    return this.laboratoryService.updateSettings(id, settings);
   }
 
   @MessagePattern('removeLaboratory')

@@ -1,4 +1,4 @@
-import { BaseClass, BusinessHoursDto } from '@medicpadi-backend/contracts';
+import { BaseClass, BusinessHoursDto, SettingsDto } from '@medicpadi-backend/contracts';
 import { Column, Entity } from 'typeorm';
 
 @Entity()
@@ -69,4 +69,10 @@ export class Pharmacy extends BaseClass {
     nullable: true,
   })
   awards?: number | null;
+
+  @Column({
+    type: 'simple-json',
+    nullable: true,
+  })
+  settings: SettingsDto = new SettingsDto();
 }

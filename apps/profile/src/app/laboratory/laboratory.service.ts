@@ -5,6 +5,7 @@ import {
   PaginationDto,
   PaginationResponseDto,
   ServiceError,
+  SettingsDto,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
 import { Laboratory } from '../../entities/laboratory.entity';
@@ -138,6 +139,18 @@ export class LaboratoryService {
       { businessHours: businessHoursDto },
     );
     return labProfile;
+  }
+
+  async updateSettings(id: string, settingsDto: SettingsDto) {
+    try {
+      await this.labRepository.findOne({ where: { user_id: id } });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Laboratory's settings",
+      } as ServiceError);
+    }
+    return this.labRepository.update({ user_id: id }, { settings: settingsDto });
   }
 
   remove(id: string) {

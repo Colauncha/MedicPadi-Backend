@@ -4,6 +4,7 @@ import {
   UpdateAdminDto,
   PaginationDto,
   PaginationResponseDto,
+  SettingsDto,
 } from '@medicpadi-backend/contracts';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Admin } from '../../entities/admin.entity';
@@ -82,6 +83,15 @@ export class AdminService {
       { ...updateAdminDto },
     );
     return adminProfile;
+  }
+
+  async updateSettings(id: string, settingsDto: SettingsDto) {
+    try {
+      await this.adminRepository.findOne({ where: { user_id: id } });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to update Admin settings');
+    }
+    return this.adminRepository.update({ user_id: id }, { settings: settingsDto });
   }
 
   remove(id: string) {

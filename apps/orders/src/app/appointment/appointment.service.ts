@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
-  AppointmentEmailDto,
+  AppointmentCancelledEventDto,
+  AppointmentConfirmedEventDto,
+  AppointmentCreatedEventDto,
+  AppointmentPaymentConfirmedEventDto,
   AppointmentStatus,
   AuthPatterns,
   CreateAppointmentDto,
   DoctorPatterns,
-  EmailPatterns,
+  NotificationEvents,
   PatientPatterns,
   PaginationDto,
   PaginationResponseDto,
@@ -26,7 +29,6 @@ import { Appointment } from '../../entities/appointment.entity';
 import { ZoomService } from './providers/zoom.service';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { access } from 'fs';
 
 @Injectable()
 export class AppointmentService {
@@ -92,7 +94,7 @@ export class AppointmentService {
       }
 
       const token = this.serviceToken;
-      const [doctor, patient, patientAuth, doctorAuth] = await Promise.all([
+      const [doctor, patient] = await Promise.all([
         firstValueFrom(
           this.profileClient.send(
             DoctorPatterns.RETRIEVE,
@@ -103,18 +105,6 @@ export class AppointmentService {
           this.profileClient.send(
             PatientPatterns.RETRIEVE,
             withServiceAuth(dto.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(dto.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(dto.provider_id, token),
           ),
         ),
       ]);
@@ -143,23 +133,16 @@ export class AppointmentService {
 
       await queryRunner.commitTransaction();
 
-      // Notify patient — fire-and-forget
-      const emailDto: AppointmentEmailDto = {
-        email: patientAuth.email,
-        doctorEmail: doctorAuth.email,
-        patientName:
-          `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
-          patientAuth.email,
-        doctorName:
-          `Dr. ${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim() ||
-          doctorAuth.email,
+      const eventDto: AppointmentCreatedEventDto = {
+        appointmentId: savedAppointment.id,
+        patientId: dto.patient_id || '',
+        doctorId: dto.provider_id || '',
         appointmentTime: appointmentTime.toISOString(),
-        // acceptLink: `${this.serverUrls.frontend}/appointments/${savedAppointment.id}/?accept=true`, // TODO: frontend route for accepting appointment
-        acceptLink: `${this.serverUrls.backend}/orders/appointments/${savedAppointment.id}/accept`, // TODO: change to frontend route for accepting appointment
+        acceptLink: `${this.serverUrls.backend}/orders/appointments/${savedAppointment.id}/accept`,
       };
       this.notificationClient.emit(
-        EmailPatterns.APPOINTMENT_CREATED,
-        withServiceAuth(emailDto, token),
+        NotificationEvents.APPOINTMENT_CREATED,
+        withServiceAuth(eventDto, token),
       );
 
       const { join_link, meeting_id, meeting_link, ...rest } = savedAppointment;
@@ -308,10 +291,8 @@ export class AppointmentService {
         amount: existing.sessionCost || 0,
         gateway: PaymentGateway.PAYSTACK,
       };
-      console.log('Transaction DTO:', transactionDto);
 
       const token = this.serviceToken;
-
       const initTransaction: PaystackInitializeResponse = await firstValueFrom(
         this.transactionsClient.send(
           TransactionPatterns.TRANSACTIONS.CREATE,
@@ -319,51 +300,16 @@ export class AppointmentService {
         ),
       );
 
-      console.log('Initialized Transaction:', initTransaction);
-
-      // Notify patient their appointment was confirmed — fire-and-forget
-      const [doctor, patient, patientAuth, doctorAuth] = await Promise.all([
-        firstValueFrom(
-          this.profileClient.send(
-            DoctorPatterns.RETRIEVE,
-            withServiceAuth(existing.provider_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.profileClient.send(
-            PatientPatterns.RETRIEVE,
-            withServiceAuth(existing.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(existing.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(existing.provider_id, token),
-          ),
-        ),
-      ]);
-      const emailDto: AppointmentEmailDto = {
-        email: patientAuth.email,
-        doctorEmail: doctorAuth.email,
-        patientName:
-          `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
-          patientAuth.email,
-        doctorName:
-          `${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim() ||
-          doctorAuth.email,
+      const eventDto: AppointmentConfirmedEventDto = {
+        appointmentId: existing.id,
+        patientId: existing.patient_id || '',
+        doctorId: existing.provider_id || '',
         appointmentTime: existing.appointment_time?.toISOString() ?? '',
         paymentLink: initTransaction.data.authorization_url,
       };
-
       this.notificationClient.emit(
-        EmailPatterns.APPOINTMENT_CONFIRMED,
-        withServiceAuth(emailDto, token),
+        NotificationEvents.APPOINTMENT_CONFIRMED,
+        withServiceAuth(eventDto, token),
       );
 
       return existing;
@@ -391,52 +337,18 @@ export class AppointmentService {
       existing.paymentStatus = AppointmentPaymentStatus.P_CONFIRMED;
       await this.appointmentRepo.save(existing);
 
-      // Notify patient of payment confirmation — fire-and-forget
       const token = this.serviceToken;
-      const [doctor, patient, patientAuth, doctorAuth] = await Promise.all([
-        firstValueFrom(
-          this.profileClient.send(
-            DoctorPatterns.RETRIEVE,
-            withServiceAuth(existing.provider_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.profileClient.send(
-            PatientPatterns.RETRIEVE,
-            withServiceAuth(existing.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(existing.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(existing.provider_id, token),
-          ),
-        ),
-      ]);
-
-      const emailDto: AppointmentEmailDto = {
-        email: patientAuth.email,
-        doctorEmail: doctorAuth.email,
-        patientName:
-          `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
-          patientAuth.email,
-        doctorName:
-          `${doctor.firstName ?? ''} ${doctor.lastName ?? ''}`.trim() ||
-          doctorAuth.email,
+      const eventDto: AppointmentPaymentConfirmedEventDto = {
+        appointmentId: existing.id,
+        patientId: existing.patient_id || '',
+        doctorId: existing.provider_id || '',
         appointmentTime: existing.appointment_time?.toISOString() ?? '',
-        joinLink: existing.join_link || '',
-        meetingLink: existing.meeting_link || '',
+        joinLink: existing.join_link || undefined,
+        meetingLink: existing.meeting_link || undefined,
       };
-
       this.notificationClient.emit(
-        EmailPatterns.APPOINTMENT_PAYMENT_CONFIRMED,
-        withServiceAuth(emailDto, token),
+        NotificationEvents.APPOINTMENT_PAYMENT_CONFIRMED,
+        withServiceAuth(eventDto, token),
       );
     } catch (error) {
       logError(error, `${AppointmentService.name}.completePayment`);
@@ -496,26 +408,17 @@ export class AppointmentService {
         { status: AppointmentStatus.CANCELLED, doctorsNote: reason },
       );
 
-      // Notify patient of cancellation — fire-and-forget
       const token = this.serviceToken;
-      this.authClient
-        .send(
-          AuthPatterns.FIND_BY_ID,
-          withServiceAuth(existing.patient_id, token),
-        )
-        .subscribe((patientAuth) => {
-          const emailDto: AppointmentEmailDto = {
-            email: patientAuth.email,
-            patientName: patientAuth.fullName ?? patientAuth.email,
-            doctorName: '',
-            doctorsNote: reason,
-            appointmentTime: existing.appointment_time?.toISOString() ?? '',
-          };
-          this.notificationClient.emit(
-            EmailPatterns.APPOINTMENT_CANCELLED,
-            withServiceAuth(emailDto, token),
-          );
-        });
+      const eventDto: AppointmentCancelledEventDto = {
+        appointmentId: existing.id,
+        patientId: existing.patient_id || '',
+        appointmentTime: existing.appointment_time?.toISOString() ?? '',
+        reason,
+      };
+      this.notificationClient.emit(
+        NotificationEvents.APPOINTMENT_CANCELLED,
+        withServiceAuth(eventDto, token),
+      );
 
       return { message: 'Appointment removed successfully' };
     } catch (error) {
@@ -543,25 +446,16 @@ export class AppointmentService {
       }
       await this.appointmentRepo.remove(existing);
 
-      // Notify patient of cancellation — fire-and-forget
       const token = this.serviceToken;
-      this.authClient
-        .send(
-          AuthPatterns.FIND_BY_ID,
-          withServiceAuth(existing.patient_id, token),
-        )
-        .subscribe((patientAuth) => {
-          const emailDto: AppointmentEmailDto = {
-            email: patientAuth.email,
-            patientName: patientAuth.fullName ?? patientAuth.email,
-            doctorName: '',
-            appointmentTime: existing.appointment_time?.toISOString() ?? '',
-          };
-          this.notificationClient.emit(
-            EmailPatterns.APPOINTMENT_CANCELLED,
-            withServiceAuth(emailDto, token),
-          );
-        });
+      const eventDto: AppointmentCancelledEventDto = {
+        appointmentId: existing.id,
+        patientId: existing.patient_id || '',
+        appointmentTime: existing.appointment_time?.toISOString() ?? '',
+      };
+      this.notificationClient.emit(
+        NotificationEvents.APPOINTMENT_CANCELLED,
+        withServiceAuth(eventDto, token),
+      );
 
       return { message: 'Appointment removed successfully' };
     } catch (error) {

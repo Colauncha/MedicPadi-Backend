@@ -1,36 +1,46 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsObject, IsString } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsIn, IsOptional, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class MobileSettingsDto {
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
   mobileNotifications?: boolean = false;
 }
 
 export class DesktopSettingsDto {
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
   desktopNotifications?: boolean = false;
 }
 
 export class SettingsDto {
-  @ApiProperty()
-  @IsString()
+  @ApiPropertyOptional({ enum: ['dark', 'light'] })
+  @IsOptional()
+  @IsIn(['dark', 'light'])
   preferredTheme?: 'dark' | 'light' = 'light';
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
   mfa?: boolean = false;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
-  emailNotifications?: boolean = false;
+  emailNotifications?: boolean = true;
 
-  @ApiProperty()
-  @IsObject()
+  @ApiPropertyOptional({ type: () => MobileSettingsDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MobileSettingsDto)
   mobile?: MobileSettingsDto;
 
-  @ApiProperty()
-  @IsObject()
+  @ApiPropertyOptional({ type: () => DesktopSettingsDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => DesktopSettingsDto)
   desktop?: DesktopSettingsDto;
 }

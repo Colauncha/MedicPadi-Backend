@@ -7,6 +7,7 @@ import {
   PaginationDto,
   AuthRole,
   GetAuthDto,
+  SettingsDto,
 } from '@medicpadi-backend/contracts';
 import { getPatternFromRole, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -110,6 +111,23 @@ export class ProfileService {
       throw new BadRequestException(
         error,
         'Something went wrong while updating profile',
+      );
+    }
+  }
+
+  async updateSettings(user: any, settingsDto: SettingsDto) {
+    try {
+      const { pattern: Pattern } = await getPatternFromRole(user.role);
+      return await firstValueFrom(
+        this.profileClient.send(
+          Pattern.UPDATE_SETTINGS,
+          withServiceAuth({ id: user.id, ...settingsDto }, this.serviceToken),
+        ),
+      );
+    } catch (error) {
+      throw new BadRequestException(
+        error,
+        'Something went wrong while updating settings',
       );
     }
   }

@@ -5,6 +5,7 @@ import {
   PaginationDto,
   PaginationResponseDto,
   ServiceError,
+  SettingsDto,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
 import { Pharmacy } from '../../entities/pharmacy.entity';
@@ -123,6 +124,18 @@ export class PharmacyService {
       { businessHours: businessHoursDto },
     );
     return pharmacyProfile;
+  }
+
+  async updateSettings(id: string, settingsDto: SettingsDto) {
+    try {
+      await this.pharmacyRepository.findOne({ where: { user_id: id } });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Pharmacy's settings",
+      } as ServiceError);
+    }
+    return this.pharmacyRepository.update({ user_id: id }, { settings: settingsDto });
   }
 
   remove(id: string) {

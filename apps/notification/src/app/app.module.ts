@@ -4,8 +4,10 @@ import { AppService } from './app.service';
 import { NotificationModule } from './notification/notification.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { serviceConfig, dbConfig, smtpConfig } from '@medicpadi-backend/config';
+import { appConfig, serviceConfig, dbConfig, smtpConfig } from '@medicpadi-backend/config';
+import { BullModule } from '@nestjs/bullmq';
 import { EmailModule } from './email/email.module';
+import { DispatchModule } from './dispatch/dispatch.module';
 import { Notification } from './notification/entities/notification.entity';
 
 @Module({
@@ -13,7 +15,7 @@ import { Notification } from './notification/entities/notification.entity';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `medicpadi-backend/apps/notification/.env.${process.env.NODE_ENV || 'development'}`,
-      load: [serviceConfig, dbConfig, smtpConfig],
+      load: [appConfig, serviceConfig, dbConfig, smtpConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -32,8 +34,22 @@ import { Notification } from './notification/entities/notification.entity';
         autoLoadEntities: configService.get<boolean>('dbConfig.autoLoadEntities'),
       }),
     }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('appConfig.redisHost') ?? 'localhost',
+          port: configService.get<number>('appConfig.redisPort') ?? 6379,
+        },
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 2000 },
+        },
+      }),
+    }),
     NotificationModule,
     EmailModule,
+    DispatchModule,
   ],
   controllers: [AppController],
   providers: [AppService],

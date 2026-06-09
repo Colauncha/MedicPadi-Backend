@@ -5,6 +5,7 @@ import {
   AdminPatterns,
   CreateAdminDto,
   PaginationDto,
+  SettingsDto,
   UpdateAdminDto,
 } from '@medicpadi-backend/contracts';
 
@@ -35,6 +36,12 @@ export class AdminController {
   @MessagePattern(AdminPatterns.UPDATE)
   async update(@Payload('data') updateAdminDto: UpdateAdminDto) {
     return await this.adminService.update(updateAdminDto.id, updateAdminDto);
+  }
+
+  @MessagePattern(AdminPatterns.UPDATE_SETTINGS)
+  async updateSettings(@Payload('data') data: SettingsDto & { id: string }) {
+    const { id, ...settings } = data;
+    return this.adminService.updateSettings(id, settings);
   }
 
   @MessagePattern('removeAdmin')

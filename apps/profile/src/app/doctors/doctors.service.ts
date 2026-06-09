@@ -4,6 +4,7 @@ import {
   PaginationDto,
   PaginationResponseDto,
   ServiceError,
+  SettingsDto,
   UpdateDoctorDto,
 } from '@medicpadi-backend/contracts';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -98,6 +99,18 @@ export class DoctorsService {
       { ...updateDoctorDto },
     );
     return doctorsProfile;
+  }
+
+  async updateSettings(id: string, settingsDto: SettingsDto) {
+    try {
+      await this.doctorsRepository.findOne({ where: { user_id: id } });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: "Unable to update Doctor's settings",
+      } as ServiceError);
+    }
+    return this.doctorsRepository.update({ user_id: id }, { settings: settingsDto });
   }
 
   remove(id: string) {

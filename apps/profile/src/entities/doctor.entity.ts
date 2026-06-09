@@ -3,6 +3,7 @@ import {
   DoctorsSpecialies,
   BaseClass,
   DoctorsGender,
+  SettingsDto,
 } from '@medicpadi-backend/contracts';
 
 @Entity()
@@ -93,4 +94,10 @@ export class Doctor extends BaseClass {
     nullable: true,
   })
   awards?: number | null;
+
+  @Column({
+    type: 'simple-json',
+    nullable: true,
+  })
+  settings: SettingsDto = new SettingsDto();
 }

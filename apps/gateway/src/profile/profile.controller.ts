@@ -36,6 +36,7 @@ import {
   AuthRole,
   BusinessHoursDto,
   PaginationDto,
+  SettingsDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import {
@@ -208,6 +209,22 @@ export class ProfileController {
     return update
       ? imageUrlObj
       : new BadRequestException('Failed to update profile picture');
+  }
+
+  @Patch('/settings')
+  @ApiOperation({
+    summary: 'Update account settings',
+    description:
+      'Updates notification preferences, theme, and MFA setting for the authenticated user. All fields are optional.',
+  })
+  @ApiResponse({ status: 200, description: 'Settings updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  async updateSettings(
+    @Body() settingsDto: SettingsDto,
+    @Req() request: RequestWithUser,
+  ) {
+    return this.profileService.updateSettings(request.user, settingsDto);
   }
 
   @Patch('/business-hours')

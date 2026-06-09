@@ -8,6 +8,7 @@ import {
   PaginationDto,
   PharmacyPatterns,
   ServiceError,
+  SettingsDto,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
 
@@ -58,6 +59,12 @@ export class PharmacyController {
       } as ServiceError);
     }
     return this.pharmacyService.updateBusinessHours(id, rest);
+  }
+
+  @MessagePattern(PharmacyPatterns.UPDATE_SETTINGS)
+  async updateSettings(@Payload('data') data: SettingsDto & { id: string }) {
+    const { id, ...settings } = data;
+    return this.pharmacyService.updateSettings(id, settings);
   }
 
   @MessagePattern('removePharmacy')

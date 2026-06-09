@@ -4,7 +4,7 @@ import {
   UpdateAuthDto,
   LoginDto,
   ServiceError,
-  EmailPatterns,
+  NotificationEvents,
   ResetPasswordEmailDto,
 } from '@medicpadi-backend/contracts';
 import { Repository } from 'typeorm';
@@ -185,7 +185,7 @@ export class AuthService {
     resetDto.name = 'User';
     resetDto.otp = resetToken;
     await firstValueFrom(
-      this.notificationClient.emit(EmailPatterns.RESET_PASSWORD, withServiceAuth(resetDto, this.serviceToken)),
+      this.notificationClient.emit(NotificationEvents.RESET_PASSWORD, withServiceAuth(resetDto, this.serviceToken)),
     );
     console.log('Redis set result:', redisRet);
     return {

@@ -10,10 +10,10 @@ import {
   UpdateTestRequisitionDto,
   RequisitionStatus,
   PatientPatterns,
-  LaboratoryPatterns,
-  AuthPatterns,
-  EmailPatterns,
-  TestRequisitionEmailDto,
+  NotificationEvents,
+  TestRequisitionCreatedEventDto,
+  TestRequisitionAcceptedEventDto,
+  TestRequisitionDeclinedEventDto,
   DeclineTestRequisitionDto,
   CreateTransactionDto,
   TransactionSourceType,
@@ -36,7 +36,6 @@ export class TestRequisitionService {
     @InjectRepository(TestRequisitionItem)
     private readonly itemRepo: Repository<TestRequisitionItem>,
     @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
-    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy,
     @Inject('TRANSACTIONS_SERVICE')
@@ -77,52 +76,17 @@ export class TestRequisitionService {
       await queryRunner.manager.save(reqItems);
       await queryRunner.commitTransaction();
 
-      // Notify patient and lab — fire-and-forget
       const token = this.serviceToken;
-      Promise.all([
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(dto.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.profileClient.send(
-            PatientPatterns.RETRIEVE,
-            withServiceAuth(dto.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.profileClient.send(
-            LaboratoryPatterns.RETRIEVE,
-            withServiceAuth(dto.lab_id, token),
-          ),
-        ),
-      ])
-        .then(([patientAuth, patient, lab]) =>
-          firstValueFrom(
-            this.authClient.send(
-              AuthPatterns.FIND_BY_ID,
-              withServiceAuth(lab.user_id, token),
-            ),
-          ).then((labAuth) => {
-            const emailDto: TestRequisitionEmailDto = {
-              patientEmail: patientAuth.email,
-              patientName:
-                `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
-                patientAuth.email,
-              labEmail: labAuth.email,
-              labName: lab.name ?? undefined,
-              requisitionId: requisition.id,
-              acceptLink: `https://api.medicpadi.com/api/orders/test-requisitions/${requisition.id}/accept`,
-            };
-            this.notificationClient.emit(
-              EmailPatterns.TEST_REQUISITION_CREATED,
-              withServiceAuth(emailDto, token),
-            );
-          }),
-        )
-        .catch(() => {});
+      const eventDto: TestRequisitionCreatedEventDto = {
+        requisitionId: requisition.id,
+        patientId: dto.patient_id,
+        labId: dto.lab_id,
+        acceptLink: `https://api.medicpadi.com/api/orders/test-requisitions/${requisition.id}/accept`,
+      };
+      this.notificationClient.emit(
+        NotificationEvents.TEST_REQUISITION_CREATED,
+        withServiceAuth(eventDto, token),
+      );
 
       return { ...requisition, total_amount: total, items: reqItems };
     } catch (error) {
@@ -175,43 +139,16 @@ export class TestRequisitionService {
         ),
       );
 
-      // Notify patient with payment link — fire-and-forget
-      Promise.all([
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(existing.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.profileClient.send(
-            PatientPatterns.RETRIEVE,
-            withServiceAuth(existing.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.profileClient.send(
-            LaboratoryPatterns.RETRIEVE,
-            withServiceAuth(existing.lab_id, token),
-          ),
-        ),
-      ])
-        .then(([patientAuth, patient, lab]) => {
-          const emailDto: TestRequisitionEmailDto = {
-            patientEmail: patientAuth.email,
-            patientName:
-              `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
-              patientAuth.email,
-            labName: lab.name ?? undefined,
-            requisitionId: existing.id,
-            paymentLink: initTransaction.data.authorization_url,
-          };
-          this.notificationClient.emit(
-            EmailPatterns.TEST_REQUISITION_ACCEPTED,
-            withServiceAuth(emailDto, token),
-          );
-        })
-        .catch(() => {});
+      const acceptedEventDto: TestRequisitionAcceptedEventDto = {
+        requisitionId: existing.id,
+        patientId: existing.patient_id,
+        labId: existing.lab_id,
+        paymentLink: initTransaction.data.authorization_url,
+      };
+      this.notificationClient.emit(
+        NotificationEvents.TEST_REQUISITION_ACCEPTED,
+        withServiceAuth(acceptedEventDto, token),
+      );
 
       return { authorization_url: initTransaction.data.authorization_url };
     } catch (error) {
@@ -248,44 +185,17 @@ export class TestRequisitionService {
         { status: RequisitionStatus.CANCELLED, notes },
       );
 
-      // Notify patient of declined requisition — fire-and-forget
       const token = this.serviceToken;
-      Promise.all([
-        firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(existing.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.profileClient.send(
-            PatientPatterns.RETRIEVE,
-            withServiceAuth(existing.patient_id, token),
-          ),
-        ),
-        firstValueFrom(
-          this.profileClient.send(
-            LaboratoryPatterns.RETRIEVE,
-            withServiceAuth(existing.lab_id, token),
-          ),
-        ),
-      ])
-        .then(([patientAuth, patient, lab]) => {
-          const emailDto: TestRequisitionEmailDto = {
-            patientEmail: patientAuth.email,
-            patientName:
-              `${patient.firstName ?? ''} ${patient.lastName ?? ''}`.trim() ||
-              patientAuth.email,
-            labName: lab.name ?? undefined,
-            requisitionId: existing.id,
-            notes,
-          };
-          this.notificationClient.emit(
-            EmailPatterns.TEST_REQUISITION_DECLINED,
-            withServiceAuth(emailDto, token),
-          );
-        })
-        .catch(() => {});
+      const declinedEventDto: TestRequisitionDeclinedEventDto = {
+        requisitionId: existing.id,
+        patientId: existing.patient_id,
+        labId: existing.lab_id,
+        notes,
+      };
+      this.notificationClient.emit(
+        NotificationEvents.TEST_REQUISITION_DECLINED,
+        withServiceAuth(declinedEventDto, token),
+      );
 
       return { message: 'Test requisition declined' };
     } catch (error) {

@@ -23,17 +23,6 @@ import { ConfigService } from '@nestjs/config';
         inject: [ConfigService],
       },
       {
-        name: 'AUTH_SERVICE',
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            host: configService.get<string>('appConfig.authServiceHost'),
-            port: configService.get<number>('appConfig.authServicePort'),
-          },
-        }),
-        inject: [ConfigService],
-      },
-      {
         name: 'NOTIFICATION_SERVICE',
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,

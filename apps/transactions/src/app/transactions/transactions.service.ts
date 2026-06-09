@@ -7,7 +7,7 @@ import {
   CreateWalletDto,
   PaginationDto,
   PaginationResponseDto,
-  PaymentEmailDto,
+  PaymentSuccessEventDto,
   PaymentStatus,
   ServiceError,
   UpdateTransactionDto,
@@ -15,7 +15,7 @@ import {
   AuthPatterns,
   PaystackInitializeResponse,
   PaystackVerifyResponse,
-  EmailPatterns,
+  NotificationEvents,
   OrderPatterns,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth, logError } from '@medicpadi-backend/utils';
@@ -224,16 +224,6 @@ export class TransactionsService {
       const verifyData = await this.verify(reference);
 
       if (verifyData.data.status === 'success') {
-        const user = await firstValueFrom(
-          this.authClient.send(
-            AuthPatterns.FIND_BY_ID,
-            withServiceAuth(
-              verifyData.data.metadata?.user_id,
-              this.serviceToken,
-            ),
-          ),
-        );
-
         let existingTranx = await this.transactionRepo.findOne({
           where: { gateway_reference: reference },
         });
@@ -253,17 +243,16 @@ export class TransactionsService {
           );
         }
 
-        const emailDto: PaymentEmailDto = {
-          email: user.email,
-          name: user.fullName ?? user.email,
+        const paymentEventDto: PaymentSuccessEventDto = {
+          userId: verifyData.data.metadata?.user_id,
           amount: verifyData.data.amount / 100,
           currency: verifyData.data.currency,
           reference: verifyData.data.reference,
         };
 
         this.notificationClient.emit(
-          EmailPatterns.PAYMENT_SUCCESS,
-          withServiceAuth(emailDto, this.serviceToken),
+          NotificationEvents.PAYMENT_SUCCESS,
+          withServiceAuth(paymentEventDto, this.serviceToken),
         );
       }
 

@@ -6,6 +6,7 @@ import {
   CreateDoctorDto,
   DoctorPatterns,
   PaginationDto,
+  SettingsDto,
   UpdateDoctorDto,
 } from '@medicpadi-backend/contracts';
 
@@ -39,6 +40,12 @@ export class DoctorsController {
       updateDoctorDto.id,
       updateDoctorDto,
     );
+  }
+
+  @MessagePattern(DoctorPatterns.UPDATE_SETTINGS)
+  async updateSettings(@Payload('data') data: SettingsDto & { id: string }) {
+    const { id, ...settings } = data;
+    return this.doctorsService.updateSettings(id, settings);
   }
 
   @MessagePattern('removeDoctor')
