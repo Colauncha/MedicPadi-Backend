@@ -10,15 +10,18 @@ export class CloudinaryService {
     @Inject(CLOUDINARY) private readonly cloudinary: typeof Cloudinary,
   ) {}
 
-  async uploadImage(file: Express.Multer.File) {
+  async uploadImage(
+    file: Express.Multer.File,
+    folder: string = 'profile',
+  ): Promise<{ public_id: string; secure_url: string }> {
     return new Promise((resolve, reject) => {
       const upload = this.cloudinary.uploader.upload_stream(
         {
-          folder: 'Medicpadi',
+          folder: `Medicpadi/${folder}`,
         },
         (error, result) => {
           if (error) return reject(error);
-          resolve(result);
+          resolve(result as { public_id: string; secure_url: string });
         },
       );
 
@@ -26,11 +29,14 @@ export class CloudinaryService {
     });
   }
 
-  async uploadDocument(file: Express.Multer.File, folder: string): Promise<{ public_id: string; secure_url: string }> {
+  async uploadDocument(
+    file: Express.Multer.File,
+    folder: string,
+  ): Promise<{ public_id: string; secure_url: string }> {
     return new Promise((resolve, reject) => {
       const upload = this.cloudinary.uploader.upload_stream(
         {
-          folder,
+          folder: folder,
           resource_type: 'raw',
           format: 'pdf',
         },

@@ -6,6 +6,7 @@ import {
   DoctorPatterns,
   LaboratoryPatterns,
   PatientPatterns,
+  PharmacyPatterns,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { firstValueFrom } from 'rxjs';
@@ -28,6 +29,11 @@ export interface ResolvedDoctor {
 }
 
 export interface ResolvedLab {
+  name: string;
+  emailNotificationsEnabled: boolean;
+}
+
+export interface ResolvedPharmacy {
   name: string;
   emailNotificationsEnabled: boolean;
 }
@@ -81,6 +87,16 @@ export class DispatchService {
     );
     return {
       name: profile.name ?? 'the laboratory',
+      emailNotificationsEnabled: profile.settings?.emailNotifications ?? true,
+    };
+  }
+
+  async resolvePharmacy(pharmacyId: string): Promise<ResolvedPharmacy> {
+    const profile = await firstValueFrom(
+      this.profileClient.send(PharmacyPatterns.RETRIEVE, withServiceAuth(pharmacyId, this.token)),
+    );
+    return {
+      name: profile.name ?? 'the pharmacy',
       emailNotificationsEnabled: profile.settings?.emailNotifications ?? true,
     };
   }

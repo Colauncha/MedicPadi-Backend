@@ -270,6 +270,29 @@ export class EmailService {
     ]);
   }
 
+  async drugRequisitionCreatedEmail(
+    patientEmail: string,
+    patientName: string,
+    pharmacyName: string | undefined,
+    requisitionId: string,
+    paymentLink: string,
+  ) {
+    return this.mailerService.sendMail({
+      to: patientEmail,
+      subject: 'Your Drug Requisition Has Been Created',
+      template: 'drug-requisition-created-patient',
+      context: {
+        patientName,
+        pharmacyName: pharmacyName ?? 'the pharmacy',
+        requisitionId,
+        paymentLink,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
   async paymentSuccessEmail(
     email: string,
     name: string,

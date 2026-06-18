@@ -110,6 +110,31 @@ export class PharmacyDrugsService {
     }
   }
 
+  async countByPeriod(
+    userId: string,
+    from: Date,
+    to?: Date,
+  ): Promise<{ count: number }> {
+    try {
+      const qb = this.pharmacyDrugRepository
+        .createQueryBuilder('drug')
+        .where('drug.user_id = :userId', { userId })
+        .andWhere('drug.createdAt >= :from', { from });
+
+      if (to) {
+        qb.andWhere('drug.createdAt < :to', { to });
+      }
+
+      const count = await qb.getCount();
+      return { count };
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to count pharmacy drugs',
+      } as ServiceError);
+    }
+  }
+
   async remove(id: string) {
     let existingPharmDrug: PharmacyDrug | null;
     try {

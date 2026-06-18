@@ -1,5 +1,6 @@
 import { BaseClass, PrescriptionStatus } from '@medicpadi-backend/contracts';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { PrescriptionItem } from './prescription-item.entity';
 
 @Entity('prescriptions')
 export class Prescription extends BaseClass {
@@ -24,4 +25,9 @@ export class Prescription extends BaseClass {
 
   @Column({ type: 'boolean', default: true })
   is_electronic!: boolean;
+
+  @OneToMany(() => PrescriptionItem, (item) => item.prescription_id, {
+    cascade: true,
+  })
+  items!: PrescriptionItem[];
 }

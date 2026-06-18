@@ -39,4 +39,15 @@ export class PharmacyDrugsController {
   remove(@Payload('data') id: string) {
     return this.pharmcyDrugsService.remove(id);
   }
+
+  @MessagePattern(ServicePatterns.PHARMCY_DRUGS.COUNT_BY_PERIOD)
+  countByPeriod(
+    @Payload('data') payload: { userId: string; from: string; to?: string },
+  ) {
+    return this.pharmcyDrugsService.countByPeriod(
+      payload.userId,
+      new Date(payload.from),
+      payload.to ? new Date(payload.to) : undefined,
+    );
+  }
 }

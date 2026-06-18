@@ -22,4 +22,5 @@ export const NotificationEvents = {
   TEST_REQUISITION_ACCEPTED: 'notification.event.requisition.accepted',
   TEST_REQUISITION_DECLINED: 'notification.event.requisition.declined',
   PAYMENT_SUCCESS: 'notification.event.payment.success',
+  DRUG_REQUISITION_CREATED: 'notification.event.drug-requisition.created',
 };

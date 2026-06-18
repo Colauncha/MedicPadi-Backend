@@ -12,5 +12,6 @@ export * from './lib/guards/service-auth.guard';
 
 // Modules
 export * from './lib/redis/redis.module';
+export * from './lib/redis/redis.provider';
 export * from './lib/cloudinary/cloudinary.module';
 export * from './lib/cloudinary/cloudinary.service';

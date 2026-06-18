@@ -57,6 +57,8 @@ export * from './lib/dtos/services/department/create-department.dto';
 export * from './lib/dtos/services/department/update-department.dto';
 export * from './lib/dtos/services/pharmacy-drugs/create-pharmacy-drug.dto';
 export * from './lib/dtos/services/pharmacy-drugs/update-pharmacy-drug.dto';
+export * from './lib/dtos/services/drug-category/create-drug-category.dto';
+export * from './lib/dtos/services/drug-category/update-drug-category.dto';
 
 // Order DTOs
 export * from './lib/dtos/orders/appointments/create-appointment.dto';
@@ -73,6 +75,10 @@ export * from './lib/dtos/orders/test-requisition/create-test-requisition-item.d
 export * from './lib/dtos/orders/test-requisition/create-test-requisition.dto';
 export * from './lib/dtos/orders/test-requisition/update-test-requisition.dto';
 export * from './lib/dtos/orders/test-requisition/decline-test-requisition.dto';
+export * from './lib/dtos/orders/stats/weekly-change.dto';
+export * from './lib/dtos/orders/stats/doctor-stats.dto';
+export * from './lib/dtos/orders/stats/lab-stats.dto';
+export * from './lib/dtos/orders/stats/pharmacy-stats.dto';
 
 // EHR DTOs
 export * from './lib/dtos/ehr/create-ehr-record.dto';

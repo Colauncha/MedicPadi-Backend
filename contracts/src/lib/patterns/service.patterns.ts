@@ -13,6 +13,7 @@ export const ServicePatterns = {
     RETRIEVE: 'services.pharmcyDrugs.retrieve',
     FIND_ALL: 'services.pharmcyDrugs.findAll',
     DELETE: 'services.pharmcyDrugs.delete',
+    COUNT_BY_PERIOD: 'services.pharmcyDrugs.countByPeriod',
   },
   DEPARTMENTS: {
     CREATE: 'services.departments.create',
@@ -20,5 +21,12 @@ export const ServicePatterns = {
     RETRIEVE: 'services.departments.retrieve',
     FIND_ALL: 'services.departments.findAll',
     DELETE: 'services.departments.delete',
+  },
+  DRUG_CATEGORIES: {
+    CREATE: 'services.drugCategories.create',
+    UPDATE: 'services.drugCategories.update',
+    RETRIEVE: 'services.drugCategories.retrieve',
+    FIND_ALL: 'services.drugCategories.findAll',
+    DELETE: 'services.drugCategories.delete',
   },
 };

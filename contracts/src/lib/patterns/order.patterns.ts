@@ -18,10 +18,14 @@ export const OrderPatterns = {
   },
   DRUG_REQUISITIONS: {
     CREATE: 'orders.drugRequisitions.create',
+    REQUISITION_FROM_PRESCRIPTION:
+      'orders.drugRequisitions.requisitionFromPrescription',
     UPDATE: 'orders.drugRequisitions.update',
     RETRIEVE: 'orders.drugRequisitions.retrieve',
     FIND_ALL: 'orders.drugRequisitions.findAll',
     DELETE: 'orders.drugRequisitions.delete',
+    PATIENT_RECEIVE: 'orders.drugRequisitions.patientReceive',
+    COMPLETE_PAYMENT: 'orders.drugRequisitions.completePayment',
   },
   TEST_REQUISITIONS: {
     CREATE: 'orders.testRequisitions.create',
@@ -33,5 +37,10 @@ export const OrderPatterns = {
     DECLINE: 'orders.testRequisitions.decline',
     LIST_PATIENTS: 'orders.testRequisitions.listPatients',
     COMPLETE_PAYMENT: 'orders.testRequisitions.completePayment',
+  },
+  STATS: {
+    DOCTOR: 'orders.stats.doctor',
+    LAB: 'orders.stats.lab',
+    PHARMACY: 'orders.stats.pharmacy',
   },
 };

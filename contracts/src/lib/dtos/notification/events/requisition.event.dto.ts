@@ -1,5 +1,6 @@
 import { IsOptional, IsString, IsUUID } from 'class-validator';
 
+// Test requisitions
 export class TestRequisitionCreatedEventDto {
   @IsUUID()
   requisitionId!: string;
@@ -43,4 +44,20 @@ export class TestRequisitionDeclinedEventDto {
   @IsOptional()
   @IsString()
   notes?: string;
+}
+
+// Drug requisitions
+export class DrugRequisitionCreatedEventDto {
+  @IsUUID()
+  requisitionId!: string;
+
+  @IsUUID()
+  patientId!: string;
+
+  @IsUUID()
+  pharmacyId!: string;
+
+  @IsOptional()
+  @IsString()
+  paymentLink?: string;
 }

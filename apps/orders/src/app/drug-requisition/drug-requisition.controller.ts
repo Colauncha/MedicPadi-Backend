@@ -10,11 +10,20 @@ import { DrugRequisitionService } from './drug-requisition.service';
 
 @Controller()
 export class DrugRequisitionController {
-  constructor(private readonly drugRequisitionService: DrugRequisitionService) {}
+  constructor(
+    private readonly drugRequisitionService: DrugRequisitionService,
+  ) {}
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.CREATE)
   create(@Payload('data') dto: CreateDrugRequisitionDto) {
     return this.drugRequisitionService.create(dto);
+  }
+
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.REQUISITION_FROM_PRESCRIPTION)
+  requisitionFromPrescription(@Payload('data') prescriptionId: string) {
+    return this.drugRequisitionService.requisitionFromPrescription(
+      prescriptionId,
+    );
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.FIND_ALL)
@@ -30,6 +39,16 @@ export class DrugRequisitionController {
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.UPDATE)
   update(@Payload('data') dto: UpdateDrugRequisitionDto) {
     return this.drugRequisitionService.update(dto.id, dto);
+  }
+
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.COMPLETE_PAYMENT)
+  completePayment(@Payload('data') id: string) {
+    return this.drugRequisitionService.completePayment(id);
+  }
+
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.PATIENT_RECEIVE)
+  updateStatusToReceived(@Payload('data') id: string) {
+    return this.drugRequisitionService.updateStatusToReceived(id);
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.DELETE)

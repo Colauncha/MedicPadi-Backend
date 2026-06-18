@@ -13,6 +13,7 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { PrescriptionModule } from './prescription/prescription.module';
 import { TestRequisitionModule } from './test-requisition/test-requisition.module';
 import { DrugRequisitionModule } from './drug-requisition/drug-requisition.module';
+import { StatsModule } from './stats/stats.module';
 import { Appointment } from '../entities/appointment.entity';
 import { Prescription } from '../entities/prescription.entity';
 import { PrescriptionItem } from '../entities/prescription-item.entity';
@@ -92,6 +93,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     PrescriptionModule,
     TestRequisitionModule,
     DrugRequisitionModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

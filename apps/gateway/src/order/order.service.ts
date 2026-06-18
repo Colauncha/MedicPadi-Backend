@@ -13,6 +13,9 @@ import {
   DoctorGetAppointmentDto,
   PaginationDto,
   DeclineTestRequisitionDto,
+  DoctorStatsDto,
+  LabStatsDto,
+  PharmacyStatsDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -184,6 +187,15 @@ export class OrderService {
     );
   }
 
+  async patientReciveDrug(id: string) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.DRUG_REQUISITIONS.UPDATE,
+        withServiceAuth(id, this.serviceToken),
+      ),
+    );
+  }
+
   async removeDrugRequisition(id: string) {
     return firstValueFrom(
       this.orderClient.send(
@@ -263,6 +275,35 @@ export class OrderService {
       this.orderClient.send(
         OrderPatterns.TEST_REQUISITIONS.LIST_PATIENTS,
         withServiceAuth(labId, this.serviceToken),
+      ),
+    );
+  }
+
+  // Stats
+
+  async getDoctorStats(providerId: string): Promise<DoctorStatsDto> {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.STATS.DOCTOR,
+        withServiceAuth({ providerId }, this.serviceToken),
+      ),
+    );
+  }
+
+  async getLabStats(labId: string): Promise<LabStatsDto> {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.STATS.LAB,
+        withServiceAuth({ providerId: labId }, this.serviceToken),
+      ),
+    );
+  }
+
+  async getPharmacyStats(pharmacyId: string): Promise<PharmacyStatsDto> {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.STATS.PHARMACY,
+        withServiceAuth({ providerId: pharmacyId }, this.serviceToken),
       ),
     );
   }

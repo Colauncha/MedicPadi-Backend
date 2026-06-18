@@ -7,6 +7,7 @@ import {
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
+  DrugRequisitionCreatedEventDto,
   NotificationEvents,
   PaymentSuccessEventDto,
   ResetPasswordEmailDto,
@@ -82,5 +83,10 @@ export class DispatchController {
   @EventPattern(NotificationEvents.PAYMENT_SUCCESS)
   paymentSuccess(@Payload('data') dto: PaymentSuccessEventDto) {
     return this.queue.add(NotificationJobNames.PAYMENT_SUCCESS, dto, JOB_OPTIONS);
+  }
+
+  @EventPattern(NotificationEvents.DRUG_REQUISITION_CREATED)
+  drugRequisitionCreated(@Payload('data') dto: DrugRequisitionCreatedEventDto) {
+    return this.queue.add(NotificationJobNames.DRUG_REQUISITION_CREATED, dto, JOB_OPTIONS);
   }
 }

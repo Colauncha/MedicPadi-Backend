@@ -3,6 +3,7 @@ import { ServicesService } from './services.service';
 import { ServicesController } from './services.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { CloudinaryModule } from '@medicpadi-backend/utils';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ConfigService } from '@nestjs/config';
         inject: [ConfigService],
       },
     ]),
+    CloudinaryModule,
   ],
   controllers: [ServicesController],
   providers: [ServicesService],

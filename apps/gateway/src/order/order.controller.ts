@@ -333,6 +333,31 @@ export class OrderController {
     return this.orderService.updateDrugRequisition(id, dto);
   }
 
+  @Get('/drug-requisitions/:id/receive')
+  @Roles(AuthRole.PATIENT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Patient receive drug',
+    description:
+      'Marks a drug requisition as received by the patient. Accessible by `patient` and `admin` roles.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the drug requisition to mark as received.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Drug requisition marked as received.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — patient or admin role required.',
+  })
+  @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
+  patientReceiveDrug(@Param('id') id: string) {
+    return this.orderService.patientReciveDrug(id);
+  }
+
   @Delete('/drug-requisitions/:id')
   @Roles(AuthRole.PATIENT, AuthRole.ADMIN)
   @ApiOperation({
@@ -493,5 +518,51 @@ export class OrderController {
   @ApiResponse({ status: 403, description: 'Insufficient permissions.' })
   listTestRequisitionPatients(@Param('labId') labId: string) {
     return this.orderService.listTestRequisitionPatients(labId);
+  }
+
+  // ──────────────────────────────────────────────
+  // Stats
+  // ──────────────────────────────────────────────
+
+  @Get('/stats/doctor')
+  @Roles(AuthRole.CONSULTANT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Doctor dashboard stats',
+    description:
+      'Returns total patients, total appointments, scheduled appointments with weekly percentage changes, returning patient percentage, and new vs total patients this week. Provider ID is derived from the authenticated user.',
+  })
+  @ApiResponse({ status: 200, description: 'Doctor stats returned.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions.' })
+  getDoctorStats(@Req() req: RequestWithUser) {
+    return this.orderService.getDoctorStats(req.user.id);
+  }
+
+  @Get('/stats/lab')
+  @Roles(AuthRole.LAB, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Lab dashboard stats',
+    description:
+      'Returns total patients, total requisitions, pending requisitions with weekly percentage changes, returning patient percentage, and new vs total patients this week. Provider ID is derived from the authenticated user.',
+  })
+  @ApiResponse({ status: 200, description: 'Lab stats returned.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions.' })
+  getLabStats(@Req() req: RequestWithUser) {
+    return this.orderService.getLabStats(req.user.id);
+  }
+
+  @Get('/stats/pharmacy')
+  @Roles(AuthRole.PHARMACY, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Pharmacy dashboard stats',
+    description:
+      'Returns total customers, total products, total orders with weekly percentage changes, returning customer percentage, and new vs total customers this week. Provider ID is derived from the authenticated user.',
+  })
+  @ApiResponse({ status: 200, description: 'Pharmacy stats returned.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions.' })
+  getPharmacyStats(@Req() req: RequestWithUser) {
+    return this.orderService.getPharmacyStats(req.user.id);
   }
 }

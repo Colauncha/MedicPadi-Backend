@@ -80,6 +80,13 @@ export class ZoomService {
     if (!topic && !startTime) {
       throw new Error('At least one of topic or startTime must be provided');
     }
+    if (
+      (startTime && isNaN(Date.parse(startTime))) ||
+      (startTime && new Date(startTime) < new Date())
+    ) {
+      throw new Error('Invalid start time provided');
+    }
+
     let data = {};
 
     if (topic) {

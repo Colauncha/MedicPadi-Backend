@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -29,4 +30,9 @@ export class CreateDrugRequisitionItemDto {
   @IsNumber()
   @IsPositive()
   unit_price!: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
+  requiresPrescription?: boolean = false;
 }

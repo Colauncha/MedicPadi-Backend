@@ -71,7 +71,6 @@ export class TransactionsService {
           withServiceAuth(dto.user_id, this.serviceToken),
         ),
       );
-      console.log('User data retrieved:', user);
 
       let data: PaystackInitializeResponse;
 
@@ -214,10 +213,10 @@ export class TransactionsService {
   }
 
   async handleWebhook(payload: { event: string; data: any }) {
+    console.log('Payload from paystack', payload);
     if (payload.event !== 'charge.success') {
       return { received: true };
     }
-    console.log('Payload from paystack', payload);
 
     try {
       const reference = payload.data?.reference as string;
@@ -259,6 +258,56 @@ export class TransactionsService {
       return { received: true };
     } catch {
       return { received: true };
+    }
+  }
+
+  async creditProviderWallet(sourceId: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const transaction = await queryRunner.manager.findOne(Transaction, {
+        where: { source_id: sourceId },
+      });
+      if (!transaction) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Transaction not found',
+        } as ServiceError);
+      }
+      if (transaction.payment_status !== PaymentStatus.ESCROW) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Transaction is not in escrow',
+        } as ServiceError);
+      }
+      const wallet = await queryRunner.manager.findOne(Wallet, {
+        where: { user_id: transaction.provider_id! },
+      });
+      if (!wallet) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Provider wallet not found',
+        } as ServiceError);
+      }
+      wallet.balance += transaction.amount;
+      await queryRunner.manager.save(wallet);
+      transaction.payment_status = PaymentStatus.PAID;
+      await queryRunner.manager.save(transaction);
+      await queryRunner.commitTransaction();
+      return { message: 'Provider wallet credited successfully' };
+    } catch (error) {
+      logError(error, `${TransactionsService.name}.creditProviderWallet`);
+      await queryRunner.rollbackTransaction();
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Unable to credit provider wallet',
+          } as ServiceError);
+    } finally {
+      queryRunner.release();
     }
   }
 

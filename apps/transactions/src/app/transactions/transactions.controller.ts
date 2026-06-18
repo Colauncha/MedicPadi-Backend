@@ -53,6 +53,11 @@ export class TransactionsController {
     return this.transactionsService.handleWebhook(payload);
   }
 
+  @MessagePattern(TransactionPatterns.TRANSACTIONS.CREDIT_PROVIDER)
+  creditProviderWallet(@Payload('data') sourceId: string) {
+    return this.transactionsService.creditProviderWallet(sourceId);
+  }
+
   @MessagePattern(TransactionPatterns.WALLET.CREATE)
   createWallet(@Payload('data') dto: CreateWalletDto) {
     return this.transactionsService.createWallet(dto);

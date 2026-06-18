@@ -1,5 +1,6 @@
 import { BaseClass } from '@medicpadi-backend/contracts';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn } from 'typeorm';
+import { Prescription } from './prescription.entity';
 
 @Entity('prescription_items')
 export class PrescriptionItem extends BaseClass {
@@ -20,4 +21,7 @@ export class PrescriptionItem extends BaseClass {
 
   @Column({ type: 'text', nullable: true })
   instructions?: string;
+
+  @JoinColumn({ name: 'prescription_id' })
+  prescription!: Prescription;
 }

@@ -42,10 +42,10 @@ import { Roles } from '../guards/decorators/roles.decorator';
 import { CloudinaryService } from '@medicpadi-backend/utils';
 
 const SOURCE_TYPE_FOLDER: Record<EhrSourceType, string> = {
-  [EhrSourceType.APPOINTMENT]: 'medicpadi/appointment',
-  [EhrSourceType.LAB_RESULT]: 'medicpadi/lab',
-  [EhrSourceType.PRESCRIPTION]: 'medicpadi/prescription',
-  [EhrSourceType.UPLOAD]: 'medicpadi/upload',
+  [EhrSourceType.APPOINTMENT]: 'Medicpadi/appointment',
+  [EhrSourceType.LAB_RESULT]: 'Medicpadi/lab',
+  [EhrSourceType.PRESCRIPTION]: 'Medicpadi/prescription',
+  [EhrSourceType.UPLOAD]: 'Medicpadi/upload',
 };
 
 @ApiTags('Electronic Health Records')
@@ -133,7 +133,7 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
         };
       }
 
-      const folder = SOURCE_TYPE_FOLDER[dto.source_type] ?? 'medicpadi/upload';
+      const folder = SOURCE_TYPE_FOLDER[dto.source_type] ?? 'Medicpadi/upload';
       try {
         const result = await this.cloudinaryService.uploadDocument(fileToUpload, folder);
         dto.document_url = result.secure_url;

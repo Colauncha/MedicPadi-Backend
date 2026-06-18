@@ -17,4 +17,7 @@ export class DrugRequisitionItem extends BaseClass {
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   unit_price!: number;
+
+  @Column({ type: 'boolean', nullable: false, default: false })
+  requiresPrescription!: boolean;
 }

@@ -21,4 +21,24 @@ export class CreatePharmacyDrugDto {
   @ApiProperty()
   @IsBoolean()
   available!: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  requiresPrescription!: boolean;
+
+  @ApiProperty()
+  @IsString()
+  dosage?: string;
+
+  @ApiProperty()
+  @IsString()
+  composition?: string;
+
+  @ApiProperty()
+  @IsString()
+  sideEffect?: string;
+
+  @ApiProperty()
+  @IsString()
+  linkToMedWebsite?: string;
 }

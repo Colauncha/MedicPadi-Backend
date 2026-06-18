@@ -3,6 +3,7 @@ export enum RequisitionStatus {
   ACCEPTED = 'accepted',
   PROCESSING = 'processing',
   READY = 'ready',
+  COMPLETED = 'completed',
   CANCELLED = 'cancelled',
 }
 

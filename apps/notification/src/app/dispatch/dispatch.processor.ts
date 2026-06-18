@@ -6,6 +6,7 @@ import {
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
+  DrugRequisitionCreatedEventDto,
   NotificationChannel,
   NotificationType,
   PaymentSuccessEventDto,
@@ -34,6 +35,7 @@ export const NotificationJobNames = {
   TEST_REQUISITION_ACCEPTED: 'requisition.accepted',
   TEST_REQUISITION_DECLINED: 'requisition.declined',
   PAYMENT_SUCCESS: 'payment.success',
+  DRUG_REQUISITION_CREATED: 'drug-requisition.created',
 } as const;
 
 @Processor(NOTIFICATION_QUEUE)
@@ -72,6 +74,8 @@ export class DispatchProcessor extends WorkerHost {
         return this.handleTestRequisitionDeclined(job as Job<TestRequisitionDeclinedEventDto>);
       case NotificationJobNames.PAYMENT_SUCCESS:
         return this.handlePaymentSuccess(job as Job<PaymentSuccessEventDto>);
+      case NotificationJobNames.DRUG_REQUISITION_CREATED:
+        return this.handleDrugRequisitionCreated(job as Job<DrugRequisitionCreatedEventDto>);
       default:
         this.logger.warn(`Unhandled job name: ${job.name}`);
     }
@@ -361,6 +365,37 @@ export class DispatchProcessor extends WorkerHost {
       user_id: patientId,
       title: 'Lab Test Requisition Declined',
       body: `Your test requisition was declined by ${labProfile.name}.${notes ? ` Reason: ${notes}` : ''}`,
+      type: NotificationType.REQUISITION,
+      source_id: requisitionId,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private async handleDrugRequisitionCreated(job: Job<DrugRequisitionCreatedEventDto>) {
+    const { requisitionId, patientId, pharmacyId, paymentLink } = job.data;
+
+    const [patientAuth, patientProfile, pharmacyProfile] = await Promise.all([
+      this.dispatchService.resolveUserAuth(patientId),
+      this.dispatchService.resolvePatient(patientId),
+      this.dispatchService.resolvePharmacy(pharmacyId),
+    ]);
+
+    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+
+    if (patientProfile.emailNotificationsEnabled) {
+      await this.emailService.drugRequisitionCreatedEmail(
+        patientAuth.email,
+        patientName,
+        pharmacyProfile.name,
+        requisitionId,
+        paymentLink ?? '',
+      );
+    }
+
+    await this.notificationService.create({
+      user_id: patientId,
+      title: 'Drug Requisition Created',
+      body: `Your drug requisition has been submitted to ${pharmacyProfile.name}.${paymentLink ? ' Please proceed to payment.' : ''}`,
       type: NotificationType.REQUISITION,
       source_id: requisitionId,
       channel: NotificationChannel.IN_APP,
