@@ -43,7 +43,7 @@ jobs:
       - name: Determine services to build
         id: set-matrix
         run: |
-          ALL_SERVICES='["gateway","auth","profile","notification","services","orders","transactions","ehr"]'
+          ALL_SERVICES='["gateway","auth","profile","notification","services","orders","transactions","ehr","ai-agent"]'
 
           # workflow_dispatch: build_all=true → rebuild everything
           if [[ "${{ github.event.inputs.build_all }}" == "true" ]]; then
@@ -68,7 +68,7 @@ jobs:
           AFFECTED=$(pnpm nx show projects --affected --base="$BASE_SHA" --head="$HEAD_SHA" 2>/dev/null || echo "")
           echo "Nx affected output: $AFFECTED"
 
-          VALID_SERVICES=("gateway" "auth" "profile" "notification" "services" "orders" "transactions" "ehr")
+          VALID_SERVICES=("gateway" "auth" "profile" "notification" "services" "orders" "transactions" "ehr" "ai-agent")
           RESULT=()
           for service in "${VALID_SERVICES[@]}"; do
             if echo "$AFFECTED" | grep -wq "$service"; then
