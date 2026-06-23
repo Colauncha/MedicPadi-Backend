@@ -13,6 +13,7 @@ const appConfig = registerAs('appConfig', () => ({
   ordersServiceName: process.env['ORDERS_SERVICE_NAME'],
   ehrServiceName: process.env['EHR_SERVICE_NAME'],
   transactionsServiceName: process.env['TRANSACTIONS_SERVICE_NAME'],
+  aiAgentServiceName: process.env['AI_AGENT_SERVICE_NAME'],
 
   // Service ports
   authServicePort: parseInt(process.env['AUTH_SERVICE_PORT'] || '3001'),
@@ -23,6 +24,7 @@ const appConfig = registerAs('appConfig', () => ({
   servicesServicePort: parseInt(process.env['SERVICES_SERVICE_PORT'] || '3004'),
   ordersServicePort: parseInt(process.env['ORDERS_SERVICE_PORT'] || '3005'),
   ehrServicePort: parseInt(process.env['EHR_SERVICE_PORT'] || '3006'),
+  aiAgentServicePort: parseInt(process.env['AI_AGENT_SERVICE_PORT'] || '3007'),
   transactionsServicePort: parseInt(
     process.env['TRANSACTIONS_SERVICE_PORT'] || '3008',
   ),
@@ -35,6 +37,7 @@ const appConfig = registerAs('appConfig', () => ({
   ordersServiceHost: process.env['ORDERS_SERVICE_HOST'],
   ehrServiceHost: process.env['EHR_SERVICE_HOST'],
   transactionsServiceHost: process.env['TRANSACTIONS_SERVICE_HOST'],
+  aiAgentServiceHost: process.env['AI_AGENT_SERVICE_HOST'],
 
   // Internal service-to-service auth token
   internalServiceToken: process.env['INTERNAL_SERVICE_TOKEN'],
@@ -50,6 +53,12 @@ const appConfig = registerAs('appConfig', () => ({
   // routes
   frontendUrl: process.env['FRONTEND_URL'] || 'https://medicpadi.com',
   gatewayUrl: process.env['GATEWAY_URL'] || 'http://localhost:3000',
+
+  // AI Provider
+  aiProvider: process.env['AI_PROVIDER'] ?? 'anthropic',
+  anthropicApiKey: process.env['ANTHROPIC_API_KEY'],
+  openaiApiKey: process.env['OPENAI_API_KEY'],
+  aiDefaultModel: process.env['AI_DEFAULT_MODEL'] ?? 'claude-sonnet-4-6',
 }));
 
 export default appConfig;

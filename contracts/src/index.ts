@@ -98,6 +98,11 @@ export * from './lib/dtos/transactions/update-transaction.dto';
 export * from './lib/dtos/transactions/create-wallet.dto';
 export * from './lib/dtos/transactions/create-wallet.dto';
 
+// AI Agent DTOs
+export * from './lib/dtos/ai-agent/send-message.dto';
+export * from './lib/dtos/ai-agent/run-agent.dto';
+export * from './lib/dtos/ai-agent/process-document.dto';
+
 // Patterns
 export const AuthPatterns = authPatterns;
 export * from './lib/patterns/profile.patterns';
@@ -107,6 +112,7 @@ export * from './lib/patterns/order.patterns';
 export * from './lib/patterns/ehr.patterns';
 export * from './lib/patterns/community.patterns';
 export * from './lib/patterns/transaction.patterns';
+export * from './lib/patterns/ai-agent.patterns';
 
 // Types and Interfaces
 export * from './lib/interfaces/profile.types';

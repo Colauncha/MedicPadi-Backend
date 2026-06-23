@@ -120,6 +120,18 @@ services:
       - medicpadi_internal
     restart: always
 
+  # AI Agent Service
+  ai-agent-service:
+    image: colauncha/medicpadi-ai-agent:main
+    container_name: medicpadi-ai-agent
+    depends_on:
+      - postgres
+    env_file:
+      - ./apps/ai-agent/.env.staging
+    networks:
+      - medicpadi_internal
+    restart: always
+
   # community-service:
   #   image: colauncha/medicpadi-community:main
   #   container_name: medicpadi-community

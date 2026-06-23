@@ -7,11 +7,15 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { AuthPatterns } from '@medicpadi-backend/contracts';
+import { AuthPatterns, SubscriptionLevel } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ConfigService } from '@nestjs/config';
 
 export type RequestWithUser = Request & { user?: any };
+export type RequestWithSub = Request & {
+  user?: any;
+  subscription?: SubscriptionLevel;
+};
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -22,7 +26,9 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -42,7 +48,10 @@ export class AuthGuard implements CanActivate {
     if (!token) return false;
 
     const result = await firstValueFrom(
-      this.authProxy.send(AuthPatterns.VERIFY, withServiceAuth(token, this.serviceToken)),
+      this.authProxy.send(
+        AuthPatterns.VERIFY,
+        withServiceAuth(token, this.serviceToken),
+      ),
     );
 
     if (!result?.valid) return false;
@@ -63,7 +72,9 @@ export class AdminAuthGuard implements CanActivate {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -79,7 +90,10 @@ export class AdminAuthGuard implements CanActivate {
     if (!token) return false;
 
     const result = await firstValueFrom(
-      this.authProxy.send(AuthPatterns.VERIFY, withServiceAuth(token, this.serviceToken)),
+      this.authProxy.send(
+        AuthPatterns.VERIFY,
+        withServiceAuth(token, this.serviceToken),
+      ),
     );
 
     if (result && result.valid) req.user = result.user;
@@ -87,5 +101,43 @@ export class AdminAuthGuard implements CanActivate {
     if (result && result.valid && req.user.role !== 'admin') return false;
 
     return result && result.valid;
+  }
+}
+
+@Injectable()
+export class SubscriptionGuard implements CanActivate {
+  constructor(
+    @Inject('AUTH_SERVICE') private readonly authProxy: ClientProxy,
+    private readonly configService: ConfigService,
+  ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
+  }
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const req = context.switchToHttp().getRequest();
+    const token =
+      req.cookies?.['auth_token'] ||
+      req.headers?.authoriztion?.replace('Bearer ', '');
+
+    if (!token) return false;
+
+    const { valid, user } = await firstValueFrom(
+      this.authProxy.send(
+        AuthPatterns.VERIFY,
+        withServiceAuth(token, this.serviceToken),
+      ),
+    );
+
+    if (!valid || !user.isVerified || !user.earlyUser) return false;
+    if (!user.subscription || user.subscription === 'free') return false;
+
+    req.user = user;
+    req.subscription = user.subscription;
+
+    return user && valid;
   }
 }

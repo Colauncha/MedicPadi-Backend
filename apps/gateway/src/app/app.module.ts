@@ -12,6 +12,7 @@ import { ServicesModule } from '../services/services.module';
 import { OrderModule } from '../order/order.module';
 import { EhrModule } from '../ehr/ehr.module';
 import { TransactionsModule } from '../transactions/transactions.module';
+import { AiAgentModule } from '../ai-agent/ai-agent.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TransactionsModule } from '../transactions/transactions.module';
     OrderModule,
     EhrModule,
     TransactionsModule,
+    AiAgentModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `medicpadi-backend/apps/gateway/.env.${process.env.NODE_ENV || 'development'}`,
@@ -116,6 +118,17 @@ import { TransactionsModule } from '../transactions/transactions.module';
           options: {
             host: configService.get('appConfig.transactionsServiceHost'),
             port: configService.get<number>('appConfig.transactionsServicePort'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'AI_AGENT_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.aiAgentServiceHost'),
+            port: configService.get<number>('appConfig.aiAgentServicePort'),
           },
         }),
         inject: [ConfigService],

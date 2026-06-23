@@ -5,3 +5,10 @@ export enum AuthRole {
   LAB = 'lab',
   ADMIN = 'admin',
 }
+
+export enum SubscriptionLevel {
+  FREE = 'free',
+  BASIC = 'basic',
+  PREMIUM = 'premium',
+  PROFESSIONAL = 'professional',
+}

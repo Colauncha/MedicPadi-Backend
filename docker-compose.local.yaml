@@ -151,6 +151,19 @@ services:
       - medicpadi_internal
     restart: no
 
+  # AI Agent Service
+  ai-agent-service:
+    build:
+      context: .
+      dockerfile: ./apps/ai-agent/Dockerfile
+    # image: colauncha/medicpadi-ai-agent:main
+    container_name: medicpadi-ai-agent
+    networks:
+      - medicpadi_internal
+    env_file:
+      - ./apps/ai-agent/.env.staging
+    restart: no
+
 networks:
   medicpadi_internal:
     driver: bridge

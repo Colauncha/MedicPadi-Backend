@@ -8,6 +8,7 @@
   },
   "private": true,
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.105.0",
     "@keyv/redis": "^5.1.6",
     "@nest/microservices": "^4.5.4",
     "@nestjs-modules/mailer": "^2.0.2",
@@ -43,6 +44,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nestjs-pino": "^4.5.0",
     "nodemailer": "^8.0.2",
+    "openai": "^6.44.0",
     "pg": "^8.18.0",
     "pino-http": "^11.0.0",
     "prom-client": "^15.1.3",

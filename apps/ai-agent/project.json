@@ -1,0 +1,63 @@
+{
+  "name": "ai-agent",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/ai-agent/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "webpack-cli build",
+        "args": ["--node-env=production"],
+        "cwd": "apps/ai-agent"
+      },
+      "configurations": {
+        "development": { "args": ["--node-env=development"] },
+        "staging": { "args": ["--node-env=staging"] }
+      }
+    },
+    "prune-lockfile": {
+      "dependsOn": ["build"],
+      "cache": true,
+      "executor": "@nx/js:prune-lockfile",
+      "outputs": [
+        "{workspaceRoot}/dist/apps/ai-agent/package.json",
+        "{workspaceRoot}/dist/apps/ai-agent/package-lock.json"
+      ],
+      "options": { "buildTarget": "build" }
+    },
+    "copy-workspace-modules": {
+      "dependsOn": ["build"],
+      "cache": true,
+      "outputs": ["{workspaceRoot}/dist/apps/ai-agent/workspace_modules"],
+      "executor": "@nx/js:copy-workspace-modules",
+      "options": { "buildTarget": "build" }
+    },
+    "prune": {
+      "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
+      "executor": "nx:noop"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "ai-agent:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": { "buildTarget": "ai-agent:build:development" },
+        "production": { "buildTarget": "ai-agent:build:production" },
+        "staging": { "buildTarget": "ai-agent:build:staging" }
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f apps/{projectName}/Dockerfile -t colauncha/medicpadi-{projectName}:latest ."
+      }
+    }
+  },
+  "tags": []
+}

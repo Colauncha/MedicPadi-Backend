@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { AuthRole } from '@medicpadi-backend/contracts';
+import { AuthRole, SubscriptionLevel } from '@medicpadi-backend/contracts';
 
 @Entity()
 export class Auth {
@@ -27,6 +27,13 @@ export class Auth {
     default: AuthRole.PATIENT,
   })
   role!: AuthRole;
+
+  @Column({
+    type: 'enum',
+    enum: SubscriptionLevel,
+    default: SubscriptionLevel.FREE,
+  })
+  subscription!: SubscriptionLevel;
 
   @Column({
     type: 'varchar',
