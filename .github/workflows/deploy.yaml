@@ -56,7 +56,10 @@ jobs:
 
             # Pull only the images that were freshly pushed
             echo "Pulling updated Docker images..."
-            docker compose -f docker-compose.yaml pull $SERVICE_LIST
+            for SERVICE in $SERVICE_LIST; do
+              echo "Pulling image for $SERVICE..."
+              docker compose -f docker-compose.yaml pull $SERVICE
+            done
 
             # Restart only the changed services; --no-deps leaves their dependencies untouched
             echo "Restarting updated services..."
