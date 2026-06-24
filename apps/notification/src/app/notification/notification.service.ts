@@ -9,6 +9,7 @@ import {
   ServiceError,
   UpdateNotificationDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { Notification } from './entities/notification.entity';
 
 @Injectable()
@@ -39,28 +40,20 @@ export class NotificationService {
   ): Promise<PaginationResponseDto<Notification>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<Notification> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.notificationRepo.findAndCount({
+      const [data, total] = await this.notificationRepo.findAndCount({
         where: query.id ? { user_id: query.id } : {},
         take: limit,
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get notifications',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

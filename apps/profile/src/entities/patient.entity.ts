@@ -2,6 +2,7 @@ import {
   BaseClass,
   BloodGroup,
   Genotype,
+  NextOfKinDto,
   PatientGender,
   SettingsDto,
 } from '@medicpadi-backend/contracts';
@@ -61,7 +62,20 @@ export class Patient extends BaseClass {
     nullable: true,
     length: 14,
   })
+  phoneNumber?: string | null;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    length: 14,
+  })
   emergencyContact?: string | null;
+
+  @Column({
+    type: 'simple-json',
+    nullable: true,
+  })
+  nextOfKin?: NextOfKinDto | null;
 
   @Column({
     type: 'simple-json',
@@ -77,4 +91,10 @@ export class Patient extends BaseClass {
     nullable: true,
   })
   settings: SettingsDto = new SettingsDto();
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isProfileComplete: boolean = false;
 }

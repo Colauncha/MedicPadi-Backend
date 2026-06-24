@@ -4,12 +4,14 @@ import { AppService } from './app.service';
 import { PharmacyDrugsModule } from './pharmacy-drugs/pharmacy-drugs.module';
 import { LabTestsModule } from './lab-tests/lab-tests.module';
 import { DepartmentModule } from './department/department.module';
+import { DrugCategoryModule } from './drug-category/drug-category.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { serviceConfig, dbConfig } from '@medicpadi-backend/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LabTest } from '../entities/lab-test.entity';
 import { PharmacyDrug } from '../entities/pharmacy-drug.entity';
 import { Department } from '../entities/department.entity';
+import { DrugCategory } from '../entities/drug_category.entity';
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { Department } from '../entities/department.entity';
         console.log('Database configuration:', configService.get('dbConfig'));
         return {
           type: 'postgres',
-          entities: [LabTest, PharmacyDrug, Department],
+          entities: [LabTest, PharmacyDrug, Department, DrugCategory],
           migrations: [__dirname + '/database/migrations/*.ts'],
           host: configService.get<string>('dbConfig.host'),
           port: configService.get<number>('dbConfig.port'),
@@ -47,6 +49,7 @@ import { Department } from '../entities/department.entity';
     PharmacyDrugsModule,
     LabTestsModule,
     DepartmentModule,
+    DrugCategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

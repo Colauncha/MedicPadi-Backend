@@ -33,16 +33,44 @@ export class PaginationDto {
   role?: string;
 }
 
+export class PaginationMetaDto {
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  count!: number;
+
+  @ApiProperty()
+  limit!: number;
+
+  @ApiProperty()
+  page!: number;
+
+  @ApiProperty()
+  total_pages!: number;
+}
+
+export class PaginationLinksDto {
+  @ApiProperty()
+  first!: string;
+
+  @ApiProperty({ nullable: true })
+  next!: string | null;
+
+  @ApiProperty({ nullable: true })
+  previous!: string | null;
+
+  @ApiProperty()
+  last!: string;
+}
+
 export class PaginationResponseDto<T> {
   @ApiProperty()
   data!: T[];
 
-  @ApiProperty()
-  total?: number;
+  @ApiProperty({ type: () => PaginationMetaDto })
+  meta!: PaginationMetaDto;
 
-  @ApiProperty()
-  page?: number;
-
-  @ApiProperty()
-  limit?: number;
+  @ApiProperty({ type: () => PaginationLinksDto })
+  links!: PaginationLinksDto;
 }

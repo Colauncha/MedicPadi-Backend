@@ -6,6 +6,7 @@ export * from './lib/helpers/generate-otp';
 export * from './lib/helpers/profilePatternFromRole';
 export * from './lib/helpers/with-service-auth';
 export * from './lib/helpers/log-error';
+export * from './lib/helpers/build-pagination-response';
 
 // Guards
 export * from './lib/guards/service-auth.guard';

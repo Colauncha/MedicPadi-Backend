@@ -47,6 +47,7 @@ export class AuthService {
       createAuthDto.role,
     );
     Dto.user_id = user.id;
+    Dto.phoneNumber = createAuthDto.phoneNumber;
     Dto.firstName =
       createAuthDto.role.startsWith('patient') ||
       createAuthDto.role.startsWith('consultant') ||

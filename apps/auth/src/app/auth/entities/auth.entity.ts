@@ -36,13 +36,6 @@ export class Auth {
   subscription!: SubscriptionLevel;
 
   @Column({
-    type: 'varchar',
-    nullable: false,
-    length: 14,
-  })
-  phoneNumber?: string;
-
-  @Column({
     type: 'boolean',
     default: false,
   })

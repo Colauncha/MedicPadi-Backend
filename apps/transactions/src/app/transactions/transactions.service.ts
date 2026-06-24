@@ -18,7 +18,7 @@ import {
   NotificationEvents,
   OrderPatterns,
 } from '@medicpadi-backend/contracts';
-import { withServiceAuth, logError } from '@medicpadi-backend/utils';
+import { buildPaginationResponse, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { Transaction } from '../../entities/transaction.entity';
 import { Wallet } from '../../entities/wallet.entity';
 import { ConfigService } from '@nestjs/config';
@@ -316,21 +316,14 @@ export class TransactionsService {
   ): Promise<PaginationResponseDto<Transaction>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<Transaction> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.transactionRepo.findAndCount({
+      const [data, total] = await this.transactionRepo.findAndCount({
         where: query.id ? { user_id: query.id } : {},
         take: limit,
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       logError(error, `${TransactionsService.name}.findAll`);
       throw new RpcException({
@@ -338,7 +331,6 @@ export class TransactionsService {
         message: 'Unable to get transactions',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

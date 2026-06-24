@@ -6,6 +6,7 @@ import {
   PaginationResponseDto,
   SettingsDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Admin } from '../../entities/admin.entity';
 import { ILike, Repository } from 'typeorm';
@@ -28,33 +29,24 @@ export class AdminService {
   }
 
   async findAll(query: PaginationDto): Promise<PaginationResponseDto<Admin>> {
-    let page = query.page || 1;
-    let limit = query.limit || 10;
-
-    let profileResponse: PaginationResponseDto<Admin> = {
-      data: [],
-      total: 0,
-      page: page || 1,
-      limit: limit || 10,
-    };
-
+    const page = query.page || 1;
+    const limit = query.limit || 10;
     try {
-      [profileResponse.data, profileResponse.total] =
-        await this.adminRepository.findAndCount({
-          take: limit,
-          skip: (page - 1) * limit,
-          where: query.search
-            ? [
-                { firstName: ILike(`%${query.search}%`) },
-                { lastName: ILike(`%${query.search}%`) },
-                { user_id: ILike(`%${query.search}%`) },
-              ]
-            : {},
-        });
+      const [data, total] = await this.adminRepository.findAndCount({
+        take: limit,
+        skip: (page - 1) * limit,
+        where: query.search
+          ? [
+              { firstName: ILike(`%${query.search}%`) },
+              { lastName: ILike(`%${query.search}%`) },
+              { user_id: ILike(`%${query.search}%`) },
+            ]
+          : {},
+      });
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RequestTimeoutException('Unable to retrieve Admin profiles');
     }
-    return profileResponse;
   }
 
   async findOne(id: string) {

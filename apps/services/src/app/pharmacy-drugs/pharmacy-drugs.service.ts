@@ -6,6 +6,7 @@ import {
   ServiceError,
   UpdatePharmacyDrugDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
@@ -36,38 +37,24 @@ export class PharmacyDrugsService {
   async findAll(
     query: PaginationDto,
   ): Promise<PaginationResponseDto<PharmacyDrug>> {
-    let page = query.page || 1;
-    let limit = query.limit || 10;
-
-    let response: PaginationResponseDto<PharmacyDrug> = {
-      data: [],
-      total: 0,
-      page: page,
-      limit: limit,
-    };
-
+    const page = query.page || 1;
+    const limit = query.limit || 10;
     try {
-      const result = await this.pharmacyDrugRepository.findAndCount({
+      const [data, total] = await this.pharmacyDrugRepository.findAndCount({
         where: query.search
-          ? [
-              { user_id: query.id, name: ILike(`%${query.search}%`) },
-            ]
+          ? [{ user_id: query.id, name: ILike(`%${query.search}%`) }]
           : { user_id: query.id },
         take: limit,
         skip: (page - 1) * limit,
-        order: {
-          createdAt: 'DESC',
-        },
+        order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get Pharmacy drugs',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

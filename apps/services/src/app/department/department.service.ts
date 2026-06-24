@@ -9,6 +9,7 @@ import {
   ServiceError,
   UpdateDepartmentDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { Department } from '../../entities/department.entity';
 
 @Injectable()
@@ -36,28 +37,20 @@ export class DepartmentService {
   ): Promise<PaginationResponseDto<Department>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<Department> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.departmentRepo.findAndCount({
+      const [data, total] = await this.departmentRepo.findAndCount({
         where: query.id ? { user_id: query.id } : {},
         take: limit,
         skip: (page - 1) * limit,
         order: { name: 'ASC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get departments',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

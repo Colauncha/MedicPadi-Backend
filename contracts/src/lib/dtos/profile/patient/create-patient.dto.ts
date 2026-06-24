@@ -6,12 +6,15 @@ import {
   IsEnum,
   MaxLength,
   IsArray,
+  IsObject,
+  ValidateNested,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   PatientGender,
   BloodGroup,
   Genotype,
+  NextOfKinDto,
 } from '@medicpadi-backend/contracts';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -62,12 +65,31 @@ export class CreatePatientDto {
   @MinLength(10)
   @MaxLength(14)
   @Transform(({ value }) => {
-    if (value && value.length === 10) {
-      return '+234' + value; // Prepend +234 if it's a 10-digit number
-    } else if (value && value.length === 11 && value.startsWith('0')) {
-      return '+234' + value.substring(1); // Replace leading 0 with +234
-    }
+    if (value && value.length === 10) return '+234' + value;
+    if (value && value.length === 11 && value.startsWith('0'))
+      return '+234' + value.substring(1);
+    return value;
+  })
+  phoneNumber?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(14)
+  @Transform(({ value }) => {
+    if (value && value.length === 10) return '+234' + value;
+    if (value && value.length === 11 && value.startsWith('0'))
+      return '+234' + value.substring(1);
     return value;
   })
   emergencyContact?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => NextOfKinDto)
+  nextOfKin?: NextOfKinDto;
 }

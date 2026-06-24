@@ -37,6 +37,13 @@ export class Doctor extends BaseClass {
   @Column({
     type: 'varchar',
     nullable: true,
+    length: 14,
+  })
+  phoneNumber?: string | null;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
     unique: true,
   })
   licenceNumber?: string | null;
@@ -100,4 +107,10 @@ export class Doctor extends BaseClass {
     nullable: true,
   })
   settings: SettingsDto = new SettingsDto();
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isProfileComplete: boolean = false;
 }

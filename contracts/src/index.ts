@@ -35,6 +35,7 @@ export * from './lib/dtos/profile/laboratory/update-laboratory.dto';
 export * from './lib/dtos/profile/update-business-hours.dto';
 export * from './lib/dtos/profile/pagination.dto';
 export * from './lib/dtos/profile/settings.dto';
+export * from './lib/dtos/profile/next-of-kin.dto';
 
 // Notification DTOs
 export * from './lib/dtos/notification/create-notification.dto';

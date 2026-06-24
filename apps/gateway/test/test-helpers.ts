@@ -11,7 +11,6 @@ export const mockPatientUser = {
   id: 'patient-uuid',
   email: 'patient@test.com',
   role: 'patient',
-  phoneNumber: '+2348012345678',
   isVerified: false,
   earlyUser: false,
   createdAt: new Date().toISOString(),
@@ -21,7 +20,6 @@ export const mockAdminUser = {
   id: 'admin-uuid',
   email: 'admin@test.com',
   role: 'admin',
-  phoneNumber: '+2348012345679',
   isVerified: true,
   earlyUser: false,
   createdAt: new Date().toISOString(),
@@ -31,7 +29,6 @@ export const mockLabUser = {
   id: 'lab-uuid',
   email: 'lab@test.com',
   role: 'lab',
-  phoneNumber: '+2348012345670',
   isVerified: true,
   earlyUser: false,
   createdAt: new Date().toISOString(),
@@ -41,7 +38,6 @@ export const mockPharmacyUser = {
   id: 'pharmacy-uuid',
   email: 'pharmacy@test.com',
   role: 'pharmacy',
-  phoneNumber: '+2348012345671',
   isVerified: true,
   earlyUser: false,
   createdAt: new Date().toISOString(),
@@ -51,7 +47,6 @@ export const mockConsultantUser = {
   id: 'consultant-uuid',
   email: 'consultant@test.com',
   role: 'consultant',
-  phoneNumber: '+2348012345672',
   isVerified: true,
   earlyUser: false,
   createdAt: new Date().toISOString(),
@@ -77,7 +72,6 @@ export const createMockAuthProxy = () => ({
           id: 'new-user-id',
           email: data.email,
           role: data.role || 'patient',
-          phoneNumber: data.phoneNumber || null,
         });
       case 'auth.login':
         return of({ access_token: 'mock-jwt-token' });

@@ -1,5 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import {
+  AuthPatterns,
   BusinessHoursDto,
   CreatePharmacyDto,
   PaginationDto,
@@ -8,17 +9,27 @@ import {
   SettingsDto,
   UpdatePharmacyDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 import { Pharmacy } from '../../entities/pharmacy.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class PharmacyService {
   constructor(
     @InjectRepository(Pharmacy)
     private readonly pharmacyRepository: Repository<Pharmacy>,
+    @Inject('AUTH_SERVICE')
+    private readonly authClient: ClientProxy,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
 
   create(createPharmacyDto: CreatePharmacyDto) {
     try {
@@ -38,39 +49,28 @@ export class PharmacyService {
   async findAll(
     query: PaginationDto,
   ): Promise<PaginationResponseDto<Pharmacy>> {
-    let page = query.page || 1;
-    let limit = query.limit || 10;
-
-    let response: PaginationResponseDto<Pharmacy> = {
-      data: [],
-      total: 0,
-      page: page,
-      limit: limit,
-    };
-
+    const page = query.page || 1;
+    const limit = query.limit || 10;
     try {
-      [response.data, response.total] =
-        await this.pharmacyRepository.findAndCount({
-          take: limit,
-          skip: (page - 1) * limit,
-          where: query.search
-            ? [
-                { name: ILike(`%${query.search}%`) },
-                { registrationNumber: ILike(`%${query.search}%`) },
-                { address: ILike(`%${query.search}%`) },
-              ]
-            : {},
-          order: {
-            createdAt: 'DESC',
-          },
-        });
+      const [data, total] = await this.pharmacyRepository.findAndCount({
+        take: limit,
+        skip: (page - 1) * limit,
+        where: query.search
+          ? [
+              { name: ILike(`%${query.search}%`) },
+              { registrationNumber: ILike(`%${query.search}%`) },
+              { address: ILike(`%${query.search}%`) },
+            ]
+          : {},
+        order: { createdAt: 'DESC' },
+      });
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Unable to retrieve Admin profiles',
+        message: 'Unable to retrieve Pharmacy profiles',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {
@@ -89,11 +89,8 @@ export class PharmacyService {
   }
 
   async update(id: string | undefined, updatePharmacyDto: UpdatePharmacyDto) {
-    let existingPharmacyProfile: Pharmacy | null;
     try {
-      existingPharmacyProfile = await this.pharmacyRepository.findOne({
-        where: { user_id: id },
-      });
+      await this.pharmacyRepository.findOne({ where: { user_id: id } });
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
@@ -104,7 +101,29 @@ export class PharmacyService {
       { user_id: id },
       { ...updatePharmacyDto },
     );
+    await this.syncProfileComplete(id!);
     return pharmacyProfile;
+  }
+
+  private async syncProfileComplete(userId: string): Promise<void> {
+    const [profile, auth] = await Promise.all([
+      this.pharmacyRepository.findOne({ where: { user_id: userId } }),
+      firstValueFrom(
+        this.authClient.send(
+          AuthPatterns.FIND_BY_ID,
+          withServiceAuth(userId, this.serviceToken),
+        ),
+      ),
+    ]);
+    const isProfileComplete =
+      !!profile?.name &&
+      !!profile?.phoneNumber &&
+      !!profile?.registrationNumber &&
+      !!profile?.address &&
+      !!profile?.profilePicture?.url &&
+      !!profile?.about &&
+      !!auth?.isVerified;
+    await this.pharmacyRepository.update({ user_id: userId }, { isProfileComplete });
   }
 
   async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {

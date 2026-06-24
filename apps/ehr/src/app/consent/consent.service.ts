@@ -10,6 +10,7 @@ import {
   ServiceError,
   UpdateConsentGrantDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { ConsentGrant } from '../../entities/consent-grant.entity';
 
 @Injectable()
@@ -35,28 +36,20 @@ export class ConsentService {
   async findAll(query: PaginationDto): Promise<PaginationResponseDto<ConsentGrant>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<ConsentGrant> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.consentRepo.findAndCount({
+      const [data, total] = await this.consentRepo.findAndCount({
         where: query.id ? { patient_id: query.id } : {},
         take: limit,
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get consent grants',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

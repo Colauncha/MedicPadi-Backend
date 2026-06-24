@@ -24,7 +24,7 @@ import {
   AppointmentPaymentStatus,
   TransactionPatterns,
 } from '@medicpadi-backend/contracts';
-import { withServiceAuth, logError } from '@medicpadi-backend/utils';
+import { buildPaginationResponse, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { Appointment } from '../../entities/appointment.entity';
 import { ZoomService } from './providers/zoom.service';
 import { firstValueFrom } from 'rxjs';
@@ -170,14 +170,8 @@ export class AppointmentService {
   ): Promise<PaginationResponseDto<Appointment>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<Appointment> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.appointmentRepo.findAndCount({
+      const [data, total] = await this.appointmentRepo.findAndCount({
         where: query.id
           ? [{ patient_id: query.id }, { provider_id: query.id }]
           : {},
@@ -185,8 +179,7 @@ export class AppointmentService {
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       logError(error, `${AppointmentService.name}.findAll`);
       throw new RpcException({
@@ -194,7 +187,6 @@ export class AppointmentService {
         message: 'Unable to get appointments',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

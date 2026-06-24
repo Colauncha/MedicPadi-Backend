@@ -18,7 +18,7 @@ import {
   TransactionSourceType,
   UpdateDrugRequisitionDto,
 } from '@medicpadi-backend/contracts';
-import { withServiceAuth } from '@medicpadi-backend/utils';
+import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 import { DrugRequisition } from '../../entities/drug-requisition.entity';
 import { DrugRequisitionItem } from '../../entities/drug-requisition-item.entity';
 import { Prescription } from '../../entities/prescription.entity';
@@ -386,14 +386,8 @@ export class DrugRequisitionService {
   ): Promise<PaginationResponseDto<DrugRequisition>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<DrugRequisition> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.requisitionRepo.findAndCount({
+      const [data, total] = await this.requisitionRepo.findAndCount({
         where: query.id
           ? [{ patient_id: query.id }, { pharmacy_id: query.id }]
           : {},
@@ -401,15 +395,13 @@ export class DrugRequisitionService {
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get drug requisitions',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

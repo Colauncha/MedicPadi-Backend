@@ -6,6 +6,7 @@ import {
   IsEnum,
   MaxLength,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { DoctorsGender, DoctorsSpecialies } from '@medicpadi-backend/contracts';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -30,6 +31,20 @@ export class CreateDoctorDto {
   @ApiPropertyOptional()
   @IsEnum(DoctorsGender)
   gender?: DoctorsGender = DoctorsGender.Male;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(14)
+  @Transform(({ value }) => {
+    if (value && value.length === 10) return '+234' + value;
+    if (value && value.length === 11 && value.startsWith('0'))
+      return '+234' + value.substring(1);
+    return value;
+  })
+  phoneNumber?: string;
 
   @ApiPropertyOptional()
   @IsString()

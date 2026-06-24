@@ -1,5 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import {
+  AuthPatterns,
   BusinessHoursDto,
   CreateLaboratoryDto,
   PaginationDto,
@@ -8,17 +9,27 @@ import {
   SettingsDto,
   UpdateLaboratoryDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 import { Laboratory } from '../../entities/laboratory.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class LaboratoryService {
   constructor(
     @InjectRepository(Laboratory)
     private readonly labRepository: Repository<Laboratory>,
+    @Inject('AUTH_SERVICE')
+    private readonly authClient: ClientProxy,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
 
   create(createLaboratoryDto: CreateLaboratoryDto) {
     try {
@@ -38,37 +49,28 @@ export class LaboratoryService {
   async findAll(
     query: PaginationDto,
   ): Promise<PaginationResponseDto<Laboratory>> {
-    let page = query.page || 1;
-    let limit = query.limit || 10;
-
-    let profileResponse: PaginationResponseDto<Laboratory> = {
-      data: [],
-      total: 0,
-      page: page,
-      limit: limit,
-    };
-
+    const page = query.page || 1;
+    const limit = query.limit || 10;
     try {
-      [profileResponse.data, profileResponse.total] =
-        await this.labRepository.findAndCount({
-          take: limit,
-          skip: (page - 1) * limit,
-          where: query.search
-            ? [
-                { name: ILike(`%${query.search}%`) },
-                { registrationNumber: ILike(`%${query.search}%`) },
-                { address: ILike(`%${query.search}%`) },
-              ]
-            : {},
-          order: { createdAt: 'DESC' },
-        });
+      const [data, total] = await this.labRepository.findAndCount({
+        take: limit,
+        skip: (page - 1) * limit,
+        where: query.search
+          ? [
+              { name: ILike(`%${query.search}%`) },
+              { registrationNumber: ILike(`%${query.search}%`) },
+              { address: ILike(`%${query.search}%`) },
+            ]
+          : {},
+        order: { createdAt: 'DESC' },
+      });
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to retrieve Laboratory profiles',
       } as ServiceError);
     }
-    return profileResponse;
   }
 
   async findOne(id: string) {
@@ -90,29 +92,49 @@ export class LaboratoryService {
     id: string | undefined,
     updateLaboratoryDto: UpdateLaboratoryDto,
   ) {
-    let existingLaboratoryProfile: Laboratory | null;
     try {
-      existingLaboratoryProfile = await this.labRepository.findOne({
-        where: { user_id: id },
-      });
-
-      if (!existingLaboratoryProfile) {
+      const existing = await this.labRepository.findOne({ where: { user_id: id } });
+      if (!existing) {
         throw new RpcException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'Laboratory profile not found',
         } as ServiceError);
       }
     } catch (error) {
-      throw new RpcException({
-        statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: "Unable to update Laboratory's profile",
-      } as ServiceError);
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: "Unable to update Laboratory's profile",
+          } as ServiceError);
     }
     const labProfile = await this.labRepository.update(
       { user_id: id },
       updateLaboratoryDto,
     );
+    await this.syncProfileComplete(id!);
     return labProfile;
+  }
+
+  private async syncProfileComplete(userId: string): Promise<void> {
+    const [profile, auth] = await Promise.all([
+      this.labRepository.findOne({ where: { user_id: userId } }),
+      firstValueFrom(
+        this.authClient.send(
+          AuthPatterns.FIND_BY_ID,
+          withServiceAuth(userId, this.serviceToken),
+        ),
+      ),
+    ]);
+    const isProfileComplete =
+      !!profile?.name &&
+      !!profile?.phoneNumber &&
+      !!profile?.registrationNumber &&
+      !!profile?.address &&
+      !!profile?.profilePicture?.url &&
+      !!profile?.about &&
+      !!auth?.isVerified;
+    await this.labRepository.update({ user_id: userId }, { isProfileComplete });
   }
 
   async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {

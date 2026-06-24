@@ -1,5 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import {
+  AuthPatterns,
   CreatePatientDto,
   PaginationDto,
   PaginationResponseDto,
@@ -7,17 +8,27 @@ import {
   SettingsDto,
   UpdatePatientDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Patient } from '../../entities/patient.entity';
-import { RpcException } from '@nestjs/microservices';
+import { RpcException, ClientProxy } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class PatientService {
   constructor(
     @InjectRepository(Patient)
     private readonly patientRepository: Repository<Patient>,
+    @Inject('AUTH_SERVICE')
+    private readonly authClient: ClientProxy,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get serviceToken(): string {
+    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+  }
 
   create(createPatientDto: CreatePatientDto) {
     try {
@@ -35,32 +46,21 @@ export class PatientService {
   }
 
   async findAll(query: PaginationDto): Promise<PaginationResponseDto<Patient>> {
-    let page = query.page || 1;
-    let limit = query.limit || 10;
-
-    let profileResponse: PaginationResponseDto<Patient> = {
-      data: [],
-      total: 0,
-      page: page,
-      limit: limit,
-    };
-
+    const page = query.page || 1;
+    const limit = query.limit || 10;
     try {
-      [profileResponse.data, profileResponse.total] =
-        await this.patientRepository.findAndCount({
-          take: limit,
-          skip: (page - 1) * limit,
-          order: {
-            createdAt: 'DESC',
-          },
-        });
+      const [data, total] = await this.patientRepository.findAndCount({
+        take: limit,
+        skip: (page - 1) * limit,
+        order: { createdAt: 'DESC' },
+      });
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to retrieve Patient profiles',
       } as ServiceError);
     }
-    return profileResponse;
   }
 
   async findOne(id: string) {
@@ -79,11 +79,8 @@ export class PatientService {
   }
 
   async update(id: string | undefined, updatePatientDto: UpdatePatientDto) {
-    let existingPatientProfile: Patient | null;
     try {
-      existingPatientProfile = await this.patientRepository.findOne({
-        where: { user_id: id },
-      });
+      await this.patientRepository.findOne({ where: { user_id: id } });
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
@@ -94,7 +91,28 @@ export class PatientService {
       { user_id: id },
       { ...updatePatientDto },
     );
+    await this.syncProfileComplete(id!);
     return patientProfile;
+  }
+
+  private async syncProfileComplete(userId: string): Promise<void> {
+    const [profile, auth] = await Promise.all([
+      this.patientRepository.findOne({ where: { user_id: userId } }),
+      firstValueFrom(
+        this.authClient.send(
+          AuthPatterns.FIND_BY_ID,
+          withServiceAuth(userId, this.serviceToken),
+        ),
+      ),
+    ]);
+    const isProfileComplete =
+      !!profile?.firstName &&
+      !!profile?.lastName &&
+      !!profile?.phoneNumber &&
+      !!profile?.emergencyContact &&
+      !!profile?.profilePicture?.url &&
+      !!auth?.isVerified;
+    await this.patientRepository.update({ user_id: userId }, { isProfileComplete });
   }
 
   async updateSettings(id: string, settingsDto: SettingsDto) {

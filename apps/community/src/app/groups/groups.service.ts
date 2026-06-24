@@ -9,6 +9,7 @@ import {
   ServiceError,
   UpdateCommunityGroupDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { CommunityGroup } from '../../entities/community-group.entity';
 
 @Injectable()
@@ -34,28 +35,20 @@ export class GroupsService {
   async findAll(query: PaginationDto): Promise<PaginationResponseDto<CommunityGroup>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<CommunityGroup> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.groupRepo.findAndCount({
+      const [data, total] = await this.groupRepo.findAndCount({
         where: query.search ? { name: ILike(`%${query.search}%`) } : {},
         take: limit,
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get community groups',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

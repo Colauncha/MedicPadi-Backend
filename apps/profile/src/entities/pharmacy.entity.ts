@@ -18,6 +18,13 @@ export class Pharmacy extends BaseClass {
 
   @Column({
     type: 'varchar',
+    nullable: true,
+    length: 14,
+  })
+  phoneNumber?: string | null;
+
+  @Column({
+    type: 'varchar',
     unique: true,
     nullable: true,
   })
@@ -75,4 +82,10 @@ export class Pharmacy extends BaseClass {
     nullable: true,
   })
   settings: SettingsDto = new SettingsDto();
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isProfileComplete: boolean = false;
 }

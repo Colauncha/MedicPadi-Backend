@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { serviceConfig, dbConfig } from '@medicpadi-backend/config';
+import { serviceConfig, dbConfig, appConfig } from '@medicpadi-backend/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { AdminModule } from './admin/admin.module';
@@ -21,7 +21,7 @@ import { Patient } from '../entities/patient.entity';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `medicpadi-backend/apps/profile/.env.${process.env.NODE_ENV || 'development'}`,
-      load: [serviceConfig, dbConfig],
+      load: [serviceConfig, dbConfig, appConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

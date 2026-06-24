@@ -6,6 +6,7 @@ import {
   ServiceError,
   UpdateLabTestDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { RpcException } from '@nestjs/microservices';
 import { LabTest } from '../../entities/lab-test.entity';
 import { ILike, Repository } from 'typeorm';
@@ -35,18 +36,10 @@ export class LabTestsService {
   }
 
   async findAll(query: PaginationDto): Promise<PaginationResponseDto<LabTest>> {
-    let page = query.page || 1;
-    let limit = query.limit || 10;
-
-    let response: PaginationResponseDto<LabTest> = {
-      data: [],
-      total: 0,
-      page: page,
-      limit: limit,
-    };
-
+    const page = query.page || 1;
+    const limit = query.limit || 10;
     try {
-      const result = await this.labRepository.findAndCount({
+      const [data, total] = await this.labRepository.findAndCount({
         where: query.search
           ? [
               { user_id: query.id, name: ILike(`%${query.search}%`) },
@@ -55,19 +48,15 @@ export class LabTestsService {
           : { user_id: query.id },
         take: limit,
         skip: (page - 1) * limit,
-        order: {
-          createdAt: 'DESC',
-        },
+        order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get Lab tests',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {

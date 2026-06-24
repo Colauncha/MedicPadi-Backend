@@ -26,7 +26,7 @@ import { TestRequisition } from '../../entities/test-requisition.entity';
 import { TestRequisitionItem } from '../../entities/test-requisition-item.entity';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { withServiceAuth } from '@medicpadi-backend/utils';
+import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 
 @Injectable()
 export class TestRequisitionService {
@@ -237,14 +237,8 @@ export class TestRequisitionService {
   ): Promise<PaginationResponseDto<TestRequisition>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<TestRequisition> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.requisitionRepo.findAndCount({
+      const [data, total] = await this.requisitionRepo.findAndCount({
         where: query.id
           ? [
               { patient_id: query.id },
@@ -256,15 +250,13 @@ export class TestRequisitionService {
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get test requisitions',
       } as ServiceError);
     }
-    return response;
   }
 
   async listPatients(labId: string) {

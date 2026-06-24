@@ -9,6 +9,7 @@ import {
   ServiceError,
   UpdateCommunityPostDto,
 } from '@medicpadi-backend/contracts';
+import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { CommunityPost } from '../../entities/community-post.entity';
 
 @Injectable()
@@ -34,28 +35,20 @@ export class PostsService {
   async findAll(query: PaginationDto): Promise<PaginationResponseDto<CommunityPost>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const response: PaginationResponseDto<CommunityPost> = {
-      data: [],
-      total: 0,
-      page,
-      limit,
-    };
     try {
-      const result = await this.postRepo.findAndCount({
+      const [data, total] = await this.postRepo.findAndCount({
         where: query.id ? { group_id: query.id } : {},
         take: limit,
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
       });
-      response.data = result[0];
-      response.total = result[1];
+      return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get community posts',
       } as ServiceError);
     }
-    return response;
   }
 
   async findOne(id: string) {
