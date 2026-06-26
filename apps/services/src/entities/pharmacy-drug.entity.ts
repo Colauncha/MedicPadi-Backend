@@ -1,5 +1,5 @@
 import { BaseClass } from '@medicpadi-backend/contracts';
-import { Column, Entity, JoinColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { DrugCategory } from './drug_category.entity';
 
 @Entity('pharmacy_drugs')
@@ -47,6 +47,9 @@ export class PharmacyDrug extends BaseClass {
   })
   category_id!: string;
 
+  @ManyToOne(() => DrugCategory, (drugCategory) => drugCategory.pharmacyDrugs, {
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'category_id' })
   category!: DrugCategory;
 

@@ -41,4 +41,8 @@ export class CreatePharmacyDrugDto {
   @ApiProperty()
   @IsString()
   linkToMedWebsite?: string;
+
+  @ApiProperty()
+  @IsString()
+  category_id?: string;
 }

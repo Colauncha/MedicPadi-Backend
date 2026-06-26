@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import {
   CreateLabTestDto,
+  LabTestQueryDto,
   PaginationDto,
   PaginationResponseDto,
   ServiceError,
@@ -9,8 +10,15 @@ import {
 import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { RpcException } from '@nestjs/microservices';
 import { LabTest } from '../../entities/lab-test.entity';
-import { ILike, Repository } from 'typeorm';
+import {
+  FindOptionsOrder,
+  FindOptionsOrderValue,
+  FindOptionsWhere,
+  ILike,
+  Repository,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PharmacyDrug } from '../../entities/pharmacy-drug.entity';
 
 @Injectable()
 export class LabTestsService {
@@ -35,20 +43,41 @@ export class LabTestsService {
     }
   }
 
-  async findAll(query: PaginationDto): Promise<PaginationResponseDto<LabTest>> {
+  async findAll(
+    query: LabTestQueryDto,
+  ): Promise<PaginationResponseDto<LabTest>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
+    const { id, search, order, department, available, price, hasImage } = query;
+    const baseWhere: FindOptionsWhere<LabTest> = { user_id: id };
+
+    if (available !== undefined) baseWhere.available = available;
+    if (hasImage !== undefined) baseWhere.hasImage = hasImage;
+    if (price !== undefined) baseWhere.price = price;
+
+    if (department) {
+      baseWhere.department = {
+        name: ILike(`%${department}%`),
+      };
+    }
+
+    let whereCondition: FindOptionsWhere<LabTest> | FindOptionsWhere<LabTest>[];
+
+    if (search) {
+      whereCondition = [
+        { ...baseWhere, name: ILike(`%${search}%`) },
+        { ...baseWhere, shortName: ILike(`%${search}%`) },
+        { ...baseWhere, description: ILike(`%${search}%`) },
+      ];
+    } else {
+      whereCondition = baseWhere;
+    }
     try {
       const [data, total] = await this.labRepository.findAndCount({
-        where: query.search
-          ? [
-              { user_id: query.id, name: ILike(`%${query.search}%`) },
-              { user_id: query.id, shortName: ILike(`%${query.search}%`) },
-            ]
-          : { user_id: query.id },
+        where: whereCondition,
         take: limit,
         skip: (page - 1) * limit,
-        order: { createdAt: 'DESC' },
+        order: { createdAt: order as FindOptionsOrderValue },
       });
       return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
@@ -63,9 +92,11 @@ export class LabTestsService {
     try {
       const test = await this.labRepository.findOne({
         where: { id },
+        relations: ['department'],
       });
       return test;
     } catch (error) {
+      console.error(error);
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get Lab test',

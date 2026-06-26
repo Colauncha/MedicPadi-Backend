@@ -10,6 +10,8 @@ import {
   UpdateDepartmentDto,
   CreateDrugCategoryDto,
   UpdateDrugCategoryDto,
+  DrugQueryDto,
+  LabTestQueryDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -45,7 +47,7 @@ export class ServicesService {
     }
   }
 
-  async findAllLabTests(query: PaginationDto) {
+  async findAllLabTests(query: LabTestQueryDto) {
     try {
       return await firstValueFrom(
         this.servicesClient.send(
@@ -113,7 +115,7 @@ export class ServicesService {
     }
   }
 
-  async findAllPharmacyDrugs(query: PaginationDto) {
+  async findAllPharmacyDrugs(query: DrugQueryDto) {
     try {
       return await firstValueFrom(
         this.servicesClient.send(

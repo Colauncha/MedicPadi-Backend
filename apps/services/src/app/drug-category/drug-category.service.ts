@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrderValue, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import {
   CreateDrugCategoryDto,
@@ -37,12 +37,13 @@ export class DrugCategoryService {
   ): Promise<PaginationResponseDto<DrugCategory>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
+    const { order, id } = query;
     try {
       const [data, total] = await this.drugCategoryRepo.findAndCount({
-        where: query.id ? { user_id: query.id } : {},
+        where: id ? { user_id: id } : {},
         take: limit,
         skip: (page - 1) * limit,
-        order: { name: 'ASC' },
+        order: { name: order as FindOptionsOrderValue },
       });
       return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
@@ -55,11 +56,15 @@ export class DrugCategoryService {
 
   async findOne(id: string) {
     try {
-      return await this.drugCategoryRepo.findOne({ where: { id } });
+      return await this.drugCategoryRepo.findOne({
+        where: { id },
+      });
     } catch (error) {
+      console.error(error);
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get drug category',
+        error: error,
       } as ServiceError);
     }
   }

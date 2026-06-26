@@ -3,7 +3,8 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PharmacyDrugsService } from './pharmacy-drugs.service';
 import {
   CreatePharmacyDrugDto,
-  PaginationDto,
+  DrugQueryDto,
+  // PaginationDto,
   ServicePatterns,
   UpdatePharmacyDrugDto,
 } from '@medicpadi-backend/contracts';
@@ -18,7 +19,7 @@ export class PharmacyDrugsController {
   }
 
   @MessagePattern(ServicePatterns.PHARMCY_DRUGS.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: DrugQueryDto) {
     return this.pharmcyDrugsService.findAll(query);
   }
 

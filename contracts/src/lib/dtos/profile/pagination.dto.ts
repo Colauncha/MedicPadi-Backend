@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 
 export class PaginationDto {
   @ApiProperty()
@@ -31,7 +39,60 @@ export class PaginationDto {
   @IsOptional()
   @IsString()
   role?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  order?: string = 'desc';
 }
+
+export class DrugQueryDto extends PaginationDto {
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  available?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  requiresPrescription?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  price?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  category?: string;
+}
+
+export class LabTestQueryDto extends PaginationDto {
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  available?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  price?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  department?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  hasImage?: boolean;
+}
+
+// Pagination response structures
 
 export class PaginationMetaDto {
   @ApiProperty()

@@ -28,6 +28,8 @@ import {
   UpdateDepartmentDto,
   CreateDrugCategoryDto,
   UpdateDrugCategoryDto,
+  DrugQueryDto,
+  LabTestQueryDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { Roles } from '../guards/decorators/roles.decorator';
@@ -90,7 +92,7 @@ export class ServicesController {
   })
   @ApiResponse({ status: 200, description: 'Paginated list of lab tests.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  findAllLabTests(@Query() query: PaginationDto) {
+  findAllLabTests(@Query() query: LabTestQueryDto) {
     return this.servicesService.findAllLabTests(query);
   }
 
@@ -193,7 +195,7 @@ export class ServicesController {
   })
   @ApiResponse({ status: 200, description: 'Paginated list of drugs.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  findAllPharmacyDrugs(@Query() query: PaginationDto) {
+  findAllPharmacyDrugs(@Query() query: DrugQueryDto) {
     return this.servicesService.findAllPharmacyDrugs(query);
   }
 
@@ -421,7 +423,7 @@ export class ServicesController {
   // Drug Categories
   // ──────────────────────────────────────────────
 
-  @Post('/pharmacy/drugs/categories')
+  @Post('/pharmacy/categories')
   @Roles(AuthRole.PHARMACY, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Create a drug category',
@@ -445,7 +447,7 @@ export class ServicesController {
     });
   }
 
-  @Get('/pharmacy/drugs/categories')
+  @Get('/pharmacy/categories')
   @Roles(
     AuthRole.PHARMACY,
     AuthRole.ADMIN,
@@ -466,7 +468,7 @@ export class ServicesController {
     return this.servicesService.findAllDrugCategories(query);
   }
 
-  @Get('/pharmacy/drugs/categories/:id')
+  @Get('/pharmacy/categories/:id')
   @Roles(
     AuthRole.PHARMACY,
     AuthRole.ADMIN,
@@ -486,7 +488,7 @@ export class ServicesController {
     return this.servicesService.findOneDrugCategory(id);
   }
 
-  @Patch('/pharmacy/drugs/categories/:id')
+  @Patch('/pharmacy/categories/:id')
   @Roles(AuthRole.PHARMACY, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Update a drug category',
@@ -509,7 +511,7 @@ export class ServicesController {
     return this.servicesService.updateDrugCategory(id, dto);
   }
 
-  @Delete('/pharmacy/drugs/categories/:id')
+  @Delete('/pharmacy/categories/:id')
   @Roles(AuthRole.PHARMACY, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Delete a drug category',

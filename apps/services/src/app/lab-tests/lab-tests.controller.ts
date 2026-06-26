@@ -3,6 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { LabTestsService } from './lab-tests.service';
 import {
   CreateLabTestDto,
+  LabTestQueryDto,
   PaginationDto,
   ServicePatterns,
   UpdateLabTestDto,
@@ -18,7 +19,7 @@ export class LabTestsController {
   }
 
   @MessagePattern(ServicePatterns.LAB_TESTS.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: LabTestQueryDto) {
     return this.labTestsService.findAll(query);
   }
 

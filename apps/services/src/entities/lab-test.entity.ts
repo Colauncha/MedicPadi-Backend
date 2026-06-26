@@ -34,7 +34,6 @@ export class LabTest extends BaseClass {
   @ManyToOne(() => Department, (department) => department.labTests, {
     onDelete: 'RESTRICT',
   })
-
   @JoinColumn({ name: 'department_id' })
   department!: Department;
 }
