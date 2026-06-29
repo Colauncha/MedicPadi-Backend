@@ -65,10 +65,10 @@ export class Doctor extends BaseClass {
   bio?: string | null;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  costPerSession?: number;
+  costPerSession?: number | null;
 
   @Column({ type: 'int', nullable: true, default: 30 })
-  sessionLength?: number;
+  sessionLength?: number | null;
 
   @Column({
     type: 'simple-json',

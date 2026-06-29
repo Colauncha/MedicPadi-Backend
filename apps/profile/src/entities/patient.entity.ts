@@ -39,7 +39,7 @@ export class Patient extends BaseClass {
   @Column({
     type: 'enum',
     enum: BloodGroup,
-    default: BloodGroup.O_NEGATIVE,
+    default: BloodGroup.O_POSITIVE,
   })
   bloodGroup?: BloodGroup;
 

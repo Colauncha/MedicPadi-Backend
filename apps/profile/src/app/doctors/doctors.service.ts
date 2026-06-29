@@ -111,6 +111,7 @@ export class DoctorsService {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: "Unable to retrieve Doctor's profile",
+        error: error,
       } as ServiceError);
     }
     return profile;
@@ -125,9 +126,10 @@ export class DoctorsService {
         message: "Unable to update Doctor's profile",
       } as ServiceError);
     }
+    const { id: _, ...updateData } = updateDoctorDto;
     const doctorsProfile = await this.doctorsRepository.update(
       { user_id: id },
-      { ...updateDoctorDto },
+      updateData,
     );
     await this.syncProfileComplete(id!);
     return doctorsProfile;
@@ -153,7 +155,7 @@ export class DoctorsService {
       !!profile?.profilePicture?.url &&
       !!profile?.placeOfWork &&
       profile?.yearsOfService != null &&
-      !!auth?.isVerified;
+      !!auth?.isEmailVerified;
     await this.doctorsRepository.update(
       { user_id: userId },
       { isProfileComplete },

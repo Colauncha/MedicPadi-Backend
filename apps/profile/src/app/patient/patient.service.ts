@@ -111,7 +111,7 @@ export class PatientService {
       !!profile?.phoneNumber &&
       !!profile?.emergencyContact &&
       !!profile?.profilePicture?.url &&
-      !!auth?.isVerified;
+      !!auth?.isEmailVerified;
     await this.patientRepository.update({ user_id: userId }, { isProfileComplete });
   }
 

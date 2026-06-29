@@ -20,6 +20,11 @@ export class UpdateDoctorDto extends PartialType(CreateDoctorDto) {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @IsString()
+  placeOfWork?: string | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsNumber()
   yearsOfService?: number | null;
 
@@ -27,4 +32,14 @@ export class UpdateDoctorDto extends PartialType(CreateDoctorDto) {
   @IsOptional()
   @IsNumber()
   awards?: number | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  costPerSession?: number | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  sessionLength?: number | null;
 }

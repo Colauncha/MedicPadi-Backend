@@ -122,7 +122,7 @@ export class PharmacyService {
       !!profile?.address &&
       !!profile?.profilePicture?.url &&
       !!profile?.about &&
-      !!auth?.isVerified;
+      !!auth?.isEmailVerified;
     await this.pharmacyRepository.update({ user_id: userId }, { isProfileComplete });
   }
 

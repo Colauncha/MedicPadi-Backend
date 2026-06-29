@@ -133,7 +133,7 @@ export class LaboratoryService {
       !!profile?.address &&
       !!profile?.profilePicture?.url &&
       !!profile?.about &&
-      !!auth?.isVerified;
+      !!auth?.isEmailVerified;
     await this.labRepository.update({ user_id: userId }, { isProfileComplete });
   }
 
