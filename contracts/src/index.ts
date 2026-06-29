@@ -51,6 +51,7 @@ export * from './lib/dtos/notification/events/payment.event.dto';
 export * from './lib/dtos/email/welcome.dto';
 export * from './lib/dtos/email/waitlist.dto';
 export * from './lib/dtos/email/reset-password.dto';
+export * from './lib/dtos/email/verify-email.dto';
 
 // Service DTOs
 export * from './lib/dtos/services/lab-tests/create-lab-test.dto';

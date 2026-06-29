@@ -6,6 +6,7 @@ import {
   ServiceError,
   NotificationEvents,
   ResetPasswordEmailDto,
+  VerifyEmailDto,
 } from '@medicpadi-backend/contracts';
 import { Repository } from 'typeorm';
 import { Auth } from './entities/auth.entity';
@@ -32,7 +33,9 @@ export class AuthService {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   getStatus() {
@@ -185,9 +188,11 @@ export class AuthService {
     resetDto.name = 'User';
     resetDto.otp = resetToken;
     await firstValueFrom(
-      this.notificationClient.emit(NotificationEvents.RESET_PASSWORD, withServiceAuth(resetDto, this.serviceToken)),
+      this.notificationClient.emit(
+        NotificationEvents.RESET_PASSWORD,
+        withServiceAuth(resetDto, this.serviceToken),
+      ),
     );
-    console.log('Redis set result:', redisRet);
     return {
       message: 'Password reset token generated',
       resetToken,
@@ -243,6 +248,79 @@ export class AuthService {
       } as ServiceError);
     } finally {
       await this.redis.del(`password-reset:${email}`);
+    }
+  }
+
+  async sendVerificationMail(id: string) {
+    try {
+      const existing = await this.authRepository.findOneBy({
+        id: id,
+      });
+
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found',
+        } as ServiceError);
+      }
+      const otp = generateOtp();
+      await this.redis.set(`verify-mail:${id}`, otp, 'EX', 3600);
+
+      const baseUrl =
+        this.configService.get<string>('appConfig.frontendUrl') ??
+        'https://medicpadi.com';
+
+      const verifyDto = new VerifyEmailDto();
+      verifyDto.email = existing.email;
+      verifyDto.name = 'User';
+      verifyDto.otp = otp;
+      verifyDto.verifyUrl = `${baseUrl}/verify-email?id=${id}&token=${otp}`;
+
+      await firstValueFrom(
+        this.notificationClient.emit(
+          NotificationEvents.VERIFY_EMAIL,
+          withServiceAuth(verifyDto, this.serviceToken),
+        ),
+      );
+
+      return { message: 'Verification email sent' };
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to send verification mail',
+        error: error,
+      } as ServiceError);
+    }
+  }
+
+  async verifyEmail(id: string, otp: number) {
+    try {
+      const stored = await this.redis.get(`verify-mail:${id}`);
+      if (!stored || parseInt(stored.trim(), 10) !== otp) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Invalid or expired verification token',
+        } as ServiceError);
+      }
+
+      const existing = await this.authRepository.findOneBy({ id });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'User not found',
+        } as ServiceError);
+      }
+
+      existing.isEmailVerified = true;
+      const result = await this.authRepository.save(existing);
+      await this.redis.del(`verify-mail:${id}`);
+      return result;
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to verify email',
+        error: error,
+      } as ServiceError);
     }
   }
 

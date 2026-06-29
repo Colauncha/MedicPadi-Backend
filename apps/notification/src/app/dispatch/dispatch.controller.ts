@@ -14,6 +14,7 @@ import {
   TestRequisitionAcceptedEventDto,
   TestRequisitionCreatedEventDto,
   TestRequisitionDeclinedEventDto,
+  VerifyEmailDto,
   WaitlistEmailDto,
   WelcomeEmailDto,
 } from '@medicpadi-backend/contracts';
@@ -88,5 +89,10 @@ export class DispatchController {
   @EventPattern(NotificationEvents.DRUG_REQUISITION_CREATED)
   drugRequisitionCreated(@Payload('data') dto: DrugRequisitionCreatedEventDto) {
     return this.queue.add(NotificationJobNames.DRUG_REQUISITION_CREATED, dto, JOB_OPTIONS);
+  }
+
+  @EventPattern(NotificationEvents.VERIFY_EMAIL)
+  verifyEmail(@Payload('data') dto: VerifyEmailDto) {
+    return this.queue.add(NotificationJobNames.VERIFY_EMAIL, dto, JOB_OPTIONS);
   }
 }

@@ -163,6 +163,26 @@ export class AuthService {
     return { message: 'Account deleted successfully' };
   }
 
+  async sendVerificationMail(userId: string) {
+    await firstValueFrom(
+      this.authClient.send(
+        AuthPatterns.SEND_VERIFICATION_MAIL,
+        withServiceAuth(userId, this.serviceToken),
+      ),
+    );
+    return { message: 'Verification email sent' };
+  }
+
+  async verifyEmail(id: string, otp: number) {
+    await firstValueFrom(
+      this.authClient.send(
+        AuthPatterns.VERIFY_EMAIL,
+        withServiceAuth({ id, otp }, this.serviceToken),
+      ),
+    );
+    return { message: 'Email verified successfully' };
+  }
+
   // Wallet retrieval for authenticated user
   async getUserWallet(id: string) {
     return await firstValueFrom(

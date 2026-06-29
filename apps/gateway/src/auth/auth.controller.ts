@@ -8,6 +8,7 @@ import {
   Patch,
   UseGuards,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -197,5 +198,41 @@ export class AuthController {
   async getUserWallet(@Req() request: RequestWithUser) {
     const user = request.user;
     return await this.authService.getUserWallet(user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/send-verification-mail')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Send email verification OTP',
+    description:
+      "Sends a verification OTP to the authenticated user's email address.",
+  })
+  @ApiResponse({ status: 200, description: 'Verification email sent.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  async sendVerificationMail(@Req() request: RequestWithUser) {
+    return await this.authService.sendVerificationMail(request.user.id);
+  }
+
+  @Get('/verify-email')
+  @ApiOperation({
+    summary: 'Verify email address',
+    description:
+      "Verifies the user's email using the OTP and user ID received in the verification email.",
+  })
+  @ApiQuery({ name: 'id', required: true, description: 'User ID.' })
+  @ApiQuery({
+    name: 'token',
+    required: true,
+    description: 'OTP from the verification email.',
+  })
+  @ApiResponse({ status: 200, description: 'Email verified successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async verifyEmail(
+    @Query('id') id: string,
+    @Query('token', ParseIntPipe) token: number,
+  ) {
+    return await this.authService.verifyEmail(id, token);
   }
 }

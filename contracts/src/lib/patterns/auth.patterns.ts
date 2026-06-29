@@ -10,4 +10,6 @@ export default {
   DELETE: 'auth.delete',
   REQUEST_PASSWORD_RESET: 'auth.requestPasswordReset',
   RESET_PASSWORD: 'auth.resetPassword',
+  SEND_VERIFICATION_MAIL: 'auth.sendVerificationMail',
+  VERIFY_EMAIL: 'auth.verifyEmail',
 };

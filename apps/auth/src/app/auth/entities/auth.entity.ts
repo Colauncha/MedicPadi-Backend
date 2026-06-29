@@ -42,6 +42,12 @@ export class Auth {
   isVerified!: boolean;
 
   @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isEmailVerified!: boolean;
+
+  @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })

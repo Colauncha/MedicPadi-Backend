@@ -14,6 +14,7 @@ import {
   TestRequisitionAcceptedEventDto,
   TestRequisitionCreatedEventDto,
   TestRequisitionDeclinedEventDto,
+  VerifyEmailDto,
   WaitlistEmailDto,
   WelcomeEmailDto,
 } from '@medicpadi-backend/contracts';
@@ -36,6 +37,7 @@ export const NotificationJobNames = {
   TEST_REQUISITION_DECLINED: 'requisition.declined',
   PAYMENT_SUCCESS: 'payment.success',
   DRUG_REQUISITION_CREATED: 'drug-requisition.created',
+  VERIFY_EMAIL: 'verify-email',
 } as const;
 
 @Processor(NOTIFICATION_QUEUE)
@@ -76,6 +78,8 @@ export class DispatchProcessor extends WorkerHost {
         return this.handlePaymentSuccess(job as Job<PaymentSuccessEventDto>);
       case NotificationJobNames.DRUG_REQUISITION_CREATED:
         return this.handleDrugRequisitionCreated(job as Job<DrugRequisitionCreatedEventDto>);
+      case NotificationJobNames.VERIFY_EMAIL:
+        return this.handleVerifyEmail(job as Job<VerifyEmailDto>);
       default:
         this.logger.warn(`Unhandled job name: ${job.name}`);
     }
@@ -400,6 +404,11 @@ export class DispatchProcessor extends WorkerHost {
       source_id: requisitionId,
       channel: NotificationChannel.IN_APP,
     });
+  }
+
+  private async handleVerifyEmail(job: Job<VerifyEmailDto>) {
+    const { email, name, otp, verifyUrl } = job.data;
+    await this.emailService.verifyEmail(email, name, otp, verifyUrl);
   }
 
   private async handlePaymentSuccess(job: Job<PaymentSuccessEventDto>) {

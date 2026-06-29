@@ -293,6 +293,22 @@ export class EmailService {
     });
   }
 
+  async verifyEmail(email: string, name: string, otp: number, verifyUrl?: string) {
+    return this.mailerService.sendMail({
+      to: email,
+      subject: 'Verify your email address',
+      template: 'verify-email',
+      context: {
+        name,
+        otp,
+        verifyUrl,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
   async paymentSuccessEmail(
     email: string,
     name: string,

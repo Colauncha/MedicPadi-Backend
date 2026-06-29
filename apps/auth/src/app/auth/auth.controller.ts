@@ -61,4 +61,14 @@ export class AuthController {
   delete(@Payload('data') id: string) {
     return this.authService.delete(id);
   }
+
+  @MessagePattern(AuthPatterns.SEND_VERIFICATION_MAIL)
+  sendVerificationMail(@Payload('data') id: string) {
+    return this.authService.sendVerificationMail(id);
+  }
+
+  @MessagePattern(AuthPatterns.VERIFY_EMAIL)
+  verifyEmail(@Payload('data') payload: { id: string; otp: number }) {
+    return this.authService.verifyEmail(payload.id, payload.otp);
+  }
 }
