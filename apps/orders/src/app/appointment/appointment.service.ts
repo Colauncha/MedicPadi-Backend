@@ -1,19 +1,19 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOptionsOrderValue, FindOptionsWhere, Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   AppointmentCancelledEventDto,
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
+  AppointmentQueryDto,
   AppointmentStatus,
   AuthPatterns,
   CreateAppointmentDto,
   DoctorPatterns,
   NotificationEvents,
   PatientPatterns,
-  PaginationDto,
   PaginationResponseDto,
   ServiceError,
   UpdateAppointmentDto,
@@ -166,18 +166,27 @@ export class AppointmentService {
   }
 
   async findAll(
-    query: PaginationDto,
+    query: AppointmentQueryDto,
   ): Promise<PaginationResponseDto<Appointment>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
+    const { id, order, status, paymentStatus, appointmentTime } = query;
+
+    const baseFilter: FindOptionsWhere<Appointment> = {};
+    if (status) baseFilter.status = status;
+    if (paymentStatus) baseFilter.paymentStatus = paymentStatus;
+    if (appointmentTime) baseFilter.appointment_time = appointmentTime;
+
+    const where: FindOptionsWhere<Appointment> | FindOptionsWhere<Appointment>[] = id
+      ? [{ ...baseFilter, patient_id: id }, { ...baseFilter, provider_id: id }]
+      : baseFilter;
+
     try {
       const [data, total] = await this.appointmentRepo.findAndCount({
-        where: query.id
-          ? [{ patient_id: query.id }, { provider_id: query.id }]
-          : {},
+        where,
         take: limit,
         skip: (page - 1) * limit,
-        order: { createdAt: 'DESC' },
+        order: { createdAt: (order || 'DESC') as FindOptionsOrderValue },
       });
       return buildPaginationResponse(data, total, page, limit);
     } catch (error) {

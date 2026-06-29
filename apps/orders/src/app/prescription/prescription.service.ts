@@ -1,10 +1,10 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOptionsOrderValue, FindOptionsWhere, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import {
   CreatePrescriptionDto,
-  PaginationDto,
+  PrescriptionQueryDto,
   PaginationResponseDto,
   ServiceError,
   UpdatePrescriptionDto,
@@ -52,16 +52,25 @@ export class PrescriptionService {
   }
 
   async findAll(
-    query: PaginationDto,
+    query: PrescriptionQueryDto,
   ): Promise<PaginationResponseDto<Prescription>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
+    const { id, order, status } = query;
+
+    const baseFilter: FindOptionsWhere<Prescription> = {};
+    if (status) baseFilter.status = status;
+
+    const where: FindOptionsWhere<Prescription> | FindOptionsWhere<Prescription>[] = id
+      ? [{ ...baseFilter, patient_id: id }, { ...baseFilter, provider_id: id }]
+      : baseFilter;
+
     try {
       const [data, total] = await this.prescriptionRepo.findAndCount({
-        where: query.id ? { patient_id: query.id } : {},
+        where,
         take: limit,
         skip: (page - 1) * limit,
-        order: { createdAt: 'DESC' },
+        order: { createdAt: (order || 'DESC') as FindOptionsOrderValue },
       });
       return buildPaginationResponse(data, total, page, limit);
     } catch (error) {

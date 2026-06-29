@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsDate,
+  IsEnum,
   IsInt,
   IsNumber,
   IsOptional,
@@ -9,84 +11,149 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { OmitType, PartialType } from '@nestjs/mapped-types';
+import {
+  AppointmentStatus,
+  AppointmentPaymentStatus,
+} from '../../enums/appointment-status.enum';
+import { PrescriptionStatus } from '../../enums/prescription-status.enum';
+import { RequisitionStatus } from '../../enums/requisition-status.enum';
+import { PaymentStatus } from '../../enums/payment-status.enum';
 
 export class PaginationDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Number of records per page', default: 10 })
   @Type(() => Number)
   @IsOptional()
   @IsInt()
   @Min(1)
   limit?: number = 10;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Page number (1-indexed)', default: 1 })
   @Type(() => Number)
   @IsOptional()
   @IsInt()
   @Min(1)
   page?: number = 1;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by resource ID' })
   @IsOptional()
   @IsString()
   id?: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Full-text search keyword' })
   @IsOptional()
   @IsString()
   search?: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by user role' })
   @IsOptional()
   @IsString()
   role?: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Sort order of results', default: 'desc' })
   @IsOptional()
   @IsString()
   order?: string = 'desc';
 }
 
+// Pagination request - orders
+// Appointment
+export class AppointmentQueryDto extends OmitType(PaginationDto, ['role'] as const) {
+  @ApiProperty({description: 'Appointment date and time', example: '2026-06-27T10:00:00.000Z'})
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  appointmentTime?: Date;
+
+  @ApiProperty({description: 'Zoom meeting ID'})
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  meetingId?: number;
+
+  @ApiProperty({ description: 'Filter by appointment status', enum: AppointmentStatus, default: AppointmentStatus.PENDING })
+  @IsOptional()
+  @IsEnum(AppointmentStatus)
+  status?: AppointmentStatus;
+
+  @ApiProperty({ description: 'Filter by appointment payment status', enum: AppointmentPaymentStatus, default: AppointmentPaymentStatus.P_PENDING })
+  @IsOptional()
+  @IsEnum(AppointmentPaymentStatus)
+  paymentStatus?: AppointmentPaymentStatus;
+}
+
+export class PrescriptionQueryDto extends OmitType(PaginationDto, ['role'] as const) {
+  @ApiProperty({ description: 'Filter by prescription status', enum: PrescriptionStatus, default: PrescriptionStatus.ISSUED })
+  @IsOptional()
+  @IsEnum(PrescriptionStatus)
+  status?: PrescriptionStatus;
+}
+
+export class TestRequisitionQueryDto extends OmitType(PaginationDto, ['role'] as const) {
+  @ApiProperty({ description: 'Filter by requisition status', enum: RequisitionStatus, default: RequisitionStatus.PENDING })
+  @IsOptional()
+  @IsEnum(RequisitionStatus)
+  status?: RequisitionStatus;
+
+  @ApiProperty({ description: 'Filter by payment status', enum: PaymentStatus, default: PaymentStatus.PENDING })
+  @IsOptional()
+  @IsEnum(PaymentStatus)
+  paymentStatus?: PaymentStatus;
+}
+
+export class DrugRequisitionQueryDto extends OmitType(PaginationDto, ['role'] as const) {
+  @ApiProperty({ description: 'Filter by requisition status', enum: RequisitionStatus, default: RequisitionStatus.PENDING })
+  @IsOptional()
+  @IsEnum(RequisitionStatus)
+  status?: RequisitionStatus;
+
+  @ApiProperty({ description: 'Filter by payment status', enum: PaymentStatus, default: PaymentStatus.PENDING })
+  @IsOptional()
+  @IsEnum(PaymentStatus)
+  paymentStatus?: PaymentStatus;
+}
+
+// Pagination requests - services
 export class DrugQueryDto extends PaginationDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by drug availability' })
   @IsOptional()
   @IsBoolean()
   available?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by whether the drug requires a prescription' })
   @IsOptional()
   @IsBoolean()
   requiresPrescription?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by drug price' })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   price?: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by drug category' })
   @IsOptional()
   @IsString()
   category?: string;
 }
 
 export class LabTestQueryDto extends PaginationDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by lab test availability' })
   @IsOptional()
   @IsBoolean()
   available?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by lab test price' })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   price?: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter by medical department' })
   @IsOptional()
   @IsString()
   department?: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Filter to only lab tests that have an image' })
   @IsOptional()
   @IsBoolean()
   hasImage?: boolean;

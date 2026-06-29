@@ -1,9 +1,9 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import {
+  AppointmentQueryDto,
   CreateAppointmentDto,
   OrderPatterns,
-  PaginationDto,
   UpdateAppointmentDto,
 } from '@medicpadi-backend/contracts';
 import { AppointmentService } from './appointment.service';
@@ -18,7 +18,7 @@ export class AppointmentController {
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: AppointmentQueryDto) {
     return this.appointmentService.findAll(query);
   }
 

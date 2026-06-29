@@ -3,7 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreatePrescriptionDto,
   OrderPatterns,
-  PaginationDto,
+  PrescriptionQueryDto,
   UpdatePrescriptionDto,
 } from '@medicpadi-backend/contracts';
 import { PrescriptionService } from './prescription.service';
@@ -18,7 +18,7 @@ export class PrescriptionController {
   }
 
   @MessagePattern(OrderPatterns.PRESCRIPTIONS.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: PrescriptionQueryDto) {
     return this.prescriptionService.findAll(query);
   }
 

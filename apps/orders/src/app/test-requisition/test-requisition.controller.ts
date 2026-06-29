@@ -4,7 +4,7 @@ import {
   CreateTestRequisitionDto,
   DeclineTestRequisitionDto,
   OrderPatterns,
-  PaginationDto,
+  TestRequisitionQueryDto,
   UpdateTestRequisitionDto,
 } from '@medicpadi-backend/contracts';
 import { TestRequisitionService } from './test-requisition.service';
@@ -21,7 +21,7 @@ export class TestRequisitionController {
   }
 
   @MessagePattern(OrderPatterns.TEST_REQUISITIONS.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: TestRequisitionQueryDto) {
     return this.testRequisitionService.findAll(query);
   }
 

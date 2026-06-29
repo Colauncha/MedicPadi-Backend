@@ -1,13 +1,18 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindOptionsOrderValue,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   CreateDrugRequisitionDto,
   CreateTransactionDto,
+  DrugRequisitionQueryDto,
   DrugRequisitionCreatedEventDto,
   NotificationEvents,
-  PaginationDto,
   PaginationResponseDto,
   PaymentGateway,
   PaymentStatus,
@@ -382,18 +387,32 @@ export class DrugRequisitionService {
   }
 
   async findAll(
-    query: PaginationDto,
+    query: DrugRequisitionQueryDto,
   ): Promise<PaginationResponseDto<DrugRequisition>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
+    const { id, order, status, paymentStatus } = query;
+
+    const baseFilter: FindOptionsWhere<DrugRequisition> = {};
+    if (status) baseFilter.status = status;
+    if (paymentStatus) baseFilter.payment_status = paymentStatus;
+
+    const where:
+      | FindOptionsWhere<DrugRequisition>
+      | FindOptionsWhere<DrugRequisition>[] = id
+      ? [
+          { ...baseFilter, patient_id: id },
+          { ...baseFilter, pharmacy_id: id },
+          { ...baseFilter, prescription_id: id },
+        ]
+      : baseFilter;
+
     try {
       const [data, total] = await this.requisitionRepo.findAndCount({
-        where: query.id
-          ? [{ patient_id: query.id }, { pharmacy_id: query.id }]
-          : {},
+        where,
         take: limit,
         skip: (page - 1) * limit,
-        order: { createdAt: 'DESC' },
+        order: { createdAt: (order || 'DESC') as FindOptionsOrderValue },
       });
       return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
