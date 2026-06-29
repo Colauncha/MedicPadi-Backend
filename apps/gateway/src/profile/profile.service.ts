@@ -9,6 +9,7 @@ import {
   GetAuthDto,
   SettingsDto,
 } from '@medicpadi-backend/contracts';
+import type { EducationItemDto } from '@medicpadi-backend/contracts';
 import { getPatternFromRole, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -111,6 +112,23 @@ export class ProfileService {
       throw new BadRequestException(
         error,
         'Something went wrong while updating profile',
+      );
+    }
+  }
+
+  async updateEducation(user: any, education: EducationItemDto[]) {
+    try {
+      const { pattern: Pattern } = await getPatternFromRole(user.role);
+      return await firstValueFrom(
+        this.profileClient.send(
+          Pattern.UPDATE_EDUCATION,
+          withServiceAuth({ id: user.id, education }, this.serviceToken),
+        ),
+      );
+    } catch (error) {
+      throw new BadRequestException(
+        error,
+        'Something went wrong while updating education',
       );
     }
   }

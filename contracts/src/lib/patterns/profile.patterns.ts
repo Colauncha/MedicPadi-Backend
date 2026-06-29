@@ -34,6 +34,7 @@ export const DoctorPatterns = {
   FIND_ALL: 'profile.doctors.findAll',
   UPDATE_BUSINESS_HOURS: 'profile.doctors.updateBusinessHours',
   UPDATE_SETTINGS: 'profile.doctors.updateSettings',
+  UPDATE_EDUCATION: 'profile.doctors.updateEducation',
 };
 
 export const LaboratoryPatterns = {

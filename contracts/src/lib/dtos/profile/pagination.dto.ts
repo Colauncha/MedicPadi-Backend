@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { OmitType } from '@nestjs/mapped-types';
 import {
   AppointmentStatus,
   AppointmentPaymentStatus,
@@ -18,6 +18,7 @@ import {
 import { PrescriptionStatus } from '../../enums/prescription-status.enum';
 import { RequisitionStatus } from '../../enums/requisition-status.enum';
 import { PaymentStatus } from '../../enums/payment-status.enum';
+import { DoctorsGender, DoctorsSpecialies } from '../../enums/doctor.enum';
 
 export class PaginationDto {
   @ApiProperty({ description: 'Number of records per page', default: 10 })
@@ -53,6 +54,32 @@ export class PaginationDto {
   @IsOptional()
   @IsString()
   order?: string = 'desc';
+}
+
+// Pagination request - profiles
+// Doctor
+export class DoctorQueryDto extends PaginationDto {
+  @ApiProperty({ description: 'Filter by Doctors gender', enum: DoctorsGender, default: DoctorsGender.Male })
+  @IsOptional()
+  @IsEnum(DoctorsGender)
+  gender?: DoctorsGender;
+
+  @ApiProperty({ description: 'Filter by Doctors speciality', enum: DoctorsSpecialies, default: DoctorsSpecialies.General })
+  @IsOptional()
+  @IsEnum(DoctorsSpecialies)
+  speciality?: DoctorsSpecialies;
+
+  @ApiProperty({ description: 'Filter by consultation price per session' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  price?: number;
+
+  @ApiProperty({ description: 'Filter by consultation price per session' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  yearsOfService?: number;
 }
 
 // Pagination request - orders

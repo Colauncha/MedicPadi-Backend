@@ -3,11 +3,14 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { DoctorsService } from './doctors.service';
 import {
   AdminPatterns,
+  BusinessHoursDto,
   CreateDoctorDto,
   DoctorPatterns,
+  EducationItemDto,
   PaginationDto,
   SettingsDto,
   UpdateDoctorDto,
+  UpdateDoctorEducationDto,
 } from '@medicpadi-backend/contracts';
 
 @Controller()
@@ -40,6 +43,24 @@ export class DoctorsController {
       updateDoctorDto.id,
       updateDoctorDto,
     );
+  }
+
+  @MessagePattern(DoctorPatterns.UPDATE_BUSINESS_HOURS)
+  async updateBusinessHours(
+    @Payload('data') businessHoursDto: BusinessHoursDto & { id: string },
+  ) {
+    return await this.doctorsService.updateBusinessHours(
+      businessHoursDto.id,
+      businessHoursDto,
+    );
+  }
+
+  @MessagePattern(DoctorPatterns.UPDATE_EDUCATION)
+  async updateEducation(
+    @Payload('data') data: UpdateDoctorEducationDto & { id: string },
+  ) {
+    const { id, education } = data;
+    return this.doctorsService.updateEducation(id, education);
   }
 
   @MessagePattern(DoctorPatterns.UPDATE_SETTINGS)

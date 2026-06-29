@@ -4,6 +4,7 @@ import {
   BaseClass,
   DoctorsGender,
   SettingsDto,
+  BusinessHoursDto,
 } from '@medicpadi-backend/contracts';
 
 @Entity()
@@ -79,16 +80,31 @@ export class Doctor extends BaseClass {
   };
 
   @Column({
-    type: 'varchar',
+    type: 'jsonb',
+    nullable: true,
+    default: [],
+  })
+  education: { institution: string; degree: string }[] = [];
+
+  @Column({
+    type: 'jsonb',
     nullable: true,
   })
-  placeOfWork?: string | null;
+  businessHours: BusinessHoursDto = {
+    monday: { start: 9, end: 17 },
+    tuesday: { start: 9, end: 17 },
+    wednesday: { start: 9, end: 17 },
+    thursday: { start: 9, end: 17 },
+    friday: { start: 9, end: 17 },
+    saturday: { start: 9, end: 17 },
+    sunday: { start: 'closed', end: 'closed' },
+  };
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  about?: string | null;
+  placeOfWork?: string | null;
 
   @Column({
     type: 'int',

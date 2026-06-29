@@ -24,6 +24,7 @@ export * from './lib/dtos/auth/reset-password.dto';
 // profile DTOs
 export * from './lib/dtos/profile/doctor/create-doctor.dto';
 export * from './lib/dtos/profile/doctor/update-doctor.dto';
+export * from './lib/dtos/profile/doctor/education-item.dto';
 export * from './lib/dtos/profile/admin/create-admin.dto';
 export * from './lib/dtos/profile/admin/update-admin.dto';
 export * from './lib/dtos/profile/patient/create-patient.dto';

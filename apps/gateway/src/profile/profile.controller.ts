@@ -37,6 +37,7 @@ import {
   BusinessHoursDto,
   PaginationDto,
   SettingsDto,
+  UpdateDoctorEducationDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import {
@@ -82,21 +83,34 @@ export class ProfileController {
       'Creates a role-specific profile for the authenticated user. The request body shape varies by role: use `CreatePatientDto`, `CreateDoctorDto`, `CreatePharmacyDto`, `CreateLaboratoryDto`, or `CreateAdminDto`.',
   })
   @ApiResponse({ status: 201, description: 'Profile created successfully.' })
-  @ApiResponse({ status: 400, description: 'Validation error or profile already exists.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error or profile already exists.',
+  })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   create(@Body() createProfileDto: ProfileDtoType) {
     return this.profileService.create(createProfileDto);
   }
 
   @Get()
-  @Roles(AuthRole.ADMIN, AuthRole.PATIENT)
+  @Roles(
+    AuthRole.ADMIN,
+    AuthRole.PATIENT,
+    AuthRole.CONSULTANT,
+    AuthRole.LAB,
+    AuthRole.PHARMACY,
+  )
   @ApiOperation({
     summary: 'List all profiles',
-    description: 'Returns a paginated list of profiles. Accessible by `admin` and `patient` roles.',
+    description:
+      'Returns a paginated list of profiles. Accessible by `admin` and `patient` roles.',
   })
   @ApiResponse({ status: 200, description: 'Paginated list of profiles.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — admin or patient role required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — admin or patient role required.',
+  })
   findAll(@Query() query: PaginationDto) {
     return this.profileService.findAll(query);
   }
@@ -106,7 +120,10 @@ export class ProfileController {
     summary: 'Get own profile',
     description: "Returns the authenticated user's own profile.",
   })
-  @ApiResponse({ status: 200, description: "The authenticated user's profile." })
+  @ApiResponse({
+    status: 200,
+    description: "The authenticated user's profile.",
+  })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   @ApiResponse({ status: 404, description: 'Profile not found.' })
   retrieve(@Req() request: RequestWithUser) {
@@ -116,10 +133,16 @@ export class ProfileController {
   @Get(':id')
   @ApiOperation({
     summary: 'Get a profile by ID',
-    description: 'Returns a single profile by its ID. Pass the `role` query parameter to look up the correct profile type.',
+    description:
+      'Returns a single profile by its ID. Pass the `role` query parameter to look up the correct profile type.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the profile to retrieve.' })
-  @ApiQuery({ name: 'role', required: false, description: 'Role type of the profile (e.g. `consultant`, `patient`, `pharmacy`, `lab`).' })
+  @ApiQuery({
+    name: 'role',
+    required: false,
+    description:
+      'Role type of the profile (e.g. `consultant`, `patient`, `pharmacy`, `lab`).',
+  })
   @ApiResponse({ status: 200, description: 'Profile found.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   @ApiResponse({ status: 404, description: 'Profile not found.' })
@@ -131,7 +154,7 @@ export class ProfileController {
   @ApiOperation({
     summary: 'Update own profile',
     description:
-      'Updates the authenticated user\'s profile. The request body shape varies by role: use the appropriate `Update*Dto` for the account type.',
+      "Updates the authenticated user's profile. The request body shape varies by role: use the appropriate `Update*Dto` for the account type.",
   })
   @ApiResponse({ status: 200, description: 'Profile updated successfully.' })
   @ApiResponse({ status: 400, description: 'Validation error.' })
@@ -174,8 +197,14 @@ export class ProfileController {
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'Profile picture uploaded. Returns `{ public_id, url }`.' })
-  @ApiResponse({ status: 400, description: 'File missing, wrong format, or exceeds 2 MB.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Profile picture uploaded. Returns `{ public_id, url }`.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'File missing, wrong format, or exceeds 2 MB.',
+  })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   @UseInterceptors(FileInterceptor('image'))
   async updateProfilePicture(
@@ -227,6 +256,30 @@ export class ProfileController {
     return this.profileService.updateSettings(request.user, settingsDto);
   }
 
+  @Patch('/education')
+  @Roles(AuthRole.CONSULTANT)
+  @ApiOperation({
+    summary: 'Update education history',
+    description:
+      'Replaces the education history for the authenticated consultant. Sends the full list of entries — each update overwrites the previous list.',
+  })
+  @ApiResponse({ status: 200, description: 'Education updated.' })
+  @ApiResponse({ status: 400, description: 'Validation error.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — consultant role required.',
+  })
+  async updateEducation(
+    @Body() educationDto: UpdateDoctorEducationDto,
+    @Req() request: RequestWithUser,
+  ) {
+    return this.profileService.updateEducation(
+      request.user,
+      educationDto.education,
+    );
+  }
+
   @Patch('/business-hours')
   @Roles(AuthRole.CONSULTANT, AuthRole.PHARMACY, AuthRole.LAB, AuthRole.ADMIN)
   @ApiOperation({
@@ -237,7 +290,10 @@ export class ProfileController {
   @ApiResponse({ status: 200, description: 'Business hours updated.' })
   @ApiResponse({ status: 400, description: 'Validation error.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — provider or admin role required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — provider or admin role required.',
+  })
   async updateBusinessHours(
     @Body() businessHoursDto: BusinessHoursDto,
     @Req() request: RequestWithUser,
