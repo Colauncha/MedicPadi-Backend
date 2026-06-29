@@ -18,7 +18,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
-import { Multer } from 'multer';
 import { ProfileService } from './profile.service';
 import {
   ProfileDtoType,
@@ -35,7 +34,7 @@ import {
   UpdateLaboratoryDto,
   AuthRole,
   BusinessHoursDto,
-  PaginationDto,
+  ProfileQueryDtoType,
   SettingsDto,
   UpdateDoctorEducationDto,
 } from '@medicpadi-backend/contracts';
@@ -111,7 +110,7 @@ export class ProfileController {
     status: 403,
     description: 'Insufficient permissions — admin or patient role required.',
   })
-  findAll(@Query() query: PaginationDto) {
+  findAll(@Query() query: ProfileQueryDtoType) {
     return this.profileService.findAll(query);
   }
 

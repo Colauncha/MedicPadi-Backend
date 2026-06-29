@@ -82,6 +82,24 @@ export class DoctorQueryDto extends PaginationDto {
   yearsOfService?: number;
 }
 
+// Pharmacy
+export class PharmacyQueryDto extends PaginationDto {
+  @ApiProperty({ description: 'Filter by years of service' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  yearsOfService?: number;
+}
+
+// Laboratory
+export class LaboratoryQueryDto extends PaginationDto {
+  @ApiProperty({ description: 'Filter by years of service' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  yearsOfService?: number;
+}
+
 // Pagination request - orders
 // Appointment
 export class AppointmentQueryDto extends OmitType(PaginationDto, ['role'] as const) {

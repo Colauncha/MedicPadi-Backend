@@ -5,7 +5,7 @@ import {
   BusinessHoursDto,
   CreatePharmacyDto,
   DoctorPatterns,
-  PaginationDto,
+  PharmacyQueryDto,
   PharmacyPatterns,
   ServiceError,
   SettingsDto,
@@ -22,7 +22,7 @@ export class PharmacyController {
   }
 
   @MessagePattern(PharmacyPatterns.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: PharmacyQueryDto) {
     return this.pharmacyService.findAll(query);
   }
 

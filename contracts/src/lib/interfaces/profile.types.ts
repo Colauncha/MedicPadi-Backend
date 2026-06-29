@@ -4,7 +4,7 @@ import { CreateDoctorDto } from '../dtos/profile/doctor/create-doctor.dto';
 import { UpdateDoctorDto } from '../dtos/profile/doctor/update-doctor.dto';
 import { CreateLaboratoryDto } from '../dtos/profile/laboratory/create-laboratory.dto';
 import { UpdateLaboratoryDto } from '../dtos/profile/laboratory/update-laboratory.dto';
-import { DoctorQueryDto, PaginationDto } from '../dtos/profile/pagination.dto';
+import { DoctorQueryDto, LaboratoryQueryDto, PaginationDto, PharmacyQueryDto } from '../dtos/profile/pagination.dto';
 import { CreatePatientDto } from '../dtos/profile/patient/create-patient.dto';
 import { UpdatePatientDto } from '../dtos/profile/patient/update-patient.dto';
 import { CreatePharmacyDto } from '../dtos/profile/pharmacy/create-pharmacy.dto';
@@ -25,4 +25,4 @@ export type UpdateProfileDtoType =
   | UpdatePharmacyDto
   | UpdateLaboratoryDto;
 
-export type ProfileQueryDtoType = DoctorQueryDto | PaginationDto;
+export type ProfileQueryDtoType = DoctorQueryDto | PharmacyQueryDto | LaboratoryQueryDto | PaginationDto;

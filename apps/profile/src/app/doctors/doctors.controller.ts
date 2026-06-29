@@ -7,7 +7,7 @@ import {
   CreateDoctorDto,
   DoctorPatterns,
   EducationItemDto,
-  PaginationDto,
+  DoctorQueryDto,
   SettingsDto,
   UpdateDoctorDto,
   UpdateDoctorEducationDto,
@@ -23,7 +23,7 @@ export class DoctorsController {
   }
 
   @MessagePattern(DoctorPatterns.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: DoctorQueryDto) {
     return this.doctorsService.findAll(query);
   }
 

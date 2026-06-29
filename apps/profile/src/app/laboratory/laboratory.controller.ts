@@ -5,7 +5,7 @@ import {
   BusinessHoursDto,
   CreateLaboratoryDto,
   LaboratoryPatterns,
-  PaginationDto,
+  LaboratoryQueryDto,
   ServiceError,
   SettingsDto,
   UpdateLaboratoryDto,
@@ -21,7 +21,7 @@ export class LaboratoryController {
   }
 
   @MessagePattern(LaboratoryPatterns.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: LaboratoryQueryDto) {
     return this.laboratoryService.findAll(query);
   }
 

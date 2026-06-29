@@ -3,7 +3,7 @@ import {
   AuthPatterns,
   BusinessHoursDto,
   CreateLaboratoryDto,
-  PaginationDto,
+  LaboratoryQueryDto,
   PaginationResponseDto,
   ServiceError,
   SettingsDto,
@@ -12,7 +12,7 @@ import {
 import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 import { Laboratory } from '../../entities/laboratory.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { FindOptionsOrderValue, FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
@@ -47,22 +47,36 @@ export class LaboratoryService {
   }
 
   async findAll(
-    query: PaginationDto,
+    query: LaboratoryQueryDto,
   ): Promise<PaginationResponseDto<Laboratory>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
+    const { id, order, search, yearsOfService } = query;
     try {
+      const baseFilter: FindOptionsWhere<Laboratory> = {};
+      if (yearsOfService) baseFilter.yearsOfService = yearsOfService;
+
+      let where: FindOptionsWhere<Laboratory> | FindOptionsWhere<Laboratory>[];
+      if (search) {
+        where = [
+          { ...baseFilter, name: ILike(`%${search}%`) },
+          { ...baseFilter, registrationNumber: ILike(`%${search}%`) },
+          { ...baseFilter, address: ILike(`%${search}%`) },
+        ];
+      } else if (id) {
+        where = [
+          { ...baseFilter, id },
+          { ...baseFilter, user_id: id },
+        ];
+      } else {
+        where = baseFilter;
+      }
+
       const [data, total] = await this.labRepository.findAndCount({
+        where,
         take: limit,
         skip: (page - 1) * limit,
-        where: query.search
-          ? [
-              { name: ILike(`%${query.search}%`) },
-              { registrationNumber: ILike(`%${query.search}%`) },
-              { address: ILike(`%${query.search}%`) },
-            ]
-          : {},
-        order: { createdAt: 'DESC' },
+        order: { createdAt: order as FindOptionsOrderValue },
       });
       return buildPaginationResponse(data, total, page, limit);
     } catch (error) {

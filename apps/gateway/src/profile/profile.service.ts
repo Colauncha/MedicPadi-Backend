@@ -4,12 +4,14 @@ import {
   UpdateProfileDtoType,
   AuthPatterns,
   BusinessHoursDto,
-  PaginationDto,
   AuthRole,
   GetAuthDto,
   SettingsDto,
 } from '@medicpadi-backend/contracts';
-import type { EducationItemDto } from '@medicpadi-backend/contracts';
+import type {
+  EducationItemDto,
+  ProfileQueryDtoType,
+} from '@medicpadi-backend/contracts';
 import { getPatternFromRole, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -26,20 +28,25 @@ export class ProfileService {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   create(createProfileDto: ProfileDtoType) {
     return createProfileDto;
   }
 
-  async findAll(query: PaginationDto) {
+  async findAll(query: ProfileQueryDtoType) {
     try {
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(
         query.role || AuthRole.PATIENT,
       );
       return await firstValueFrom(
-        this.profileClient.send(Pattern.FIND_ALL, withServiceAuth(query, this.serviceToken)),
+        this.profileClient.send(
+          Pattern.FIND_ALL,
+          withServiceAuth(query, this.serviceToken),
+        ),
       );
     } catch (error) {
       logError(error, `${ProfileService.name}.findAll`);
@@ -51,7 +58,10 @@ export class ProfileService {
     try {
       const token = this.serviceToken;
       let user = await firstValueFrom(
-        this.authClient.send(AuthPatterns.FIND_BY_ID, withServiceAuth(id, token)),
+        this.authClient.send(
+          AuthPatterns.FIND_BY_ID,
+          withServiceAuth(id, token),
+        ),
       );
       let { passwordhash, ...rest } = user;
       user = rest as GetAuthDto;
@@ -74,7 +84,10 @@ export class ProfileService {
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(role);
 
       const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.RETRIEVE, withServiceAuth(id, this.serviceToken)),
+        this.profileClient.send(
+          Pattern.RETRIEVE,
+          withServiceAuth(id, this.serviceToken),
+        ),
       );
       return { profile };
     } catch (error) {
@@ -89,7 +102,13 @@ export class ProfileService {
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(user.role);
 
       const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.UPDATE, withServiceAuth({ id: user.id, ...updateProfileDto }, this.serviceToken)),
+        this.profileClient.send(
+          Pattern.UPDATE,
+          withServiceAuth(
+            { id: user.id, ...updateProfileDto },
+            this.serviceToken,
+          ),
+        ),
       );
       return profile;
     } catch (error) {
@@ -105,7 +124,13 @@ export class ProfileService {
       const { pattern: Pattern, dto: _ } = await getPatternFromRole(user.role);
 
       const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.UPDATE_BUSINESS_HOURS, withServiceAuth({ id: user.id, ...businessHoursDto }, this.serviceToken)),
+        this.profileClient.send(
+          Pattern.UPDATE_BUSINESS_HOURS,
+          withServiceAuth(
+            { id: user.id, ...businessHoursDto },
+            this.serviceToken,
+          ),
+        ),
       );
       return profile;
     } catch (error) {
