@@ -8,6 +8,8 @@ import {
   IsArray,
   IsObject,
   ValidateNested,
+  IsDecimal,
+  IsDateString,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import {
@@ -57,6 +59,21 @@ export class CreatePatientDto {
   @MinLength(3, { each: true })
   @IsOptional()
   allergies?: string[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDecimal()
+  height?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDecimal()
+  weight?: number;
+
+  @ApiPropertyOptional({ type: 'string', format: 'date' })
+  @IsOptional()
+  @IsDateString()
+  dateOfBirth?: Date | String;
 
   @ApiPropertyOptional()
   @IsString()

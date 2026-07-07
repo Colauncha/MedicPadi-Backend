@@ -58,6 +58,28 @@ export class Patient extends BaseClass {
   allergies?: string[];
 
   @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
+  height?: number | null;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
+  weight?: number | null;
+
+  @Column({
+    type: 'date',
+    nullable: true,
+  })
+  dateOfBirth?: Date | String | null;
+
+  @Column({
     type: 'varchar',
     nullable: true,
     length: 14,

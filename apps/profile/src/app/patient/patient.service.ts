@@ -108,6 +108,7 @@ export class PatientService {
     const isProfileComplete =
       !!profile?.firstName &&
       !!profile?.lastName &&
+      !!profile?.dateOfBirth &&
       !!profile?.phoneNumber &&
       !!profile?.emergencyContact &&
       !!profile?.profilePicture?.url &&
