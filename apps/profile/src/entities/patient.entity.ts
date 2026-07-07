@@ -51,7 +51,7 @@ export class Patient extends BaseClass {
   genotype?: Genotype;
 
   @Column({
-    type: 'json',
+    type: 'text',
     array: true,
     nullable: true,
   })
