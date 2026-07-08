@@ -207,7 +207,10 @@ export class AppointmentService {
           message: 'Appointment not found',
         } as ServiceError);
       }
-      if (appointment.paymentStatus === AppointmentPaymentStatus.P_PENDING) {
+      if (
+        appointment.status === AppointmentStatus.CONFIRMED &&
+        appointment.paymentStatus === AppointmentPaymentStatus.P_PENDING
+      ) {
         const token = this.serviceToken;
         const transaction = await firstValueFrom(
           this.transactionsClient.send(
@@ -224,6 +227,9 @@ export class AppointmentService {
           reference: transaction.gateway_reference,
           access_code: transaction.access_code,
         };
+      } else if (appointment.status === AppointmentStatus.PENDING) {
+        const { meeting_link, join_link, meeting_id, ...rest } = appointment;
+        return rest;
       }
       return appointment;
     } catch (error) {
