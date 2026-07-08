@@ -218,6 +218,7 @@ export class AppointmentService {
             withServiceAuth(appointment.id, token),
           ),
         );
+        const { meeting_link, join_link, meeting_id, ...rest } = appointment;
         let gatewayUrl =
           transaction.gateway === PaymentGateway.PAYSTACK
             ? 'https://checkout.paystack.com'
@@ -228,6 +229,7 @@ export class AppointmentService {
           access_code: transaction.access_code,
           total_amount: transaction.amount,
           currency: transaction.currency,
+          ...rest,
         };
       } else if (appointment.status === AppointmentStatus.PENDING) {
         const { meeting_link, join_link, meeting_id, ...rest } = appointment;
