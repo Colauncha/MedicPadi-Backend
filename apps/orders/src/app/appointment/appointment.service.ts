@@ -226,6 +226,8 @@ export class AppointmentService {
           authorization_url: `${gatewayUrl}/${transaction.access_code}`,
           reference: transaction.gateway_reference,
           access_code: transaction.access_code,
+          total_amount: transaction.amount,
+          currency: transaction.currency,
         };
       } else if (appointment.status === AppointmentStatus.PENDING) {
         const { meeting_link, join_link, meeting_id, ...rest } = appointment;
