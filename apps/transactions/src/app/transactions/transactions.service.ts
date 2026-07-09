@@ -178,6 +178,8 @@ export class TransactionsService {
         },
       );
       const data: PaystackVerifyResponse = await response.json();
+      console.log('Paystack raw json:', await response.json());
+      console.log('Server processed data:', data);
 
       if (!data.status) {
         throw new RpcException({
@@ -189,6 +191,7 @@ export class TransactionsService {
       const transaction = await this.transactionRepo.findOne({
         where: { gateway_reference: reference },
       });
+      console.log('Transaction:', transaction);
 
       if (transaction) {
         const newStatus =
