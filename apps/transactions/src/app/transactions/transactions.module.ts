@@ -39,8 +39,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: configService.get('appConfig.orderServiceHost'),
-            port: configService.get<number>('appConfig.orderServicePort'),
+            host: configService.get('appConfig.ordersServiceHost'),
+            port: configService.get<number>('appConfig.ordersServicePort'),
           },
         }),
         inject: [ConfigService],

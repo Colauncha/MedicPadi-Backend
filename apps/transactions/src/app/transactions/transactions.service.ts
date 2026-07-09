@@ -162,7 +162,7 @@ export class TransactionsService {
     }
   }
 
-  async verify(reference: string) {
+  async verify(reference: string, partial: boolean = false) {
     try {
       const paystackUrl = this.configService.get<string>(
         'paystackConfig.paystackApiUrl',
@@ -203,6 +203,22 @@ export class TransactionsService {
         });
       }
 
+      if (partial) return data;
+
+      console.log('Full method invoked');
+      if (data.data.status === 'success') {
+        const sourcePatterns = transaction?.source_type
+          ? (this.tranxSourceMap[transaction.source_type] as any)
+          : null;
+        if (sourcePatterns?.COMPLETE_PAYMENT) {
+          await firstValueFrom(
+            this.orderClient.emit(
+              sourcePatterns.COMPLETE_PAYMENT,
+              withServiceAuth(transaction?.source_id, this.serviceToken),
+            ),
+          );
+        }
+      }
       return data;
     } catch (error) {
       logError(error, `${TransactionsService.name}.verify`);
@@ -223,9 +239,9 @@ export class TransactionsService {
 
     try {
       const reference = payload.data?.reference as string;
-      const verifyData = await this.verify(reference);
+      const verifyData = await this.verify(reference, true);
 
-      if (verifyData.data.status === 'success') {
+      if (verifyData && verifyData.data.status === 'success') {
         let existingTranx = await this.transactionRepo.findOne({
           where: { gateway_reference: reference },
         });
