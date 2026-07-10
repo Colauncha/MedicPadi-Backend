@@ -60,6 +60,7 @@ export class ZoomService {
           meeting_id: response.data.id,
           start_time: response.data.start_time,
           start_url: response.data.start_url,
+          meeting_password: response.data.password,
         };
       }
     } catch (error) {

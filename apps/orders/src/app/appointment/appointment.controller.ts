@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   AppointmentQueryDto,
+  AuthRole,
   CreateAppointmentDto,
   OrderPatterns,
   UpdateAppointmentDto,
@@ -40,6 +41,11 @@ export class AppointmentController {
   @EventPattern(OrderPatterns.APPOINTMENTS.COMPLETE_PAYMENT)
   completePayment(@Payload('data') id: string) {
     return this.appointmentService.completePayment(id);
+  }
+
+  @MessagePattern(OrderPatterns.APPOINTMENTS.GET_SIGNATURE)
+  getSignature(@Payload('data') dto: { id: string; role: AuthRole }) {
+    return this.appointmentService.getSignature(dto.id, dto.role);
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.DELETE)

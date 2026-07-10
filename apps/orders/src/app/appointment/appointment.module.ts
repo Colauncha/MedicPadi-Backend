@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Appointment } from '../../entities/appointment.entity';
 import { AppointmentController } from './appointment.controller';
 import { AppointmentService } from './appointment.service';
+import { JwtModule } from '@nestjs/jwt';
 import { ZoomService } from './providers/zoom.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
@@ -10,6 +11,15 @@ import { ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Appointment]),
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        secret: config.get<string>('serviceConfig.jwtSecret'),
+        signOptions: {
+          expiresIn: 60 * 60,
+        },
+      }),
+    }),
     ClientsModule.registerAsync([
       {
         name: 'PROFILE_SERVICE',
@@ -28,7 +38,9 @@ import { ConfigService } from '@nestjs/config';
           transport: Transport.TCP,
           options: {
             host: configService.get('appConfig.transactionsServiceHost'),
-            port: configService.get<number>('appConfig.transactionsServicePort'),
+            port: configService.get<number>(
+              'appConfig.transactionsServicePort',
+            ),
           },
         }),
         inject: [ConfigService],
@@ -50,7 +62,9 @@ import { ConfigService } from '@nestjs/config';
           transport: Transport.TCP,
           options: {
             host: configService.get('appConfig.notificationServiceHost'),
-            port: configService.get<number>('appConfig.notificationServicePort'),
+            port: configService.get<number>(
+              'appConfig.notificationServicePort',
+            ),
           },
         }),
         inject: [ConfigService],

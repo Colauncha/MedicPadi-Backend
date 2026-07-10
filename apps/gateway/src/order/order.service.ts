@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  AuthRole,
   OrderPatterns,
   CreateAppointmentDto,
   UpdateAppointmentDto,
@@ -98,6 +99,15 @@ export class OrderService {
       this.orderClient.send(
         OrderPatterns.APPOINTMENTS.DELETE,
         withServiceAuth(id, this.serviceToken),
+      ),
+    );
+  }
+
+  async getAppointmentSignature(id: string, role: AuthRole) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.GET_SIGNATURE,
+        withServiceAuth({ id, role }, this.serviceToken),
       ),
     );
   }

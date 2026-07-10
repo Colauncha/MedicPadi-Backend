@@ -5,6 +5,10 @@ const zoomConfig = registerAs('zoomConfig', () => ({
   clientId: process.env['ZOOM_CLIENT_ID'],
   clientSecret: process.env['ZOOM_CLIENT_SECRET'],
 
+  // sdk credentials
+  sdkClientId: process.env['ZOOM_SDK_CLIENT_ID'],
+  sdkClientSecret: process.env['ZOOM_SDK_CLIENT_SECRET'],
+
   zoomAuthUrl: process.env['ZOOM_AUTH_URL'] || 'https://zoom.us/oauth/token',
   zoomApiUrl: process.env['ZOOM_API_URL'] || 'https://api.zoom.us/v2',
 }));

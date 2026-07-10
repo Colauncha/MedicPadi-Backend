@@ -23,12 +23,14 @@ import {
   PaystackInitializeResponse,
   AppointmentPaymentStatus,
   TransactionPatterns,
+  AuthRole,
 } from '@medicpadi-backend/contracts';
 import { buildPaginationResponse, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { Appointment } from '../../entities/appointment.entity';
 import { ZoomService } from './providers/zoom.service';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AppointmentService {
@@ -38,6 +40,7 @@ export class AppointmentService {
     @InjectRepository(Appointment)
     private readonly appointmentRepo: Repository<Appointment>,
     private readonly dataSource: DataSource,
+    private readonly jwtService: JwtService,
     @Inject() private readonly zoomService: ZoomService,
     @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
     @Inject('TRANSACTIONS_SERVICE')
@@ -52,6 +55,19 @@ export class AppointmentService {
     return this.configService.getOrThrow<string>(
       'appConfig.internalServiceToken',
     );
+  }
+
+  private get sdkCredentials(): Record<string, string> {
+    let sdkKey = this.configService.getOrThrow<string>(
+      'zoomConfig.sdkClientId',
+    );
+    let sdkSecret = this.configService.getOrThrow<string>(
+      'zoomConfig.sdkClientSecret',
+    );
+    return {
+      sdkKey,
+      sdkSecret,
+    };
   }
 
   private get serverUrls(): { frontend: string; backend: string } {
@@ -123,12 +139,25 @@ export class AppointmentService {
       }
 
       zoomMeetingId = meeting.meeting_id;
-      dto.meeting_link = meeting.start_url;
-      dto.meeting_id = meeting.meeting_id;
-      dto.join_link = meeting.join_url;
-      dto.sessionCost = doctor.costPerSession * dto.sessions;
 
-      const appointment = queryRunner.manager.create(Appointment, { ...dto });
+      type ZoomResponse = {
+        meeting_id: number;
+        meeting_link: string;
+        join_link: string;
+        meeting_password: string;
+      };
+      type AppointmentDataType = CreateAppointmentDto & ZoomResponse;
+      const appointmentData: AppointmentDataType = {
+        ...dto,
+        meeting_password: meeting.meeting_password,
+        meeting_id: meeting.meeting_id,
+        meeting_link: meeting.start_url,
+        join_link: meeting.join_url,
+        sessionCost: doctor.costPerSession * dto.sessions,
+      };
+      const appointment = queryRunner.manager.create(Appointment, {
+        ...appointmentData,
+      });
       const savedAppointment = await queryRunner.manager.save(appointment);
 
       await queryRunner.commitTransaction();
@@ -145,7 +174,8 @@ export class AppointmentService {
         withServiceAuth(eventDto, token),
       );
 
-      const { join_link, meeting_id, meeting_link, ...rest } = savedAppointment;
+      const { join_link, meeting_id, meeting_link, meeting_password, ...rest } =
+        savedAppointment;
       return rest;
     } catch (error) {
       logError(error, `${AppointmentService.name}.create`);
@@ -177,8 +207,13 @@ export class AppointmentService {
     if (paymentStatus) baseFilter.paymentStatus = paymentStatus;
     if (appointmentTime) baseFilter.appointment_time = appointmentTime;
 
-    const where: FindOptionsWhere<Appointment> | FindOptionsWhere<Appointment>[] = id
-      ? [{ ...baseFilter, patient_id: id }, { ...baseFilter, provider_id: id }]
+    const where:
+      | FindOptionsWhere<Appointment>
+      | FindOptionsWhere<Appointment>[] = id
+      ? [
+          { ...baseFilter, patient_id: id },
+          { ...baseFilter, provider_id: id },
+        ]
       : baseFilter;
 
     try {
@@ -368,6 +403,53 @@ export class AppointmentService {
         : new RpcException({
             statusCode: HttpStatus.REQUEST_TIMEOUT,
             message: 'Unable to complete appointment payment',
+            error: error instanceof Error ? error.message : String(error),
+          } as ServiceError);
+    }
+  }
+
+  async getSignature(id: string, role: AuthRole) {
+    try {
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Appointment not found',
+        } as ServiceError);
+      }
+      if (!existing.meeting_id) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'No Zoom meeting exists for this appointment',
+        } as ServiceError);
+      }
+
+      const iat = Math.round(Date.now() / 1000) - 30;
+      const exp = iat + 60 * 60 * 0.5;
+
+      const { sdkKey, sdkSecret } = this.sdkCredentials;
+      const payload = {
+        appKey: sdkKey,
+        sdkKey: sdkKey,
+        mn: existing.meeting_id,
+        role: role === AuthRole.CONSULTANT ? 1 : 0, // 0 = attendee (patient), 1 = host (provider)
+        iat: iat,
+        exp: exp,
+        tokenExp: exp,
+      };
+
+      const signature = this.jwtService.sign(payload, {
+        secret: sdkSecret,
+        algorithm: 'HS256',
+      });
+      return { signature };
+    } catch (error) {
+      logError(error, `${AppointmentService.name}.getSignature`);
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Unable to generate meeting signature',
             error: error instanceof Error ? error.message : String(error),
           } as ServiceError);
     }

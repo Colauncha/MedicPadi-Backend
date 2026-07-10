@@ -30,6 +30,9 @@ export class Appointment extends BaseClass {
   @Column({ type: 'bigint', nullable: true })
   meeting_id?: number;
 
+  @Column({ type: 'text', nullable: true })
+  meeting_password?: string;
+
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   sessionCost?: number;
 

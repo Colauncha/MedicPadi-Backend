@@ -146,6 +146,25 @@ export class OrderController {
     return this.orderService.removeAppointment(id);
   }
 
+  @Get('/appointments/:id/signature')
+  @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get a Zoom meeting SDK signature',
+    description:
+      'Generates a signed JWT for the Zoom Meeting SDK so the caller can join the appointment video call. Accessible by `patient`, `consultant`, and `admin` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the appointment.' })
+  @ApiResponse({ status: 200, description: 'Signature generated.' })
+  @ApiResponse({ status: 400, description: 'No Zoom meeting on this appointment.' })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({ status: 404, description: 'Appointment not found.' })
+  getAppointmentSignature(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.orderService.getAppointmentSignature(id, req.user.role);
+  }
+
   // ──────────────────────────────────────────────
   // Prescriptions
   // ──────────────────────────────────────────────
