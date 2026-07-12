@@ -326,6 +326,12 @@ export class AppointmentService {
           message: 'Appointment not found',
         } as ServiceError);
       }
+      if (existing.status === AppointmentStatus.CONFIRMED) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Appointment accepted already.',
+        } as ServiceError);
+      }
       existing.status = AppointmentStatus.CONFIRMED;
       await this.appointmentRepo.save(existing);
 
@@ -425,7 +431,7 @@ export class AppointmentService {
       }
 
       const iat = Math.round(Date.now() / 1000) - 30;
-      const exp = iat + 60 * 60 * 0.5;
+      const exp = iat + 60 * 60 * 2;
 
       const { sdkKey, sdkSecret } = this.sdkCredentials;
       const payload = {
