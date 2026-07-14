@@ -93,6 +93,12 @@ export class Pharmacy extends BaseClass {
   @OneToMany(() => Reviews, (review) => review.pharmacy)
   reviews!: Reviews[];
 
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   rating!: number;
+
+  @Column({
+    type: 'int',
+    nullable: true,
+  })
+  totalReviews?: number | null;
 }
