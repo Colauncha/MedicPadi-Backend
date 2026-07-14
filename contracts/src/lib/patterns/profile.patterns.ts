@@ -45,3 +45,11 @@ export const LaboratoryPatterns = {
   UPDATE_BUSINESS_HOURS: 'profile.lab.updateBusinessHours',
   UPDATE_SETTINGS: 'profile.lab.updateSettings',
 };
+
+export const ReviewPatterns = {
+  CREATE: 'profile.review.create',
+  UPDATE: 'profile.review.update',
+  RETRIEVE: 'profile.review.retrieve',
+  FIND_ALL: 'profile.review.findAll',
+  REMOVE: 'profile.review.remove',
+};

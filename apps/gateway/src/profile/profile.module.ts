@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
+import { ReviewsController } from './reviews/reviews.controller';
+import { ReviewsService } from './reviews/reviews.service';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { CloudinaryModule } from '@medicpadi-backend/utils';
@@ -33,7 +35,7 @@ import { CloudinaryModule } from '@medicpadi-backend/utils';
     ]),
     CloudinaryModule,
   ],
-  controllers: [ProfileController],
-  providers: [ProfileService],
+  controllers: [ProfileController, ReviewsController],
+  providers: [ProfileService, ReviewsService],
 })
 export class ProfileModule {}

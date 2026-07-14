@@ -1,5 +1,6 @@
 import { BaseClass, BusinessHoursDto, SettingsDto } from '@medicpadi-backend/contracts';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { Reviews } from './reviews';
 
 @Entity()
 export class Pharmacy extends BaseClass {
@@ -88,4 +89,10 @@ export class Pharmacy extends BaseClass {
     default: false,
   })
   isProfileComplete: boolean = false;
+
+  @OneToMany(() => Reviews, (review) => review.pharmacy)
+  reviews!: Reviews[];
+
+  @Column({ type: 'float', nullable: false })
+  rating!: number;
 }

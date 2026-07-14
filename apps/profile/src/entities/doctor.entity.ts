@@ -1,4 +1,4 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import {
   DoctorsSpecialies,
   BaseClass,
@@ -6,6 +6,7 @@ import {
   SettingsDto,
   BusinessHoursDto,
 } from '@medicpadi-backend/contracts';
+import { Reviews } from './reviews';
 
 @Entity()
 export class Doctor extends BaseClass {
@@ -129,4 +130,10 @@ export class Doctor extends BaseClass {
     default: false,
   })
   isProfileComplete: boolean = false;
+
+  @OneToMany(() => Reviews, (review) => review.doctor)
+  reviews!: Reviews[];
+
+  @Column({ type: 'float', nullable: false })
+  rating!: number;
 }

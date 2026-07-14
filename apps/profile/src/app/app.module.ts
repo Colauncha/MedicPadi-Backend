@@ -10,11 +10,13 @@ import { LaboratoryModule } from './laboratory/laboratory.module';
 import { PharmacyModule } from './pharmacy/pharmacy.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { PatientModule } from './patient/patient.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { Admin } from '../entities/admin.entity';
 import { Pharmacy } from '../entities/pharmacy.entity';
 import { Doctor } from '../entities/doctor.entity';
 import { Laboratory } from '../entities/laboratory.entity';
 import { Patient } from '../entities/patient.entity';
+import { Reviews } from '../entities/reviews';
 
 @Module({
   imports: [
@@ -34,7 +36,7 @@ import { Patient } from '../entities/patient.entity';
         console.log('Database configuration:', configService.get('dbConfig'));
         return {
           type: 'postgres',
-          entities: [Admin, Pharmacy, Doctor, Laboratory, Patient],
+          entities: [Admin, Pharmacy, Doctor, Laboratory, Patient, Reviews],
           migrations: [__dirname + '/database/migrations/*.ts'],
           host: configService.get<string>('dbConfig.host'),
           port: configService.get<number>('dbConfig.port'),
@@ -54,6 +56,7 @@ import { Patient } from '../entities/patient.entity';
     PharmacyModule,
     DoctorsModule,
     PatientModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

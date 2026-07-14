@@ -6,7 +6,8 @@ import {
   PatientGender,
   SettingsDto,
 } from '@medicpadi-backend/contracts';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { Reviews } from './reviews';
 
 @Entity()
 export class Patient extends BaseClass {
@@ -119,4 +120,7 @@ export class Patient extends BaseClass {
     default: false,
   })
   isProfileComplete: boolean = false;
+
+  @OneToMany(() => Reviews, (review) => review.reviewer)
+  reviewsWritten!: Reviews[];
 }

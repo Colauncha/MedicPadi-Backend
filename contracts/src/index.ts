@@ -12,6 +12,7 @@ export * from './lib/enums/payment-status.enum';
 export * from './lib/enums/notification.enum';
 export * from './lib/enums/ehr.enum';
 export * from './lib/enums/transaction.enum';
+export * from './lib/enums/reviews.enum';
 
 // DTOs
 // auth DTOs
@@ -34,6 +35,8 @@ export * from './lib/dtos/profile/pharmacy/update-pharmacy.dto';
 export * from './lib/dtos/profile/laboratory/create-laboratory.dto';
 export * from './lib/dtos/profile/laboratory/update-laboratory.dto';
 export * from './lib/dtos/profile/update-business-hours.dto';
+export * from './lib/dtos/profile/review/create-review.dto';
+export * from './lib/dtos/profile/review/update-review.dto';
 export * from './lib/dtos/profile/pagination.dto';
 export * from './lib/dtos/profile/settings.dto';
 export * from './lib/dtos/profile/next-of-kin.dto';

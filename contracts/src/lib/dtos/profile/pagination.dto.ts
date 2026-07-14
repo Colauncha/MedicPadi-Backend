@@ -19,6 +19,7 @@ import { PrescriptionStatus } from '../../enums/prescription-status.enum';
 import { RequisitionStatus } from '../../enums/requisition-status.enum';
 import { PaymentStatus } from '../../enums/payment-status.enum';
 import { DoctorsGender, DoctorsSpecialies } from '../../enums/doctor.enum';
+import { ReviewedProfileType } from '../../enums/reviews.enum';
 
 export class PaginationDto {
   @ApiProperty({ description: 'Number of records per page', default: 10 })
@@ -98,6 +99,19 @@ export class LaboratoryQueryDto extends PaginationDto {
   @Type(() => Number)
   @IsNumber()
   yearsOfService?: number;
+}
+
+// Pagination request - profiles
+// Review
+export class ReviewQueryDto extends PaginationDto {
+  @ApiProperty({
+    description:
+      'Filter by reviewed profile type. When set together with `id`, `id` is matched against that profile type.',
+    enum: ReviewedProfileType,
+  })
+  @IsOptional()
+  @IsEnum(ReviewedProfileType)
+  profile_type?: ReviewedProfileType;
 }
 
 // Pagination request - orders
