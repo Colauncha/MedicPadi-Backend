@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Reviews } from '../../entities/reviews';
+import { Reviews } from '../../entities/reviews.entity';
 import {
   FindOptionsOrderValue,
   FindOptionsWhere,

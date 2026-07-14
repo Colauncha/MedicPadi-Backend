@@ -112,6 +112,15 @@ export class OrderService {
     );
   }
 
+  async completeAppointment(id: string) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.COMPLETE_APPOINTMENT,
+        withServiceAuth({ id }, this.serviceToken),
+      ),
+    );
+  }
+
   // Prescriptions
 
   async createPrescription(dto: CreatePrescriptionDto) {

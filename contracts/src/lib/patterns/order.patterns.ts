@@ -8,6 +8,7 @@ export const OrderPatterns = {
     DELETE: 'orders.appointments.delete',
     ACCEPT: 'orders.appointments.accept',
     COMPLETE_PAYMENT: 'orders.appointments.completePayment',
+    COMPLETE_APPOINTMENT: 'orders.appointments.completeAppointment',
     GET_SIGNATURE: 'orders.appointments.getSignature',
   },
   PRESCRIPTIONS: {

@@ -6,7 +6,7 @@ import {
   SettingsDto,
   BusinessHoursDto,
 } from '@medicpadi-backend/contracts';
-import { Reviews } from './reviews';
+import { Reviews } from './reviews.entity';
 
 @Entity()
 export class Doctor extends BaseClass {

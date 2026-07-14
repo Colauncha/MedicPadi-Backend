@@ -39,6 +39,9 @@ export class Appointment extends BaseClass {
   @Column({ type: 'int', nullable: true, default: 1 })
   sessions?: number;
 
+  @Column({ type: 'int', nullable: true, default: 30 })
+  sessionLen?: number;
+
   @Column({
     type: 'enum',
     enum: AppointmentStatus,

@@ -154,6 +154,7 @@ export class AppointmentService {
         meeting_link: meeting.start_url,
         join_link: meeting.join_url,
         sessionCost: doctor.costPerSession * dto.sessions,
+        sessionLen: doctor.sessionLength || 30,
       };
       const appointment = queryRunner.manager.create(Appointment, {
         ...appointmentData,
@@ -429,6 +430,22 @@ export class AppointmentService {
           message: 'No Zoom meeting exists for this appointment',
         } as ServiceError);
       }
+      const now = Date.now();
+      const apptTimestamp =
+        existing.appointment_time instanceof Date
+          ? existing.appointment_time.getTime()
+          : Number(existing.appointment_time);
+      const sessionLenMs =
+        typeof existing.sessionLen === 'number' ? existing.sessionLen : 30;
+      const elapsedAppointmentTime = apptTimestamp + sessionLenMs * 1000 * 60;
+
+      if (now >= elapsedAppointmentTime) {
+        // Reschedule or refund
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Appointed time elapsed, reschedule or request a refund',
+        } as ServiceError);
+      }
 
       const iat = Math.round(Date.now() / 1000) - 30;
       const exp = iat + 60 * 60 * 2;
@@ -470,10 +487,10 @@ export class AppointmentService {
           message: 'Appointment not found',
         } as ServiceError);
       }
-      if (existing.paymentStatus !== AppointmentPaymentStatus.P_CONFIRMED) {
+      if (existing.status === AppointmentStatus.COMPLETED) {
         throw new RpcException({
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Payment not confirmed for this appointment',
+          message: 'Appointment already completed.',
         } as ServiceError);
       }
       existing.status = AppointmentStatus.COMPLETED;

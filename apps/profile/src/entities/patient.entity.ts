@@ -7,7 +7,7 @@ import {
   SettingsDto,
 } from '@medicpadi-backend/contracts';
 import { Column, Entity, OneToMany } from 'typeorm';
-import { Reviews } from './reviews';
+import { Reviews } from './reviews.entity';
 
 @Entity()
 export class Patient extends BaseClass {

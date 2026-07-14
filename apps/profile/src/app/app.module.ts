@@ -16,7 +16,7 @@ import { Pharmacy } from '../entities/pharmacy.entity';
 import { Doctor } from '../entities/doctor.entity';
 import { Laboratory } from '../entities/laboratory.entity';
 import { Patient } from '../entities/patient.entity';
-import { Reviews } from '../entities/reviews';
+import { Reviews } from '../entities/reviews.entity';
 
 @Module({
   imports: [

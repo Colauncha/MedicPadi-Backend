@@ -41,6 +41,6 @@ export class Reviews extends BaseClass {
   @JoinColumn({ name: 'reviewer_id' })
   reviewer!: Patient;
 
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   rating!: number;
 }

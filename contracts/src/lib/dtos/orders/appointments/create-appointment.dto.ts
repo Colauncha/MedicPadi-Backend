@@ -53,4 +53,9 @@ export class CreateAppointmentDto {
   @IsOptional()
   @IsNumber()
   sessions: number = 1;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  sessionLen: number = 30;
 }
