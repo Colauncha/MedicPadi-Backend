@@ -65,10 +65,22 @@ export class AuthService {
       createAuthDto.role.startsWith('lab')
         ? createAuthDto.fullName
         : undefined;
+
     try {
-      const profile = await firstValueFrom(
-        this.profileClient.send(Pattern.CREATE, withServiceAuth(Dto, token)),
-      );
+      let profile: any;
+      if (
+        createAuthDto.role.startsWith('pharmacy') ||
+        createAuthDto.role.startsWith('lab')
+      ) {
+        const { firstName, lastName, ...rest } = Dto;
+        profile = await firstValueFrom(
+          this.profileClient.send(Pattern.CREATE, withServiceAuth(rest, token)),
+        );
+      } else {
+        profile = await firstValueFrom(
+          this.profileClient.send(Pattern.CREATE, withServiceAuth(Dto, token)),
+        );
+      }
 
       // Create wallet for the new user (fire-and-forget; non-blocking)
       const walletDto: CreateWalletDto = { user_id: user.id };

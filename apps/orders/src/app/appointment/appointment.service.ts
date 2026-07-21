@@ -495,6 +495,7 @@ export class AppointmentService {
       }
       existing.status = AppointmentStatus.COMPLETED;
       await this.appointmentRepo.save(existing);
+      return { success: true, message: 'Appointment completed successfully' };
     } catch (error) {
       logError(error, `${AppointmentService.name}.completeAppointment`);
       throw error instanceof RpcException
