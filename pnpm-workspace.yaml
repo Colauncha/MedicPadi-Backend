@@ -1,1 +1,13 @@
 autoInstallPeers: true
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  es5-ext: true
+  msgpackr-extract: true
+  nx: true
+  protobufjs: true
+  unrs-resolver: true
+
+  # Scarf is telemetry-related; only enable if you actually want its
+  # install script to execute.
+  '@scarf/scarf': false

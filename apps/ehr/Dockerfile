@@ -5,9 +5,8 @@ RUN npm i -g pnpm
 WORKDIR /app
 
 # Copy root package files
-COPY package.json pnpm-lock.yaml ./
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Install ALL production dependencies
 RUN pnpm install --frozen-lockfile
 
 COPY dist/apps/ehr .

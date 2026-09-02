@@ -8,9 +8,9 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install ALL production dependencies
-COPY package*.json ./
-# COPY pnpm-lock.yaml ./
-RUN pnpm install --no-frozen-lockfile
+COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+RUN pnpm install --frozen-lockfile
 
 COPY dist/apps/profile .
 
