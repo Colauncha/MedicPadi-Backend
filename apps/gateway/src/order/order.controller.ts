@@ -23,6 +23,7 @@ import {
   UpdateTestRequisitionDto,
   PaginationDto,
   DeclineTestRequisitionDto,
+  AppointmentQueryDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { Roles } from '../guards/decorators/roles.decorator';
@@ -78,7 +79,7 @@ export class OrderController {
   })
   @ApiResponse({ status: 200, description: 'Paginated list of appointments.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  findAllAppointments(@Query() query: PaginationDto) {
+  findAllAppointments(@Query() query: AppointmentQueryDto) {
     return this.orderService.findAllAppointments(query);
   }
 
