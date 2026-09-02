@@ -199,7 +199,7 @@ export class StatsService {
             SELECT a2.patient_id FROM appointments a2
             WHERE a2.provider_id = :pid
             GROUP BY a2.patient_id
-            HAVING MIN(a2.createdAt) >= :weekStart
+            HAVING MIN(a2.\"createdAt\") >= :weekStart
           )`,
           { pid: providerId, weekStart },
         )
@@ -328,7 +328,7 @@ export class StatsService {
             SELECT r2.patient_id FROM test_requisitions r2
             WHERE r2.lab_id = :labId
             GROUP BY r2.patient_id
-            HAVING MIN(r2.createdAt) >= :weekStart
+            HAVING MIN(r2.\"createdAt\") >= :weekStart
           )`,
           { labId, weekStart },
         )
@@ -437,7 +437,7 @@ export class StatsService {
             SELECT r2.patient_id FROM drug_requisitions r2
             WHERE r2.pharmacy_id = :pharmacyId
             GROUP BY r2.patient_id
-            HAVING MIN(r2.createdAt) >= :weekStart
+            HAVING MIN(r2.\"createdAt\") >= :weekStart
           )`,
           { pharmacyId, weekStart },
         )
