@@ -1,4 +1,5 @@
 autoInstallPeers: true
+
 allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true
@@ -7,7 +8,20 @@ allowBuilds:
   nx: true
   protobufjs: true
   unrs-resolver: true
-
-  # Scarf is telemetry-related; only enable if you actually want its
-  # install script to execute.
   '@scarf/scarf': false
+
+# packageExtensions:
+#   '@nestjs-modules/mailer':
+#     exports:
+#       '.':
+#         require: ./index.js
+#         import: ./index.js
+#       './dist/adapters/handlebars.adapter':
+#         require: ./dist/adapters/handlebars.adapter.js
+#         import: ./dist/adapters/handlebars.adapter.js
+#       './dist/adapters/ejs.adapter':
+#         require: ./dist/adapters/ejs.adapter.js
+#         import: ./dist/adapters/ejs.adapter.js
+#       './dist/adapters/pug.adapter':
+#         require: ./dist/adapters/pug.adapter.js
+#         import: ./dist/adapters/pug.adapter.js
