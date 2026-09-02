@@ -9,6 +9,8 @@ allowBuilds:
   protobufjs: true
   unrs-resolver: true
   '@scarf/scarf': false
+  '@nestjs/core': true
+  less: true
 
 # packageExtensions:
 #   '@nestjs-modules/mailer':
