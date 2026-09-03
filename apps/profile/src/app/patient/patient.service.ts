@@ -10,7 +10,12 @@ import {
 } from '@medicpadi-backend/contracts';
 import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {
+  FindOptionsOrderValue,
+  FindOptionsWhere,
+  ILike,
+  Repository,
+} from 'typeorm';
 import { Patient } from '../../entities/patient.entity';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
@@ -27,7 +32,9 @@ export class PatientService {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   create(createPatientDto: CreatePatientDto) {
@@ -48,17 +55,34 @@ export class PatientService {
   async findAll(query: PaginationDto): Promise<PaginationResponseDto<Patient>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
+    const { ids, id, order, search } = query;
     try {
+      let where: FindOptionsWhere<Patient> | FindOptionsWhere<Patient>[];
+      if (search) {
+        where = [
+          { firstName: ILike(`%${search}%`) },
+          { lastName: ILike(`%${search}%`) },
+          { phoneNumber: ILike(`%${search}%`) },
+        ];
+      } else if (id) {
+        where = { user_id: id };
+      } else if (ids) {
+        where = ids.map((userId) => ({ user_id: userId }));
+      } else {
+        where = {};
+      }
       const [data, total] = await this.patientRepository.findAndCount({
+        where,
         take: limit,
         skip: (page - 1) * limit,
-        order: { createdAt: 'DESC' },
+        order: { createdAt: order as FindOptionsOrderValue },
       });
       return buildPaginationResponse(data, total, page, limit);
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to retrieve Patient profiles',
+        error: error,
       } as ServiceError);
     }
   }
@@ -113,7 +137,10 @@ export class PatientService {
       !!profile?.emergencyContact &&
       !!profile?.profilePicture?.url &&
       !!auth?.isEmailVerified;
-    await this.patientRepository.update({ user_id: userId }, { isProfileComplete });
+    await this.patientRepository.update(
+      { user_id: userId },
+      { isProfileComplete },
+    );
   }
 
   async updateSettings(id: string, settingsDto: SettingsDto) {
@@ -125,7 +152,10 @@ export class PatientService {
         message: "Unable to update Patient's settings",
       } as ServiceError);
     }
-    return this.patientRepository.update({ user_id: id }, { settings: settingsDto });
+    return this.patientRepository.update(
+      { user_id: id },
+      { settings: settingsDto },
+    );
   }
 
   remove(id: string) {

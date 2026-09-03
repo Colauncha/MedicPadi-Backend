@@ -41,6 +41,11 @@ export class PaginationDto {
   @IsString()
   id?: string;
 
+  @ApiProperty({ description: 'Filter by IDs' })
+  @IsOptional()
+  @IsString({ each: true })
+  ids?: string[];
+
   @ApiProperty({ description: 'Full-text search keyword' })
   @IsOptional()
   @IsString()
