@@ -7,6 +7,7 @@ import {
   AuthRole,
   GetAuthDto,
   SettingsDto,
+  DoctorsSpecialies,
 } from '@medicpadi-backend/contracts';
 import type {
   EducationItemDto,
@@ -173,6 +174,21 @@ export class ProfileService {
         'Something went wrong while updating settings',
       );
     }
+  }
+
+  async getDoctorSpeciality() {
+    return {
+      general: DoctorsSpecialies.General,
+      oncology: DoctorsSpecialies.Oncology,
+      cardiologists: DoctorsSpecialies.Cardiologists,
+      dermatologists: DoctorsSpecialies.Dermatologists,
+      endocrinologists: DoctorsSpecialies.Endocrinologists,
+      neurologists: DoctorsSpecialies.Neurologists,
+      psychiatrists: DoctorsSpecialies.Psychiatrists,
+      radiologists: DoctorsSpecialies.Radiologists,
+      pathologists: DoctorsSpecialies.Pathologists,
+      others: DoctorsSpecialies.Others,
+    };
   }
 
   remove(id: string) {

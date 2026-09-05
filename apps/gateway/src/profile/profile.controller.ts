@@ -129,6 +129,24 @@ export class ProfileController {
     return this.profileService.retrieve(request.user.id);
   }
 
+  @Get('/doctors/speciality')
+  @Roles(AuthRole.CONSULTANT, AuthRole.PATIENT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get doctors speciality',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved Doctors speciality.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Insufficient permissions — provider, patient or admin role required.',
+  })
+  async getDoctosSpeciality() {
+    return this.profileService.getDoctorSpeciality();
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get a profile by ID',
