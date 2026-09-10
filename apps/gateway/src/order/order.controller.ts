@@ -184,6 +184,18 @@ export class OrderController {
     return this.orderService.getAppointmentSignature(id, req.user.role);
   }
 
+  @Get('/appointments/:docId')
+  @Roles(AuthRole.CONSULTANT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get patients list',
+    description:
+      'Get a list of patient that have been appointed to a consultant',
+  })
+  @ApiResponse({ status: 200, description: 'Patient list successful.' })
+  docGetPatients(@Query() query: PaginationDto, @Req() req: RequestWithUser) {
+    return this.orderService.docGetPatients({ ...query, docId: req.user.id });
+  }
+
   // ──────────────────────────────────────────────
   // Prescriptions
   // ──────────────────────────────────────────────

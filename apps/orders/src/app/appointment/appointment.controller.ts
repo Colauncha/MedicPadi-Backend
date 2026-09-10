@@ -6,6 +6,7 @@ import {
   CreateAppointmentDto,
   OrderPatterns,
   UpdateAppointmentDto,
+  PaginationDto,
 } from '@medicpadi-backend/contracts';
 import { AppointmentService } from './appointment.service';
 
@@ -36,6 +37,15 @@ export class AppointmentController {
   @MessagePattern(OrderPatterns.APPOINTMENTS.ACCEPT)
   accept(@Payload('data') id: string) {
     return this.appointmentService.accept(id);
+  }
+
+  @MessagePattern(OrderPatterns.APPOINTMENTS.GET_PATIENTS)
+  getPatients(@Payload('data') query: PaginationDto & { docId: string }) {
+    return this.appointmentService.listPatients(
+      query.docId,
+      query.page,
+      query.limit,
+    );
   }
 
   @EventPattern(OrderPatterns.APPOINTMENTS.COMPLETE_PAYMENT)

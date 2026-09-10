@@ -14,6 +14,7 @@ import {
   FindOptionsOrderValue,
   FindOptionsWhere,
   ILike,
+  In,
   Repository,
 } from 'typeorm';
 import { Patient } from '../../entities/patient.entity';
@@ -100,6 +101,21 @@ export class PatientService {
       } as ServiceError);
     }
     return profile;
+  }
+
+  async retrieveMany(ids: string[]) {
+    let profiles: Patient[] | null;
+    try {
+      profiles = await this.patientRepository.findBy({
+        id: In(ids),
+      });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Patient profile',
+      } as ServiceError);
+    }
+    return profiles;
   }
 
   async update(id: string | undefined, updatePatientDto: UpdatePatientDto) {

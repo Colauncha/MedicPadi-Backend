@@ -14,6 +14,7 @@ export const PatientPatterns = {
   CREATE: 'profile.patient.create',
   UPDATE: 'profile.patient.update',
   RETRIEVE: 'profile.patient.retrieve',
+  RETRIEVE_MANY: 'profile.patient.retrieveMany',
   FIND_ALL: 'profile.patient.findAll',
   UPDATE_SETTINGS: 'profile.patient.updateSettings',
 };

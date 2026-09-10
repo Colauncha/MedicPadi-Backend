@@ -121,6 +121,15 @@ export class OrderService {
     );
   }
 
+  async docGetPatients(query: PaginationDto & { docId: string }) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.GET_PATIENTS,
+        withServiceAuth(query, this.serviceToken),
+      ),
+    );
+  }
+
   // Prescriptions
 
   async createPrescription(dto: CreatePrescriptionDto) {

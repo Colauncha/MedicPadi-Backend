@@ -285,6 +285,54 @@ export class AppointmentService {
     }
   }
 
+  async listPatients(
+    docId: string,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginationResponseDto<any>> {
+    try {
+      page = Math.max(1, page);
+      limit = Math.min(Math.max(1, limit), 100);
+
+      const offset = (page - 1) * limit;
+
+      const baseQuery = this.appointmentRepo
+        .createQueryBuilder('appointments')
+        .where('appointments.provider_id = :docId', { docId });
+
+      const [patients, countResult] = await Promise.all([
+        baseQuery
+          .clone()
+          .select('DISTINCT appointments.patient_id', 'patient_id')
+          .orderBy('appointments.patient_id', 'ASC')
+          .offset(offset)
+          .limit(limit)
+          .getRawMany(),
+
+        baseQuery
+          .clone()
+          .select('COUNT(DISTINCT appointments.patient_id)', 'total')
+          .getRawOne<{ total: string }>(),
+      ]);
+
+      const total = Number(countResult?.total ?? 0);
+
+      const data = await firstValueFrom(
+        this.profileClient.send(
+          PatientPatterns.RETRIEVE_MANY,
+          withServiceAuth(patients, this.serviceToken),
+        ),
+      );
+
+      return buildPaginationResponse(data, total, page, limit);
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to get patients for consultant',
+      } as ServiceError);
+    }
+  }
+
   async update(id: string | undefined, dto: UpdateAppointmentDto) {
     try {
       const existing = await this.appointmentRepo.findOne({ where: { id } });

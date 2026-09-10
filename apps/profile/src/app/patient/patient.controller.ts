@@ -29,6 +29,11 @@ export class PatientController {
     return this.patientService.findOne(id);
   }
 
+  @MessagePattern(PatientPatterns.RETRIEVE_MANY)
+  retrieveMany(@Payload('data') ids: string[]) {
+    return this.patientService.retrieveMany(ids);
+  }
+
   @MessagePattern(PatientPatterns.RETRIEVE)
   retrieve(@Payload('data') id: string) {
     return this.patientService.findOne(id);
