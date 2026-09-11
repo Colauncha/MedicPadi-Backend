@@ -21,6 +21,7 @@ import { Patient } from '../../entities/patient.entity';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+// import { UUID } from 'crypto';
 
 @Injectable()
 export class PatientService {
@@ -110,9 +111,11 @@ export class PatientService {
         id: In(ids),
       });
     } catch (error) {
+      console.log(error);
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to retrieve Patient profile',
+        error: error,
       } as ServiceError);
     }
     return profiles;

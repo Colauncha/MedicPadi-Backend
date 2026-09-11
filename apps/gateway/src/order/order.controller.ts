@@ -184,7 +184,7 @@ export class OrderController {
     return this.orderService.getAppointmentSignature(id, req.user.role);
   }
 
-  @Get('/appointments/:docId')
+  @Get('/appointments/list/patients')
   @Roles(AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Get patients list',

@@ -316,11 +316,16 @@ export class AppointmentService {
       ]);
 
       const total = Number(countResult?.total ?? 0);
+      
+      const patientString: string[] =
+        patients && patients.length >= 0
+          ? patients.map((p) => p?.patient_id)
+          : [];
 
       const data = await firstValueFrom(
         this.profileClient.send(
           PatientPatterns.RETRIEVE_MANY,
-          withServiceAuth(patients, this.serviceToken),
+          withServiceAuth(patientString, this.serviceToken),
         ),
       );
 
