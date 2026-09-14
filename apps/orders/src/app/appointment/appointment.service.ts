@@ -1,6 +1,12 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, FindOptionsOrderValue, FindOptionsWhere, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindOptionsOrderValue,
+  FindOptionsWhere,
+  In,
+  Repository,
+} from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   AppointmentCancelledEventDto,
@@ -201,7 +207,7 @@ export class AppointmentService {
   ): Promise<PaginationResponseDto<Appointment>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const { id, order, status, paymentStatus, appointmentTime } = query;
+    const { id, order, status, paymentStatus, appointmentTime, ids } = query;
 
     const baseFilter: FindOptionsWhere<Appointment> = {};
     if (status) baseFilter.status = status;
@@ -214,6 +220,8 @@ export class AppointmentService {
       ? [
           { ...baseFilter, patient_id: id },
           { ...baseFilter, provider_id: id },
+          { ...baseFilter, patient_id: In(ids || []) },
+          { ...baseFilter, provider_id: In(ids || []) },
         ]
       : baseFilter;
 
