@@ -220,10 +220,10 @@ export class AppointmentService {
       ? [
           { ...baseFilter, patient_id: id },
           { ...baseFilter, provider_id: id },
-          { ...baseFilter, patient_id: In(ids || []) },
-          { ...baseFilter, provider_id: In(ids || []) },
         ]
-      : baseFilter;
+      : ids && ids.length > 0
+        ? { ...baseFilter, patient_id: In(ids), provider_id: In(ids) }
+        : baseFilter;
 
     try {
       const [data, total] = await this.appointmentRepo.findAndCount({
