@@ -24,4 +24,5 @@ export const NotificationEvents = {
   PAYMENT_SUCCESS: 'notification.event.payment.success',
   DRUG_REQUISITION_CREATED: 'notification.event.drug-requisition.created',
   VERIFY_EMAIL: 'notification.event.verify-email',
+  EHR_ACCESS_REQUESTED: 'notification.event.ehr.access-requested',
 };

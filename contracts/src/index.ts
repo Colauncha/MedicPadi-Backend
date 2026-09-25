@@ -49,6 +49,7 @@ export * from './lib/dtos/notification/update-notification.dto';
 export * from './lib/dtos/notification/events/appointment.event.dto';
 export * from './lib/dtos/notification/events/requisition.event.dto';
 export * from './lib/dtos/notification/events/payment.event.dto';
+export * from './lib/dtos/notification/events/ehr.event.dto';
 
 // Auth-triggered email DTOs (callers already hold this data at emit time)
 export * from './lib/dtos/email/welcome.dto';
@@ -91,6 +92,8 @@ export * from './lib/dtos/ehr/create-ehr-record.dto';
 export * from './lib/dtos/ehr/update-ehr-record.dto';
 export * from './lib/dtos/ehr/create-consent-grant.dto';
 export * from './lib/dtos/ehr/update-consent-grant.dto';
+export * from './lib/dtos/ehr/ehr-requester.dto';
+export * from './lib/dtos/ehr/request-consent.dto';
 
 // Community DTOs
 export * from './lib/dtos/community/create-community-group.dto';

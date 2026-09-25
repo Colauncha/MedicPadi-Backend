@@ -539,6 +539,42 @@ export class AppointmentService {
     }
   }
 
+  async getZak(id: string, userId: string, role: AuthRole) {
+    try {
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Appointment not found',
+        } as ServiceError);
+      }
+      if (role !== AuthRole.ADMIN && existing.provider_id !== userId) {
+        throw new RpcException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Only the appointment provider can host this meeting',
+        } as ServiceError);
+      }
+      if (!existing.meeting_id) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'No Zoom meeting exists for this appointment',
+        } as ServiceError);
+      }
+
+      const zak = await this.zoomService.getZak();
+      return { zak };
+    } catch (error) {
+      logError(error, `${AppointmentService.name}.getZak`);
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Unable to fetch Zoom ZAK token',
+            error: error instanceof Error ? error.message : String(error),
+          } as ServiceError);
+    }
+  }
+
   async completeAppointment(id: string) {
     try {
       const existing = await this.appointmentRepo.findOne({ where: { id } });

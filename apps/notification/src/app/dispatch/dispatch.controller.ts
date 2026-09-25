@@ -8,6 +8,7 @@ import {
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
   DrugRequisitionCreatedEventDto,
+  EhrAccessRequestedEventDto,
   NotificationEvents,
   PaymentSuccessEventDto,
   ResetPasswordEmailDto,
@@ -94,5 +95,10 @@ export class DispatchController {
   @EventPattern(NotificationEvents.VERIFY_EMAIL)
   verifyEmail(@Payload('data') dto: VerifyEmailDto) {
     return this.queue.add(NotificationJobNames.VERIFY_EMAIL, dto, JOB_OPTIONS);
+  }
+
+  @EventPattern(NotificationEvents.EHR_ACCESS_REQUESTED)
+  ehrAccessRequested(@Payload('data') dto: EhrAccessRequestedEventDto) {
+    return this.queue.add(NotificationJobNames.EHR_ACCESS_REQUESTED, dto, JOB_OPTIONS);
   }
 }

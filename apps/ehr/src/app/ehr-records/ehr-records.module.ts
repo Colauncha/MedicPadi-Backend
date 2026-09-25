@@ -5,10 +5,12 @@ import { EhrRecordsController } from './ehr-records.controller';
 import { EhrRecordsService } from './ehr-records.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule } from '@nestjs/microservices';
+import { ConsentModule } from '../consent/consent.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([EhrRecord]),
+    ConsentModule,
     ClientsModule.registerAsync([
       {
         name: 'NOTIFICATION_SERVICE',

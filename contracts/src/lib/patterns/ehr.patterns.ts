@@ -13,5 +13,9 @@ export const EhrPatterns = {
     RETRIEVE: 'ehr.consents.retrieve',
     FIND_ALL: 'ehr.consents.findAll',
     REVOKE: 'ehr.consents.revoke',
+    REQUEST: 'ehr.consents.request',
+    APPROVE: 'ehr.consents.approve',
+    DECLINE: 'ehr.consents.decline',
+    CANCEL: 'ehr.consents.cancel',
   },
 };

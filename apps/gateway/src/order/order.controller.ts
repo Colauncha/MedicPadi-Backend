@@ -184,6 +184,33 @@ export class OrderController {
     return this.orderService.getAppointmentSignature(id, req.user.role);
   }
 
+  @Get('/appointments/:id/zak')
+  @Roles(AuthRole.CONSULTANT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get a Zoom ZAK token for the host',
+    description:
+      'Fetches a Zoom Access Key (ZAK) so the appointment provider can start the meeting as host via the Meeting SDK. Accessible by `consultant` (appointment provider only) and `admin` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the appointment.' })
+  @ApiResponse({ status: 200, description: 'ZAK token fetched.' })
+  @ApiResponse({
+    status: 400,
+    description: 'No Zoom meeting on this appointment.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not the appointment provider.',
+  })
+  @ApiResponse({ status: 404, description: 'Appointment not found.' })
+  getAppointmentZak(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.orderService.getAppointmentZak(
+      id,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
   @Get('/appointments/list/patients')
   @Roles(AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({

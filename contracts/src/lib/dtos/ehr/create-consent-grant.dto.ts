@@ -13,10 +13,13 @@ import {
 import { AuthRole } from '../../enums/auth.enum';
 
 export class CreateConsentGrantDto {
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description:
+      'UUID of the patient. Ignored for patients (set from the authenticated user); required for admins.',
+  })
   @IsUUID()
-  @IsNotEmpty()
-  patient_id!: string;
+  @IsOptional()
+  patient_id?: string;
 
   @ApiProperty()
   @IsUUID()

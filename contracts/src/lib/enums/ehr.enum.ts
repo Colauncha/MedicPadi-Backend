@@ -13,4 +13,7 @@ export enum ConsentAccessLevel {
 export enum ConsentStatus {
   ACTIVE = 'active',
   REVOKED = 'revoked',
+  PENDING = 'pending',
+  DECLINED = 'declined',
+  CANCELLED = 'cancelled',
 }

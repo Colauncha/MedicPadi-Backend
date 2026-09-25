@@ -10,6 +10,7 @@ export const OrderPatterns = {
     COMPLETE_PAYMENT: 'orders.appointments.completePayment',
     COMPLETE_APPOINTMENT: 'orders.appointments.completeAppointment',
     GET_SIGNATURE: 'orders.appointments.getSignature',
+    GET_ZAK: 'orders.appointments.getZak',
     GET_PATIENTS: 'orders.appointments.getPatients',
   },
   PRESCRIPTIONS: {

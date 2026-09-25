@@ -58,6 +58,13 @@ export class AppointmentController {
     return this.appointmentService.getSignature(dto.id, dto.role);
   }
 
+  @MessagePattern(OrderPatterns.APPOINTMENTS.GET_ZAK)
+  getZak(
+    @Payload('data') dto: { id: string; userId: string; role: AuthRole },
+  ) {
+    return this.appointmentService.getZak(dto.id, dto.userId, dto.role);
+  }
+
   @MessagePattern(OrderPatterns.APPOINTMENTS.DELETE)
   remove(@Payload('data') id: string) {
     return this.appointmentService.remove(id);

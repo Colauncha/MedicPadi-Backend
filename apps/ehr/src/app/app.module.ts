@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { serviceConfig, dbConfig } from '@medicpadi-backend/config';
+import { appConfig, serviceConfig, dbConfig } from '@medicpadi-backend/config';
 import { EhrRecordsModule } from './ehr-records/ehr-records.module';
 import { ConsentModule } from './consent/consent.module';
 import { EhrRecord } from '../entities/ehr-record.entity';
@@ -13,7 +13,7 @@ import { ClientsModule } from '@nestjs/microservices';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `medicpadi-backend/apps/ehr/.env.${process.env.NODE_ENV || 'development'}`,
-      load: [serviceConfig, dbConfig],
+      load: [appConfig, serviceConfig, dbConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

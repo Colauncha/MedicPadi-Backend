@@ -331,4 +331,29 @@ export class EmailService {
       attachments: [this.logoAttachment],
     });
   }
+
+  async ehrAccessRequestedEmail(
+    email: string,
+    patientName: string,
+    doctorName: string,
+    accessLevel: string,
+    reviewLink: string,
+    message?: string,
+  ) {
+    return this.mailerService.sendMail({
+      to: email,
+      subject: `${doctorName} requested access to your health records`,
+      template: 'ehr-access-requested-patient',
+      context: {
+        patientName,
+        doctorName,
+        accessLevel,
+        message,
+        reviewLink,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
 }

@@ -146,4 +146,24 @@ export class ZoomService {
         : new Error('Error deleting Zoom meeting');
     }
   }
+
+  async getZak() {
+    const API_URL = this.configService.get<string>('zoomConfig.zoomApiUrl');
+    const token = await this.getToken();
+
+    try {
+      const response = await axios.get(`${API_URL}/users/me/token`, {
+        params: { type: 'zak' },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data.token as string;
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error('Error fetching Zoom ZAK token');
+    }
+  }
 }

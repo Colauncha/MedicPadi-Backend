@@ -112,6 +112,15 @@ export class OrderService {
     );
   }
 
+  async getAppointmentZak(id: string, userId: string, role: AuthRole) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.GET_ZAK,
+        withServiceAuth({ id, userId, role }, this.serviceToken),
+      ),
+    );
+  }
+
   async completeAppointment(id: string) {
     return firstValueFrom(
       this.orderClient.send(

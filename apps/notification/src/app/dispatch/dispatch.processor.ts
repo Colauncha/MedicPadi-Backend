@@ -6,7 +6,9 @@ import {
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
+  ConsentAccessLevel,
   DrugRequisitionCreatedEventDto,
+  EhrAccessRequestedEventDto,
   NotificationChannel,
   NotificationType,
   PaymentSuccessEventDto,
@@ -38,6 +40,7 @@ export const NotificationJobNames = {
   PAYMENT_SUCCESS: 'payment.success',
   DRUG_REQUISITION_CREATED: 'drug-requisition.created',
   VERIFY_EMAIL: 'verify-email',
+  EHR_ACCESS_REQUESTED: 'ehr.access-requested',
 } as const;
 
 @Processor(NOTIFICATION_QUEUE)
@@ -80,6 +83,8 @@ export class DispatchProcessor extends WorkerHost {
         return this.handleDrugRequisitionCreated(job as Job<DrugRequisitionCreatedEventDto>);
       case NotificationJobNames.VERIFY_EMAIL:
         return this.handleVerifyEmail(job as Job<VerifyEmailDto>);
+      case NotificationJobNames.EHR_ACCESS_REQUESTED:
+        return this.handleEhrAccessRequested(job as Job<EhrAccessRequestedEventDto>);
       default:
         this.logger.warn(`Unhandled job name: ${job.name}`);
     }
@@ -430,6 +435,41 @@ export class DispatchProcessor extends WorkerHost {
       body: `Your payment of ${amount.toLocaleString()} ${currency} (ref: ${reference}) was successful.`,
       type: NotificationType.PAYMENT,
       source_id: reference,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private async handleEhrAccessRequested(job: Job<EhrAccessRequestedEventDto>) {
+    const { consentId, patientId, doctorId, accessLevel, message, reviewLink } = job.data;
+
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
+      this.dispatchService.resolveUserAuth(patientId),
+      this.dispatchService.resolvePatient(patientId),
+      this.dispatchService.resolveUserAuth(doctorId),
+      this.dispatchService.resolveDoctor(doctorId),
+    ]);
+
+    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
+    const accessLabel = accessLevel === ConsentAccessLevel.FULL_ACCESS ? 'Full access (view and update)' : 'View only';
+
+    if (patientProfile.emailNotificationsEnabled) {
+      await this.emailService.ehrAccessRequestedEmail(
+        patientAuth.email,
+        patientName,
+        doctorName,
+        accessLabel,
+        reviewLink,
+        message,
+      );
+    }
+
+    await this.notificationService.create({
+      user_id: patientId,
+      title: 'Health Records Access Request',
+      body: `${doctorName} has requested ${accessLabel.toLowerCase()} access to your health records. Review: ${reviewLink}`,
+      type: NotificationType.OTHER,
+      source_id: consentId,
       channel: NotificationChannel.IN_APP,
     });
   }
