@@ -7,6 +7,7 @@ import {
   LaboratoryPatterns,
   PatientPatterns,
   PharmacyPatterns,
+  SettingsDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { firstValueFrom } from 'rxjs';
@@ -20,22 +21,30 @@ export interface ResolvedPatient {
   firstName: string;
   lastName: string;
   emailNotificationsEnabled: boolean;
+  mobilePushEnabled: boolean;
+  webPushEnabled: boolean;
 }
 
 export interface ResolvedDoctor {
   firstName: string;
   lastName: string;
   emailNotificationsEnabled: boolean;
+  mobilePushEnabled: boolean;
+  webPushEnabled: boolean;
 }
 
 export interface ResolvedLab {
   name: string;
   emailNotificationsEnabled: boolean;
+  mobilePushEnabled: boolean;
+  webPushEnabled: boolean;
 }
 
 export interface ResolvedPharmacy {
   name: string;
   emailNotificationsEnabled: boolean;
+  mobilePushEnabled: boolean;
+  webPushEnabled: boolean;
 }
 
 @Injectable()
@@ -67,6 +76,7 @@ export class DispatchService {
       firstName: profile.firstName ?? '',
       lastName: profile.lastName ?? '',
       emailNotificationsEnabled: profile.settings?.emailNotifications ?? true,
+      ...this.pushPreferences(profile.settings),
     };
   }
 
@@ -78,6 +88,7 @@ export class DispatchService {
       firstName: profile.firstName ?? '',
       lastName: profile.lastName ?? '',
       emailNotificationsEnabled: profile.settings?.emailNotifications ?? true,
+      ...this.pushPreferences(profile.settings),
     };
   }
 
@@ -88,6 +99,7 @@ export class DispatchService {
     return {
       name: profile.name ?? 'the laboratory',
       emailNotificationsEnabled: profile.settings?.emailNotifications ?? true,
+      ...this.pushPreferences(profile.settings),
     };
   }
 
@@ -98,6 +110,15 @@ export class DispatchService {
     return {
       name: profile.name ?? 'the pharmacy',
       emailNotificationsEnabled: profile.settings?.emailNotifications ?? true,
+      ...this.pushPreferences(profile.settings),
+    };
+  }
+
+  // Default to enabled: registering a device already required an OS permission opt-in
+  private pushPreferences(settings?: SettingsDto) {
+    return {
+      mobilePushEnabled: settings?.mobile?.mobileNotifications ?? true,
+      webPushEnabled: settings?.desktop?.desktopNotifications ?? true,
     };
   }
 

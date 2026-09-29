@@ -13,6 +13,7 @@ import { OrderModule } from '../order/order.module';
 import { EhrModule } from '../ehr/ehr.module';
 import { TransactionsModule } from '../transactions/transactions.module';
 import { AiAgentModule } from '../ai-agent/ai-agent.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AiAgentModule } from '../ai-agent/ai-agent.module';
     EhrModule,
     TransactionsModule,
     AiAgentModule,
+    NotificationModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `medicpadi-backend/apps/gateway/.env.${process.env.NODE_ENV || 'development'}`,

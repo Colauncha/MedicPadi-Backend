@@ -8,6 +8,11 @@ export const NotificationPatterns = {
     DELETE: 'notification.notifications.delete',
     MARK_READ: 'notification.notifications.markRead',
   },
+  DEVICES: {
+    REGISTER: 'notification.devices.register',
+    UNREGISTER: 'notification.devices.unregister',
+    FIND_ALL: 'notification.devices.findAll',
+  },
 };
 
 export const NotificationEvents = {

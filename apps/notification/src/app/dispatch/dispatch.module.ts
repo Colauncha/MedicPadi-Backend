@@ -3,10 +3,12 @@ import { BullModule } from '@nestjs/bullmq';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { DispatchController } from './dispatch.controller';
-import { DispatchProcessor, NOTIFICATION_QUEUE } from './dispatch.processor';
+import { DispatchProcessor } from './dispatch.processor';
+import { NOTIFICATION_QUEUE } from './dispatch.constants';
 import { DispatchService } from './dispatch.service';
 import { EmailModule } from '../email/email.module';
 import { NotificationModule } from '../notification/notification.module';
+import { PushModule } from '../push/push.module';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { NotificationModule } from '../notification/notification.module';
     ]),
     EmailModule,
     NotificationModule,
+    PushModule,
   ],
   controllers: [DispatchController],
   providers: [DispatchService, DispatchProcessor],

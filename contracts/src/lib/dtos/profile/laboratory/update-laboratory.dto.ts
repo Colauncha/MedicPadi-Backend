@@ -2,7 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import { CreateLaboratoryDto } from './create-laboratory.dto';
 import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { BusinessHours } from 'contracts/src/lib/interfaces/business-hours.interface';
+import { BusinessHours } from '../../../interfaces/business-hours.interface';
 
 export class UpdateLaboratoryDto extends PartialType(CreateLaboratoryDto) {
   @ApiPropertyOptional()

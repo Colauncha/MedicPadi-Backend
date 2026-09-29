@@ -4,6 +4,7 @@ import appConfig from './app.config';
 import smtpConfig from './smtp.config';
 import zoomConfig from './zoom.config';
 import paystackConfig from './paystack.config';
+import pushConfig from './push.config';
 
 export {
   dbConfig,
@@ -12,4 +13,5 @@ export {
   smtpConfig,
   zoomConfig,
   paystackConfig,
+  pushConfig,
 };

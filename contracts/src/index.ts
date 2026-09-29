@@ -44,6 +44,7 @@ export * from './lib/dtos/profile/next-of-kin.dto';
 // Notification DTOs
 export * from './lib/dtos/notification/create-notification.dto';
 export * from './lib/dtos/notification/update-notification.dto';
+export * from './lib/dtos/notification/device.dto';
 
 // Notification event DTOs (slim domain-event payloads emitted by callers)
 export * from './lib/dtos/notification/events/appointment.event.dto';

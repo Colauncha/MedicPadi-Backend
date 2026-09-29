@@ -60,8 +60,13 @@ const TOKEN_USER_MAP: Record<string, any> = {
   [CONSULTANT_TOKEN]: mockConsultantUser,
 };
 
+// Gateway calls are wrapped by withServiceAuth as { _auth, _ts, data }
+const unwrap = (payload: any) =>
+  payload && typeof payload === 'object' && '_auth' in payload ? payload.data : payload;
+
 export const createMockAuthProxy = () => ({
-  send: jest.fn().mockImplementation((pattern: string, data: any) => {
+  send: jest.fn().mockImplementation((pattern: string, payload: any) => {
+    const data = unwrap(payload);
     switch (pattern) {
       case 'auth.verify': {
         const user = TOKEN_USER_MAP[data];
@@ -97,7 +102,8 @@ export const createMockAuthProxy = () => ({
 });
 
 export const createMockProfileProxy = () => ({
-  send: jest.fn().mockImplementation((pattern: string, data: any) => {
+  send: jest.fn().mockImplementation((pattern: string, payload: any) => {
+    const data = unwrap(payload);
     if (pattern === 'profile.status') {
       return of({ status: 'OK', service: 'profile' });
     }
@@ -128,7 +134,8 @@ export const createMockNotificationProxy = () => ({
 });
 
 export const createMockServicesProxy = () => ({
-  send: jest.fn().mockImplementation((pattern: string, data: any) => {
+  send: jest.fn().mockImplementation((pattern: string, payload: any) => {
+    const data = unwrap(payload);
     switch (pattern) {
       case 'services.status':
         return of({ status: 'OK', service: 'services' });
@@ -185,6 +192,7 @@ export const mockAppConfig = () => ({
     redisPort: 6379,
     cacheTTL: 60,
     waitlist: false,
+    internalServiceToken: 'test-internal-token',
   },
 });
 

@@ -19,7 +19,7 @@ import {
   WaitlistEmailDto,
   WelcomeEmailDto,
 } from '@medicpadi-backend/contracts';
-import { NOTIFICATION_QUEUE, NotificationJobNames } from './dispatch.processor';
+import { NOTIFICATION_QUEUE, NotificationJobNames } from './dispatch.constants';
 
 const JOB_OPTIONS = {
   attempts: 3,

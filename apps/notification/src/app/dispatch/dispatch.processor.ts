@@ -7,6 +7,7 @@ import {
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
   ConsentAccessLevel,
+  CreateNotificationDto,
   DrugRequisitionCreatedEventDto,
   EhrAccessRequestedEventDto,
   NotificationChannel,
@@ -22,26 +23,17 @@ import {
 } from '@medicpadi-backend/contracts';
 import { EmailService } from '../email/email.service';
 import { NotificationService } from '../notification/notification.service';
+import { PushReceiptsJobData, PushService } from '../push/push.service';
 import { DispatchService } from './dispatch.service';
+import { NOTIFICATION_QUEUE, NotificationJobNames } from './dispatch.constants';
 
-export const NOTIFICATION_QUEUE = 'notification';
+interface RecipientPushPreferences {
+  mobilePushEnabled: boolean;
+  webPushEnabled: boolean;
+}
 
-export const NotificationJobNames = {
-  WELCOME: 'welcome',
-  WAITLIST: 'waitlist',
-  RESET_PASSWORD: 'reset-password',
-  APPOINTMENT_CREATED: 'appointment.created',
-  APPOINTMENT_CONFIRMED: 'appointment.confirmed',
-  APPOINTMENT_CANCELLED: 'appointment.cancelled',
-  APPOINTMENT_PAYMENT_CONFIRMED: 'appointment.payment-confirmed',
-  TEST_REQUISITION_CREATED: 'requisition.created',
-  TEST_REQUISITION_ACCEPTED: 'requisition.accepted',
-  TEST_REQUISITION_DECLINED: 'requisition.declined',
-  PAYMENT_SUCCESS: 'payment.success',
-  DRUG_REQUISITION_CREATED: 'drug-requisition.created',
-  VERIFY_EMAIL: 'verify-email',
-  EHR_ACCESS_REQUESTED: 'ehr.access-requested',
-} as const;
+// Used when the recipient's profile isn't resolved for the event
+const PUSH_ALL_ENABLED: RecipientPushPreferences = { mobilePushEnabled: true, webPushEnabled: true };
 
 @Processor(NOTIFICATION_QUEUE)
 export class DispatchProcessor extends WorkerHost {
@@ -51,6 +43,7 @@ export class DispatchProcessor extends WorkerHost {
     private readonly emailService: EmailService,
     private readonly notificationService: NotificationService,
     private readonly dispatchService: DispatchService,
+    private readonly pushService: PushService,
   ) {
     super();
   }
@@ -85,6 +78,8 @@ export class DispatchProcessor extends WorkerHost {
         return this.handleVerifyEmail(job as Job<VerifyEmailDto>);
       case NotificationJobNames.EHR_ACCESS_REQUESTED:
         return this.handleEhrAccessRequested(job as Job<EhrAccessRequestedEventDto>);
+      case NotificationJobNames.PUSH_RECEIPTS:
+        return this.pushService.checkReceipts((job as Job<PushReceiptsJobData>).data);
       default:
         this.logger.warn(`Unhandled job name: ${job.name}`);
     }
@@ -101,6 +96,21 @@ export class DispatchProcessor extends WorkerHost {
   @OnWorkerEvent('completed')
   onCompleted(job: Job) {
     this.logger.log(`Job ${job.id} (${job.name}) completed`);
+  }
+
+  /** Stores the in-app notification and pushes it to the recipient's registered devices. */
+  private async notifyUser(prefs: RecipientPushPreferences, dto: CreateNotificationDto) {
+    const notification = await this.notificationService.create(dto);
+    await this.pushService.sendToUser(
+      dto.user_id,
+      {
+        title: dto.title,
+        body: dto.body,
+        data: { notificationId: notification.id, type: dto.type, sourceId: dto.source_id },
+      },
+      { mobile: prefs.mobilePushEnabled, web: prefs.webPushEnabled },
+    );
+    return notification;
   }
 
   private async handleWelcome(job: Job<WelcomeEmailDto>) {
@@ -142,7 +152,7 @@ export class DispatchProcessor extends WorkerHost {
       );
     }
 
-    await this.notificationService.create({
+    await this.notifyUser(patientProfile, {
       user_id: patientId,
       title: 'Appointment Booked',
       body: `Your appointment with ${doctorName} has been booked for ${new Date(appointmentTime).toLocaleString()}.`,
@@ -151,7 +161,7 @@ export class DispatchProcessor extends WorkerHost {
       channel: NotificationChannel.IN_APP,
     });
 
-    await this.notificationService.create({
+    await this.notifyUser(doctorProfile, {
       user_id: doctorId,
       title: 'New Appointment Request',
       body: `${patientName} has booked an appointment for ${new Date(appointmentTime).toLocaleString()}.`,
@@ -186,7 +196,7 @@ export class DispatchProcessor extends WorkerHost {
     }
 
     await Promise.all([
-      this.notificationService.create({
+      this.notifyUser(patientProfile, {
         user_id: patientId,
         title: 'Appointment Confirmed',
         body: `Your appointment with ${doctorName} on ${new Date(appointmentTime).toLocaleString()} has been confirmed.`,
@@ -194,7 +204,7 @@ export class DispatchProcessor extends WorkerHost {
         source_id: appointmentId,
         channel: NotificationChannel.IN_APP,
       }),
-      this.notificationService.create({
+      this.notifyUser(doctorProfile, {
         user_id: doctorId,
         title: 'Appointment Confirmed',
         body: `Your appointment with ${patientName} on ${new Date(appointmentTime).toLocaleString()} is confirmed.`,
@@ -231,7 +241,7 @@ export class DispatchProcessor extends WorkerHost {
     }
 
     await Promise.all([
-      this.notificationService.create({
+      this.notifyUser(patientProfile, {
         user_id: patientId,
         title: 'Payment Confirmed',
         body: `Your payment for the appointment with ${doctorName} on ${new Date(appointmentTime).toLocaleString()} was successful.`,
@@ -239,7 +249,7 @@ export class DispatchProcessor extends WorkerHost {
         source_id: appointmentId,
         channel: NotificationChannel.IN_APP,
       }),
-      this.notificationService.create({
+      this.notifyUser(doctorProfile, {
         user_id: doctorId,
         title: 'Patient Payment Received',
         body: `${patientName} has paid for the appointment on ${new Date(appointmentTime).toLocaleString()}.`,
@@ -269,7 +279,7 @@ export class DispatchProcessor extends WorkerHost {
       );
     }
 
-    await this.notificationService.create({
+    await this.notifyUser(patientProfile, {
       user_id: patientId,
       title: 'Appointment Cancelled',
       body: `Your appointment on ${new Date(appointmentTime).toLocaleString()} has been cancelled.${reason ? ` Reason: ${reason}` : ''}`,
@@ -300,7 +310,7 @@ export class DispatchProcessor extends WorkerHost {
     );
 
     await Promise.all([
-      this.notificationService.create({
+      this.notifyUser(patientProfile, {
         user_id: patientId,
         title: 'Lab Test Requisition Submitted',
         body: `Your test requisition has been submitted to ${labProfile.name}.`,
@@ -308,7 +318,7 @@ export class DispatchProcessor extends WorkerHost {
         source_id: requisitionId,
         channel: NotificationChannel.IN_APP,
       }),
-      this.notificationService.create({
+      this.notifyUser(labProfile, {
         user_id: labId,
         title: 'New Lab Test Requisition',
         body: `${patientName} has submitted a new test requisition.${acceptLink ? ` Review: ${acceptLink}` : ''}`,
@@ -339,7 +349,7 @@ export class DispatchProcessor extends WorkerHost {
       );
     }
 
-    await this.notificationService.create({
+    await this.notifyUser(patientProfile, {
       user_id: patientId,
       title: 'Lab Test Requisition Accepted',
       body: `Your test requisition has been accepted by ${labProfile.name}.${paymentLink ? ' Please proceed to payment.' : ''}`,
@@ -370,7 +380,7 @@ export class DispatchProcessor extends WorkerHost {
       );
     }
 
-    await this.notificationService.create({
+    await this.notifyUser(patientProfile, {
       user_id: patientId,
       title: 'Lab Test Requisition Declined',
       body: `Your test requisition was declined by ${labProfile.name}.${notes ? ` Reason: ${notes}` : ''}`,
@@ -401,7 +411,7 @@ export class DispatchProcessor extends WorkerHost {
       );
     }
 
-    await this.notificationService.create({
+    await this.notifyUser(patientProfile, {
       user_id: patientId,
       title: 'Drug Requisition Created',
       body: `Your drug requisition has been submitted to ${pharmacyProfile.name}.${paymentLink ? ' Please proceed to payment.' : ''}`,
@@ -429,7 +439,7 @@ export class DispatchProcessor extends WorkerHost {
       reference,
     );
 
-    await this.notificationService.create({
+    await this.notifyUser(PUSH_ALL_ENABLED, {
       user_id: userId,
       title: 'Payment Successful',
       body: `Your payment of ${amount.toLocaleString()} ${currency} (ref: ${reference}) was successful.`,
@@ -464,7 +474,7 @@ export class DispatchProcessor extends WorkerHost {
       );
     }
 
-    await this.notificationService.create({
+    await this.notifyUser(patientProfile, {
       user_id: patientId,
       title: 'Health Records Access Request',
       body: `${doctorName} has requested ${accessLabel.toLowerCase()} access to your health records. Review: ${reviewLink}`,
