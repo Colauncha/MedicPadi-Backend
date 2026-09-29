@@ -14,6 +14,7 @@ import {
   CONSULTANT_TOKEN,
 } from './test-helpers';
 
+const NOTIFICATION_ID = '3f1c2a9e-8b7d-4c6e-9a5f-1d2e3f4a5b6c';
 const EXPO_TOKEN = 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]';
 const WEB_SUBSCRIPTION = {
   endpoint: 'https://fcm.googleapis.com/fcm/send/abc123',
@@ -51,6 +52,122 @@ describe('NotificationController (e2e)', () => {
   });
 
   beforeEach(() => notificationProxy.send.mockClear());
+
+  describe('GET /api/notifications', () => {
+    it("lists the authenticated user's notifications", async () => {
+      const { body } = await request(app.getHttpServer())
+        .get('/api/notifications?page=2&limit=5')
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(200);
+
+      expect(body.pattern).toBe(NotificationPatterns.NOTIFICATIONS.FIND_ALL);
+      expect(body.data.userId).toBe(mockPatientUser.id);
+      expect(body.data.query).toMatchObject({ page: 2, limit: 5 });
+    });
+
+    it('parses unreadOnly=true as a boolean', async () => {
+      const { body } = await request(app.getHttpServer())
+        .get('/api/notifications?unreadOnly=true')
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(200);
+
+      expect(body.data.query.unreadOnly).toBe(true);
+    });
+
+    it('cannot override the user filter via query id or userId', async () => {
+      const { body } = await request(app.getHttpServer())
+        .get('/api/notifications?userId=someone-else&id=someone-else')
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(200);
+
+      expect(body.data.userId).toBe(mockPatientUser.id);
+      expect(body.data.query.userId).toBeUndefined();
+    });
+
+    it('returns 403 when no token is supplied', () => {
+      return request(app.getHttpServer()).get('/api/notifications').expect(403);
+    });
+  });
+
+  describe('GET /api/notifications/unread-count', () => {
+    it('is routed to UNREAD_COUNT, not treated as an :id', async () => {
+      const { body } = await request(app.getHttpServer())
+        .get('/api/notifications/unread-count')
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(200);
+
+      expect(body.pattern).toBe(NotificationPatterns.NOTIFICATIONS.UNREAD_COUNT);
+      expect(body.data).toBe(mockPatientUser.id);
+    });
+  });
+
+  describe('PATCH /api/notifications/read-all', () => {
+    it('marks all notifications of the authenticated user as read', async () => {
+      const { body } = await request(app.getHttpServer())
+        .patch('/api/notifications/read-all')
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(200);
+
+      expect(body.pattern).toBe(NotificationPatterns.NOTIFICATIONS.MARK_ALL_READ);
+      expect(body.data).toBe(mockPatientUser.id);
+    });
+  });
+
+  describe('GET /api/notifications/:id', () => {
+    it('retrieves a notification scoped to the authenticated user', async () => {
+      const { body } = await request(app.getHttpServer())
+        .get(`/api/notifications/${NOTIFICATION_ID}`)
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(200);
+
+      expect(body.pattern).toBe(NotificationPatterns.NOTIFICATIONS.RETRIEVE);
+      expect(body.data).toEqual({ userId: mockPatientUser.id, id: NOTIFICATION_ID });
+    });
+
+    it('returns 400 for a non-UUID id', () => {
+      return request(app.getHttpServer())
+        .get('/api/notifications/not-a-uuid')
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(400);
+    });
+  });
+
+  describe('PATCH /api/notifications/:id/read', () => {
+    it('marks a notification as read for the authenticated user', async () => {
+      const { body } = await request(app.getHttpServer())
+        .patch(`/api/notifications/${NOTIFICATION_ID}/read`)
+        .set('Authorization', `Bearer ${CONSULTANT_TOKEN}`)
+        .expect(200);
+
+      expect(body.pattern).toBe(NotificationPatterns.NOTIFICATIONS.MARK_READ);
+      expect(body.data).toEqual({ userId: 'consultant-uuid', id: NOTIFICATION_ID });
+    });
+
+    it('returns 400 for a non-UUID id', () => {
+      return request(app.getHttpServer())
+        .patch('/api/notifications/123/read')
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(400);
+    });
+  });
+
+  describe('DELETE /api/notifications/:id', () => {
+    it('deletes a notification scoped to the authenticated user', async () => {
+      const { body } = await request(app.getHttpServer())
+        .delete(`/api/notifications/${NOTIFICATION_ID}`)
+        .set('Authorization', `Bearer ${PATIENT_TOKEN}`)
+        .expect(200);
+
+      expect(body.pattern).toBe(NotificationPatterns.NOTIFICATIONS.DELETE);
+      expect(body.data).toEqual({ userId: mockPatientUser.id, id: NOTIFICATION_ID });
+    });
+
+    it('returns 403 when no token is supplied', () => {
+      return request(app.getHttpServer())
+        .delete(`/api/notifications/${NOTIFICATION_ID}`)
+        .expect(403);
+    });
+  });
 
   describe('POST /api/notifications/devices', () => {
     it('registers an Expo device for the authenticated user', async () => {

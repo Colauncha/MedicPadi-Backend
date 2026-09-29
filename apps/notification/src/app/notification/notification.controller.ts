@@ -3,7 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateNotificationDto,
   NotificationPatterns,
-  PaginationDto,
+  NotificationQueryDto,
   UpdateNotificationDto,
 } from '@medicpadi-backend/contracts';
 import { NotificationService } from './notification.service';
@@ -18,18 +18,28 @@ export class NotificationController {
   }
 
   @MessagePattern(NotificationPatterns.NOTIFICATIONS.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
-    return this.notificationService.findAll(query);
+  findAll(@Payload('data') payload: { userId: string; query: NotificationQueryDto }) {
+    return this.notificationService.findAll(payload.userId, payload.query ?? {});
   }
 
   @MessagePattern(NotificationPatterns.NOTIFICATIONS.RETRIEVE)
-  findOne(@Payload('data') id: string) {
-    return this.notificationService.findOne(id);
+  findOne(@Payload('data') payload: { userId: string; id: string }) {
+    return this.notificationService.findOne(payload.userId, payload.id);
   }
 
   @MessagePattern(NotificationPatterns.NOTIFICATIONS.MARK_READ)
-  markRead(@Payload('data') id: string) {
-    return this.notificationService.markRead(id);
+  markRead(@Payload('data') payload: { userId: string; id: string }) {
+    return this.notificationService.markRead(payload.userId, payload.id);
+  }
+
+  @MessagePattern(NotificationPatterns.NOTIFICATIONS.MARK_ALL_READ)
+  markAllRead(@Payload('data') userId: string) {
+    return this.notificationService.markAllRead(userId);
+  }
+
+  @MessagePattern(NotificationPatterns.NOTIFICATIONS.UNREAD_COUNT)
+  unreadCount(@Payload('data') userId: string) {
+    return this.notificationService.unreadCount(userId);
   }
 
   @MessagePattern(NotificationPatterns.NOTIFICATIONS.UPDATE)
@@ -38,7 +48,7 @@ export class NotificationController {
   }
 
   @MessagePattern(NotificationPatterns.NOTIFICATIONS.DELETE)
-  remove(@Payload('data') id: string) {
-    return this.notificationService.remove(id);
+  remove(@Payload('data') payload: { userId: string; id: string }) {
+    return this.notificationService.remove(payload.userId, payload.id);
   }
 }

@@ -7,6 +7,8 @@ export const NotificationPatterns = {
     FIND_ALL: 'notification.notifications.findAll',
     DELETE: 'notification.notifications.delete',
     MARK_READ: 'notification.notifications.markRead',
+    MARK_ALL_READ: 'notification.notifications.markAllRead',
+    UNREAD_COUNT: 'notification.notifications.unreadCount',
   },
   DEVICES: {
     REGISTER: 'notification.devices.register',

@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   NotificationPatterns,
+  NotificationQueryDto,
   RegisterDeviceDto,
   UnregisterDeviceDto,
 } from '@medicpadi-backend/contracts';
@@ -24,6 +25,32 @@ export class NotificationService {
     return firstValueFrom(
       this.notificationClient.send(pattern, withServiceAuth(data, this.serviceToken)),
     );
+  }
+
+  // In-app notifications
+
+  async findAll(query: NotificationQueryDto, userId: string) {
+    return this.send(NotificationPatterns.NOTIFICATIONS.FIND_ALL, { userId, query });
+  }
+
+  async unreadCount(userId: string) {
+    return this.send(NotificationPatterns.NOTIFICATIONS.UNREAD_COUNT, userId);
+  }
+
+  async markAllRead(userId: string) {
+    return this.send(NotificationPatterns.NOTIFICATIONS.MARK_ALL_READ, userId);
+  }
+
+  async findOne(id: string, userId: string) {
+    return this.send(NotificationPatterns.NOTIFICATIONS.RETRIEVE, { userId, id });
+  }
+
+  async markRead(id: string, userId: string) {
+    return this.send(NotificationPatterns.NOTIFICATIONS.MARK_READ, { userId, id });
+  }
+
+  async remove(id: string, userId: string) {
+    return this.send(NotificationPatterns.NOTIFICATIONS.DELETE, { userId, id });
   }
 
   // Devices

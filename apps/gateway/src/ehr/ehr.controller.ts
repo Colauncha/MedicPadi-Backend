@@ -66,7 +66,7 @@ export class EhrController {
   // ──────────────────────────────────────────────
 
   @Post('/records')
-  @Roles(AuthRole.CONSULTANT, AuthRole.ADMIN)
+  @Roles(AuthRole.CONSULTANT, AuthRole.LAB, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Create an EHR record',
     description: `Creates a new Electronic Health Record for a patient. Supply the content as one of:
@@ -82,28 +82,57 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
       type: 'object',
       required: ['patient_id', 'source_type'],
       properties: {
-        patient_id: { type: 'string', format: 'uuid', description: 'UUID of the patient this record belongs to.' },
-        provider_id: { type: 'string', format: 'uuid', description: 'UUID of the healthcare provider creating the record.' },
+        patient_id: {
+          type: 'string',
+          format: 'uuid',
+          description: 'UUID of the patient this record belongs to.',
+        },
+        provider_id: {
+          type: 'string',
+          format: 'uuid',
+          description: 'UUID of the healthcare provider creating the record.',
+        },
         source_type: {
           type: 'string',
           enum: Object.values(EhrSourceType),
-          description: 'Origin of the record (appointment, lab_result, prescription, or upload).',
+          description:
+            'Origin of the record (appointment, lab_result, prescription, or upload).',
         },
-        source_id: { type: 'string', format: 'uuid', description: 'UUID of the related source entity (e.g. appointment ID).' },
-        content_encrypted: { type: 'string', description: 'Encrypted clinical notes or structured content.' },
-        document_url: { type: 'string', description: 'URL to an already-hosted document (PDF/DOC/DOCX).' },
+        source_id: {
+          type: 'string',
+          format: 'uuid',
+          description:
+            'UUID of the related source entity (e.g. appointment ID).',
+        },
+        content_encrypted: {
+          type: 'string',
+          description: 'Encrypted clinical notes or structured content.',
+        },
+        document_url: {
+          type: 'string',
+          description: 'URL to an already-hosted document (PDF/DOC/DOCX).',
+        },
         document: {
           type: 'string',
           format: 'binary',
-          description: 'Document file to upload (PDF, DOC, or DOCX — max 20 MB). DOC/DOCX are auto-converted to PDF.',
+          description:
+            'Document file to upload (PDF, DOC, or DOCX — max 20 MB). DOC/DOCX are auto-converted to PDF.',
         },
       },
     },
   })
   @ApiResponse({ status: 201, description: 'EHR record created successfully.' })
-  @ApiResponse({ status: 400, description: 'Validation error, unsupported file type, or no content provided.' })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Validation error, unsupported file type, or no content provided.',
+  })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — consultant or admin role required.' })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Insufficient permissions — consultant or admin role required.',
+  })
   @UseInterceptors(FileInterceptor('document', { storage: memoryStorage() }))
   async createRecord(
     @Body() dto: CreateEhrRecordDto,
@@ -126,7 +155,8 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
       let fileToUpload = document;
 
       if (this.documentConverterService.needsConversion(document)) {
-        const pdfBuffer = await this.documentConverterService.convertToPdf(document);
+        const pdfBuffer =
+          await this.documentConverterService.convertToPdf(document);
         fileToUpload = {
           ...document,
           buffer: pdfBuffer,
@@ -138,7 +168,10 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
 
       const folder = SOURCE_TYPE_FOLDER[dto.source_type] ?? 'Medicpadi/upload';
       try {
-        const result = await this.cloudinaryService.uploadDocument(fileToUpload, folder);
+        const result = await this.cloudinaryService.uploadDocument(
+          fileToUpload,
+          folder,
+        );
         dto.document_url = result.secure_url;
       } catch {
         throw new BadRequestException('Failed to upload document');
@@ -146,7 +179,9 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
     }
 
     if (!dto.document_url && !dto.content_encrypted) {
-      throw new BadRequestException('Provide either a document file, a document_url, or content_encrypted');
+      throw new BadRequestException(
+        'Provide either a document file, a document_url, or content_encrypted',
+      );
     }
 
     return this.ehrService.createRecord(dto, req.user);
@@ -156,7 +191,8 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'List EHR records',
-    description: 'Returns a paginated list of EHR records. Patients only see their own records. Consultants see records of patients who have granted them active consent (filter by `id` = patient ID). Admins see all. Accessible by `patient`, `consultant`, and `admin` roles.',
+    description:
+      'Returns a paginated list of EHR records. Patients only see their own records. Consultants see records of patients who have granted them active consent (filter by `id` = patient ID). Admins see all. Accessible by `patient`, `consultant`, and `admin` roles.',
   })
   @ApiResponse({ status: 200, description: 'Paginated list of EHR records.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
@@ -169,7 +205,8 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Get an EHR record by ID',
-    description: 'Returns a single EHR record. Patients may only read their own records; consultants need an active consent grant from the patient. Accessible by `patient`, `consultant`, and `admin` roles.',
+    description:
+      'Returns a single EHR record. Patients may only read their own records; consultants need an active consent grant from the patient. Accessible by `patient`, `consultant`, and `admin` roles.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the EHR record.' })
   @ApiResponse({ status: 200, description: 'EHR record found.' })
@@ -183,13 +220,18 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Update an EHR record',
-    description: 'Updates an existing EHR record. Consultants need an active `full_access` consent grant from the patient. Accessible by `consultant` and `admin` roles.',
+    description:
+      'Updates an existing EHR record. Consultants need an active `full_access` consent grant from the patient. Accessible by `consultant` and `admin` roles.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the EHR record to update.' })
   @ApiResponse({ status: 200, description: 'Record updated.' })
   @ApiResponse({ status: 400, description: 'Validation error.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — consultant or admin role required.' })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Insufficient permissions — consultant or admin role required.',
+  })
   @ApiResponse({ status: 404, description: 'Record not found.' })
   updateRecord(
     @Param('id') id: string,
@@ -203,12 +245,16 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Delete an EHR record',
-    description: 'Permanently removes an EHR record. Accessible by `admin` role only.',
+    description:
+      'Permanently removes an EHR record. Accessible by `admin` role only.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the EHR record to delete.' })
   @ApiResponse({ status: 200, description: 'Record deleted.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — admin role required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — admin role required.',
+  })
   @ApiResponse({ status: 404, description: 'Record not found.' })
   removeRecord(@Param('id') id: string) {
     return this.ehrService.removeRecord(id);
@@ -222,28 +268,44 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.PATIENT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Grant EHR access consent',
-    description: 'Allows a patient to grant a provider access to their EHR records. For patients, `patient_id` is set from the authenticated user; admins must supply it. Accessible by `patient` and `admin` roles.',
+    description:
+      'Allows a patient to grant a provider access to their EHR records. For patients, `patient_id` is set from the authenticated user; admins must supply it. Accessible by `patient` and `admin` roles.',
   })
   @ApiResponse({ status: 201, description: 'Consent granted.' })
   @ApiResponse({ status: 400, description: 'Validation error.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — patient or admin role required.' })
-  createConsent(@Body() dto: CreateConsentGrantDto, @Req() req: RequestWithUser) {
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — patient or admin role required.',
+  })
+  createConsent(
+    @Body() dto: CreateConsentGrantDto,
+    @Req() req: RequestWithUser,
+  ) {
     return this.ehrService.createConsent(dto, req.user);
   }
 
   @Post('/consents/request')
   @Roles(AuthRole.CONSULTANT)
   @ApiOperation({
-    summary: 'Request access to a patient\'s EHR',
+    summary: "Request access to a patient's EHR",
     description:
       'Creates a pending consent grant and notifies the patient (email + in-app) with a link to review it. The patient approves or declines via `POST /ehr/consents/:id/approve` or `/decline`. Accessible by `consultant` role.',
   })
-  @ApiResponse({ status: 201, description: 'Access request created and patient notified.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Access request created and patient notified.',
+  })
   @ApiResponse({ status: 400, description: 'Validation error.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — consultant role required.' })
-  @ApiResponse({ status: 409, description: 'Access already granted, or a request is already pending.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — consultant role required.',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Access already granted, or a request is already pending.',
+  })
   requestConsent(@Body() dto: RequestConsentDto, @Req() req: RequestWithUser) {
     return this.ehrService.requestConsent(dto, req.user);
   }
@@ -293,7 +355,10 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @ApiResponse({ status: 201, description: 'Access request cancelled.' })
   @ApiResponse({ status: 400, description: 'Request is not pending.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Not the requester of this access request.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Not the requester of this access request.',
+  })
   @ApiResponse({ status: 404, description: 'Consent grant not found.' })
   cancelConsentRequest(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.ehrService.cancelConsentRequest(id, req.user);
@@ -303,9 +368,13 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'List consent grants',
-    description: 'Returns a paginated list of EHR consent grants. Patients see grants they have issued; consultants see grants issued to them. Accessible by `patient`, `consultant`, and `admin` roles.',
+    description:
+      'Returns a paginated list of EHR consent grants. Patients see grants they have issued; consultants see grants issued to them. Accessible by `patient`, `consultant`, and `admin` roles.',
   })
-  @ApiResponse({ status: 200, description: 'Paginated list of consent grants.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated list of consent grants.',
+  })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   findAllConsents(@Query() query: PaginationDto, @Req() req: RequestWithUser) {
     return this.ehrService.findAllConsents(query, req.user);
@@ -315,7 +384,8 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Get a consent grant by ID',
-    description: 'Returns a single consent grant record. Accessible by `patient`, `consultant`, and `admin` roles.',
+    description:
+      'Returns a single consent grant record. Accessible by `patient`, `consultant`, and `admin` roles.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the consent grant.' })
   @ApiResponse({ status: 200, description: 'Consent grant found.' })
@@ -329,13 +399,17 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.PATIENT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Update a consent grant',
-    description: 'Modifies the scope or expiry of an existing consent grant. Accessible by `patient` and `admin` roles.',
+    description:
+      'Modifies the scope or expiry of an existing consent grant. Accessible by `patient` and `admin` roles.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the consent grant to update.' })
   @ApiResponse({ status: 200, description: 'Consent grant updated.' })
   @ApiResponse({ status: 400, description: 'Validation error.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — patient or admin role required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — patient or admin role required.',
+  })
   @ApiResponse({ status: 404, description: 'Consent grant not found.' })
   updateConsent(
     @Param('id') id: string,
@@ -349,12 +423,16 @@ At least one of these three must be provided. Accessible by \`consultant\` and \
   @Roles(AuthRole.PATIENT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Revoke a consent grant',
-    description: 'Revokes a previously granted consent, removing provider access to the patient\'s EHR. Accessible by `patient` and `admin` roles.',
+    description:
+      "Revokes a previously granted consent, removing provider access to the patient's EHR. Accessible by `patient` and `admin` roles.",
   })
   @ApiParam({ name: 'id', description: 'UUID of the consent grant to revoke.' })
   @ApiResponse({ status: 200, description: 'Consent revoked.' })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  @ApiResponse({ status: 403, description: 'Insufficient permissions — patient or admin role required.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions — patient or admin role required.',
+  })
   @ApiResponse({ status: 404, description: 'Consent grant not found.' })
   revokeConsent(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.ehrService.revokeConsent(id, req.user);

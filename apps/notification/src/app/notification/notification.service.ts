@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import {
   CreateNotificationDto,
-  PaginationDto,
+  NotificationQueryDto,
   PaginationResponseDto,
   ServiceError,
   UpdateNotificationDto,
@@ -36,13 +36,17 @@ export class NotificationService {
   }
 
   async findAll(
-    query: PaginationDto,
+    userId: string,
+    query: NotificationQueryDto,
   ): Promise<PaginationResponseDto<Notification>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
     try {
       const [data, total] = await this.notificationRepo.findAndCount({
-        where: query.id ? { user_id: query.id } : {},
+        where: {
+          user_id: userId,
+          ...(query.unreadOnly && { is_read: false }),
+        },
         take: limit,
         skip: (page - 1) * limit,
         order: { createdAt: 'DESC' },
@@ -56,25 +60,79 @@ export class NotificationService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(userId: string, id: string) {
+    let notification: Notification | null;
     try {
-      return await this.notificationRepo.findOne({ where: { id } });
+      notification = await this.notificationRepo.findOne({
+        where: { id, user_id: userId },
+      });
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to get notification',
       } as ServiceError);
     }
+    // Same 404 for missing and not-owned, so other users' ids aren't discoverable
+    if (!notification) {
+      throw new RpcException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Notification not found',
+      } as ServiceError);
+    }
+    return notification;
   }
 
-  async markRead(id: string) {
+  async markRead(userId: string, id: string) {
+    let affected: number | undefined;
     try {
-      await this.notificationRepo.update({ id }, { is_read: true });
-      return { message: 'Notification marked as read' };
+      const result = await this.notificationRepo.update(
+        { id, user_id: userId },
+        { is_read: true },
+      );
+      affected = result.affected;
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to mark notification as read',
+      } as ServiceError);
+    }
+    if (!affected) {
+      throw new RpcException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Notification not found',
+      } as ServiceError);
+    }
+    return { message: 'Notification marked as read' };
+  }
+
+  async markAllRead(userId: string) {
+    try {
+      const result = await this.notificationRepo.update(
+        { user_id: userId, is_read: false },
+        { is_read: true },
+      );
+      return {
+        message: 'All notifications marked as read',
+        updated: result.affected ?? 0,
+      };
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to mark notifications as read',
+      } as ServiceError);
+    }
+  }
+
+  async unreadCount(userId: string) {
+    try {
+      const count = await this.notificationRepo.count({
+        where: { user_id: userId, is_read: false },
+      });
+      return { count };
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to get unread notification count',
       } as ServiceError);
     }
   }
@@ -100,24 +158,16 @@ export class NotificationService {
     }
   }
 
-  async remove(id: string) {
+  async remove(userId: string, id: string) {
+    const existing = await this.findOne(userId, id);
     try {
-      const existing = await this.findOne(id);
-      if (!existing) {
-        throw new RpcException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'Notification not found',
-        } as ServiceError);
-      }
       await this.notificationRepo.remove(existing);
       return { message: 'Notification removed successfully' };
     } catch (error) {
-      throw error instanceof RpcException
-        ? error
-        : new RpcException({
-            statusCode: HttpStatus.REQUEST_TIMEOUT,
-            message: 'Unable to remove notification',
-          } as ServiceError);
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to remove notification',
+      } as ServiceError);
     }
   }
 }
