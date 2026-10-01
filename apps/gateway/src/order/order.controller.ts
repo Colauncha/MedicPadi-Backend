@@ -113,19 +113,31 @@ export class OrderController {
     return this.orderService.acceptAppointment(id);
   }
 
-  @Get('/appointments/:id/complete')
-  @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
+  @Patch('/appointments/:id/complete')
+  @Roles(AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({
     summary: 'Doctor complete an appointment',
     description:
-      'Returns a single appointment. The response detail level may differ by role. Accessible by `patient`, `consultant`, and `admin` roles.',
+      'Marks a confirmed, paid appointment as completed. Accessible by `consultant` (appointment provider only) and `admin` roles.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the appointment.' })
-  @ApiResponse({ status: 200, description: 'Appointment found.' })
+  @ApiResponse({ status: 200, description: 'Appointment completed.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Appointment is not confirmed, not paid, or already completed.',
+  })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not the appointment provider.',
+  })
   @ApiResponse({ status: 404, description: 'Appointment not found.' })
-  completeAppointment(@Param('id') id: string) {
-    return this.orderService.completeAppointment(id);
+  completeAppointment(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.orderService.completeAppointment(
+      id,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @Patch('/appointments/:id')

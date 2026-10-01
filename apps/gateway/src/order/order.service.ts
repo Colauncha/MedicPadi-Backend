@@ -121,11 +121,11 @@ export class OrderService {
     );
   }
 
-  async completeAppointment(id: string) {
+  async completeAppointment(id: string, userId: string, role: AuthRole) {
     return firstValueFrom(
       this.orderClient.send(
         OrderPatterns.APPOINTMENTS.COMPLETE_APPOINTMENT,
-        withServiceAuth({ id }, this.serviceToken),
+        withServiceAuth({ id, userId, role }, this.serviceToken),
       ),
     );
   }

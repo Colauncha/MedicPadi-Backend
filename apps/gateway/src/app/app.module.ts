@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
-import { appConfig } from '@medicpadi-backend/config';
+import { appConfig, paystackConfig } from '@medicpadi-backend/config';
 import { AuthModule } from '../auth/auth.module';
 import { ProfileModule } from '../profile/profile.module';
 import KeyvRedis from '@keyv/redis';
@@ -30,7 +30,7 @@ import { SearchModule } from '../search/search.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `medicpadi-backend/apps/gateway/.env.${process.env.NODE_ENV || 'development'}`,
-      load: [appConfig],
+      load: [appConfig, paystackConfig],
     }),
     CacheModule.registerAsync({
       imports: [ConfigModule],

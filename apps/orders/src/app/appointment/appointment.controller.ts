@@ -53,9 +53,15 @@ export class AppointmentController {
     return this.appointmentService.completePayment(id);
   }
 
-  @EventPattern(OrderPatterns.APPOINTMENTS.COMPLETE_APPOINTMENT)
-  completeAppointment(@Payload('data') id: string) {
-    return this.appointmentService.completeAppointment(id);
+  @MessagePattern(OrderPatterns.APPOINTMENTS.COMPLETE_APPOINTMENT)
+  completeAppointment(
+    @Payload('data') dto: { id: string; userId: string; role: AuthRole },
+  ) {
+    return this.appointmentService.completeAppointment(
+      dto.id,
+      dto.userId,
+      dto.role,
+    );
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.GET_SIGNATURE)

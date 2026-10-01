@@ -575,7 +575,7 @@ export class AppointmentService {
     }
   }
 
-  async completeAppointment(id: string) {
+  async completeAppointment(id: string, userId: string, role: AuthRole) {
     try {
       const existing = await this.appointmentRepo.findOne({ where: { id } });
       if (!existing) {
@@ -584,10 +584,25 @@ export class AppointmentService {
           message: 'Appointment not found',
         } as ServiceError);
       }
+      if (role !== AuthRole.ADMIN && existing.provider_id !== userId) {
+        throw new RpcException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Only the appointment provider can complete this appointment',
+        } as ServiceError);
+      }
       if (existing.status === AppointmentStatus.COMPLETED) {
         throw new RpcException({
           statusCode: HttpStatus.BAD_REQUEST,
           message: 'Appointment already completed.',
+        } as ServiceError);
+      }
+      if (
+        existing.status !== AppointmentStatus.CONFIRMED ||
+        existing.paymentStatus !== AppointmentPaymentStatus.P_CONFIRMED
+      ) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Only confirmed and paid appointments can be completed.',
         } as ServiceError);
       }
       existing.status = AppointmentStatus.COMPLETED;
