@@ -2,6 +2,15 @@ import axios from 'axios';
 import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+function toZoomError(error: unknown, fallback: string): Error {
+  if (axios.isAxiosError(error) && error.response) {
+    const { status, data } = error.response;
+    const detail = typeof data === 'string' ? data : JSON.stringify(data);
+    return new Error(`${fallback}: Zoom responded ${status} ${detail}`);
+  }
+  return error instanceof Error ? error : new Error(fallback);
+}
+
 @Injectable()
 export class ZoomService {
   constructor(@Inject() private readonly configService: ConfigService) {}
@@ -15,17 +24,21 @@ export class ZoomService {
       'zoomConfig.clientSecret',
     );
 
-    const response = await axios.post(
-      `${AUTH_URL}?grant_type=account_credentials&account_id=${ACCT_ID}`,
-      {},
-      {
-        auth: {
-          username: CLIENT_ID || '',
-          password: CLIENT_SECRET || '',
+    try {
+      const response = await axios.post(
+        `${AUTH_URL}?grant_type=account_credentials&account_id=${ACCT_ID}`,
+        {},
+        {
+          auth: {
+            username: CLIENT_ID || '',
+            password: CLIENT_SECRET || '',
+          },
         },
-      },
-    );
-    return response.data.access_token;
+      );
+      return response.data.access_token;
+    } catch (error) {
+      throw toZoomError(error, 'Error fetching Zoom access token');
+    }
   }
 
   async createMeeting(topic: string, startTime: string, sessionLength: number) {
@@ -64,9 +77,7 @@ export class ZoomService {
         };
       }
     } catch (error) {
-      throw error instanceof Error
-        ? error
-        : new Error('Error creating Zoom meeting');
+      throw toZoomError(error, 'Error creating Zoom meeting');
     }
   }
 
@@ -120,9 +131,7 @@ export class ZoomService {
         };
       }
     } catch (error) {
-      throw error instanceof Error
-        ? error
-        : new Error('Error updating Zoom meeting');
+      throw toZoomError(error, 'Error updating Zoom meeting');
     }
   }
 
@@ -141,9 +150,7 @@ export class ZoomService {
         return { message: 'Meeting deleted successfully' };
       }
     } catch (error) {
-      throw error instanceof Error
-        ? error
-        : new Error('Error deleting Zoom meeting');
+      throw toZoomError(error, 'Error deleting Zoom meeting');
     }
   }
 
@@ -161,9 +168,7 @@ export class ZoomService {
 
       return response.data.token as string;
     } catch (error) {
-      throw error instanceof Error
-        ? error
-        : new Error('Error fetching Zoom ZAK token');
+      throw toZoomError(error, 'Error fetching Zoom ZAK token');
     }
   }
 }
