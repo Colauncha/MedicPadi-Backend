@@ -114,6 +114,9 @@ export * from './lib/dtos/ai-agent/send-message.dto';
 export * from './lib/dtos/ai-agent/run-agent.dto';
 export * from './lib/dtos/ai-agent/process-document.dto';
 
+// Search DTOs
+export * from './lib/dtos/search/search.dto';
+
 // Patterns
 export const AuthPatterns = authPatterns;
 export * from './lib/patterns/profile.patterns';
