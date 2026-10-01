@@ -53,15 +53,18 @@ export class AppointmentController {
     return this.appointmentService.completePayment(id);
   }
 
+  @EventPattern(OrderPatterns.APPOINTMENTS.COMPLETE_APPOINTMENT)
+  completeAppointment(@Payload('data') id: string) {
+    return this.appointmentService.completeAppointment(id);
+  }
+
   @MessagePattern(OrderPatterns.APPOINTMENTS.GET_SIGNATURE)
   getSignature(@Payload('data') dto: { id: string; role: AuthRole }) {
     return this.appointmentService.getSignature(dto.id, dto.role);
   }
 
   @MessagePattern(OrderPatterns.APPOINTMENTS.GET_ZAK)
-  getZak(
-    @Payload('data') dto: { id: string; userId: string; role: AuthRole },
-  ) {
+  getZak(@Payload('data') dto: { id: string; userId: string; role: AuthRole }) {
     return this.appointmentService.getZak(dto.id, dto.userId, dto.role);
   }
 
