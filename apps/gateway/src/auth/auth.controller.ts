@@ -9,6 +9,8 @@ import {
   UseGuards,
   Query,
   ParseIntPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -57,6 +59,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Log in',
     description:
@@ -77,7 +80,7 @@ export class AuthController {
     response.cookie('auth_token', token.access_token, {
       httpOnly: true,
     });
-    return response.send({ message: 'Login successful', token });
+    return { message: 'Login successful', token };
   }
 
   @Get('logout')

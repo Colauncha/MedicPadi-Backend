@@ -15,6 +15,8 @@ export class RpcExceptionFilter implements ExceptionFilter {
 
     this.logError(exception, err);
 
+    if (response.headersSent) return;
+
     if (
       process.env['NODE_ENV'] === 'development' ||
       process.env['NODE_ENV'] === 'staging'
