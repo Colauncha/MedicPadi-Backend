@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule } from '@nestjs/microservices';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConsentGrant } from '../../entities/consent-grant.entity';
 import { ConsentController } from './consent.controller';
 import { ConsentService } from './consent.service';
@@ -16,13 +16,13 @@ import { EhrAccessService } from './ehr-access.service';
         imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: async (configService: ConfigService) => ({
-          transport: 1, // Transport.TCP
+          transport: Transport.TCP,
           options: {
             host: configService.get<string>(
               'serviceConfig.notificationServiceHost',
             ),
             port: configService.get<number>(
-              'serviceConfig.notificationServicePort',
+              'appConfig.notificationServicePort',
             ),
           },
         }),

@@ -6,7 +6,7 @@ import { EhrRecordsModule } from './ehr-records/ehr-records.module';
 import { ConsentModule } from './consent/consent.module';
 import { EhrRecord } from '../entities/ehr-record.entity';
 import { ConsentGrant } from '../entities/consent-grant.entity';
-import { ClientsModule } from '@nestjs/microservices';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -40,13 +40,13 @@ import { ClientsModule } from '@nestjs/microservices';
         imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: async (configService: ConfigService) => ({
-          transport: 1, // Transport.TCP
+          transport: Transport.TCP,
           options: {
             host: configService.get<string>(
               'serviceConfig.notificationServiceHost',
             ),
             port: configService.get<number>(
-              'serviceConfig.notificationServicePort',
+              'appConfig.notificationServicePort',
             ),
           },
         }),
