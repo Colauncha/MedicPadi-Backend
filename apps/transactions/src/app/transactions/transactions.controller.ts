@@ -58,6 +58,11 @@ export class TransactionsController {
     return this.transactionsService.creditProviderWallet(sourceId);
   }
 
+  @MessagePattern(TransactionPatterns.TRANSACTIONS.REFUND)
+  refundTransaction(@Payload('data') sourceId: string) {
+    return this.transactionsService.refundTransaction(sourceId);
+  }
+
   @MessagePattern(TransactionPatterns.WALLET.CREATE)
   createWallet(@Payload('data') dto: CreateWalletDto) {
     return this.transactionsService.createWallet(dto);

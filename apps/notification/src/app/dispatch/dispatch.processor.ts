@@ -3,6 +3,7 @@ import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import {
   AppointmentCancelledEventDto,
+  AppointmentCompletedEventDto,
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
@@ -62,6 +63,8 @@ export class DispatchProcessor extends WorkerHost {
         return this.handleAppointmentConfirmed(job as Job<AppointmentConfirmedEventDto>);
       case NotificationJobNames.APPOINTMENT_PAYMENT_CONFIRMED:
         return this.handleAppointmentPaymentConfirmed(job as Job<AppointmentPaymentConfirmedEventDto>);
+      case NotificationJobNames.APPOINTMENT_COMPLETED:
+        return this.handleAppointmentCompleted(job as Job<AppointmentCompletedEventDto>);
       case NotificationJobNames.APPOINTMENT_CANCELLED:
         return this.handleAppointmentCancelled(job as Job<AppointmentCancelledEventDto>);
       case NotificationJobNames.TEST_REQUISITION_CREATED:
@@ -254,6 +257,49 @@ export class DispatchProcessor extends WorkerHost {
         title: 'Patient Payment Received',
         body: `${patientName} has paid for the appointment on ${new Date(appointmentTime).toLocaleString()}.`,
         type: NotificationType.PAYMENT,
+        source_id: appointmentId,
+        channel: NotificationChannel.IN_APP,
+      }),
+    ]);
+  }
+
+  private async handleAppointmentCompleted(job: Job<AppointmentCompletedEventDto>) {
+    const { appointmentId, patientId, doctorId, appointmentTime, confirmLink } = job.data;
+
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
+      this.dispatchService.resolveUserAuth(patientId),
+      this.dispatchService.resolvePatient(patientId),
+      this.dispatchService.resolveUserAuth(doctorId),
+      this.dispatchService.resolveDoctor(doctorId),
+    ]);
+
+    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
+
+    if (patientProfile.emailNotificationsEnabled) {
+      await this.emailService.appointmentCompletedEmail(
+        patientAuth.email,
+        patientName,
+        doctorName,
+        appointmentTime,
+        confirmLink,
+      );
+    }
+
+    await Promise.all([
+      this.notifyUser(patientProfile, {
+        user_id: patientId,
+        title: 'Please Confirm Your Appointment',
+        body: `${doctorName} marked your appointment on ${new Date(appointmentTime).toLocaleString()} as completed. Please confirm it took place.`,
+        type: NotificationType.APPOINTMENT,
+        source_id: appointmentId,
+        channel: NotificationChannel.IN_APP,
+      }),
+      this.notifyUser(doctorProfile, {
+        user_id: doctorId,
+        title: 'Appointment Completed',
+        body: `Your appointment with ${patientName} on ${new Date(appointmentTime).toLocaleString()} is complete. Your payment will be released once the patient confirms.`,
+        type: NotificationType.APPOINTMENT,
         source_id: appointmentId,
         channel: NotificationChannel.IN_APP,
       }),

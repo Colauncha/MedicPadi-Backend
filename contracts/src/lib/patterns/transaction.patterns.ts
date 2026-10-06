@@ -10,6 +10,7 @@ export const TransactionPatterns = {
     VERIFY: 'transactions.verify',
     WEBHOOK: 'transactions.webhook',
     CREDIT_PROVIDER: 'transactions.creditProvider',
+    REFUND: 'transactions.refund',
   },
   WALLET: {
     CREATE: 'transactions.wallet.create',

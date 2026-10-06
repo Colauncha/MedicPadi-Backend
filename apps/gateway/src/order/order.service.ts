@@ -130,6 +130,33 @@ export class OrderService {
     );
   }
 
+  async confirmAppointmentCompletion(
+    id: string,
+    userId: string,
+    role: AuthRole,
+  ) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.CONFIRM_COMPLETION,
+        withServiceAuth({ id, userId, role }, this.serviceToken),
+      ),
+    );
+  }
+
+  async cancelAppointment(
+    id: string,
+    reason: string,
+    userId: string,
+    role: AuthRole,
+  ) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.CANCEL,
+        withServiceAuth({ id, reason, userId, role }, this.serviceToken),
+      ),
+    );
+  }
+
   async docGetPatients(query: PaginationDto & { docId: string }) {
     return firstValueFrom(
       this.orderClient.send(

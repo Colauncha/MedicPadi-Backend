@@ -58,6 +58,24 @@ export class AppointmentPaymentConfirmedEventDto {
   meetingLink?: string;
 }
 
+export class AppointmentCompletedEventDto {
+  @IsUUID()
+  appointmentId!: string;
+
+  @IsUUID()
+  patientId!: string;
+
+  @IsUUID()
+  doctorId!: string;
+
+  @IsDateString()
+  appointmentTime!: string;
+
+  @IsOptional()
+  @IsString()
+  confirmLink?: string;
+}
+
 export class AppointmentCancelledEventDto {
   @IsUUID()
   appointmentId!: string;

@@ -149,6 +149,29 @@ export class EmailService {
     });
   }
 
+  async appointmentCompletedEmail(
+    email: string,
+    patientName: string,
+    doctorName: string,
+    appointmentTime: string,
+    confirmLink?: string,
+  ) {
+    return this.mailerService.sendMail({
+      to: email,
+      subject: 'Please Confirm Your Appointment',
+      template: 'appointment-completed-patient',
+      context: {
+        patientName,
+        doctorName,
+        appointmentTime: new Date(appointmentTime).toLocaleString(),
+        confirmLink: confirmLink ?? 'https://medicpadi.com',
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
   async appointmentPaymentConfirmedEmail(
     email: string,
     patientName: string,

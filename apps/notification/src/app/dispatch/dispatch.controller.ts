@@ -4,6 +4,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import {
   AppointmentCancelledEventDto,
+  AppointmentCompletedEventDto,
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
@@ -60,6 +61,11 @@ export class DispatchController {
   @EventPattern(NotificationEvents.APPOINTMENT_PAYMENT_CONFIRMED)
   appointmentPaymentConfirmed(@Payload('data') dto: AppointmentPaymentConfirmedEventDto) {
     return this.queue.add(NotificationJobNames.APPOINTMENT_PAYMENT_CONFIRMED, dto, JOB_OPTIONS);
+  }
+
+  @EventPattern(NotificationEvents.APPOINTMENT_COMPLETED)
+  appointmentCompleted(@Payload('data') dto: AppointmentCompletedEventDto) {
+    return this.queue.add(NotificationJobNames.APPOINTMENT_COMPLETED, dto, JOB_OPTIONS);
   }
 
   @EventPattern(NotificationEvents.APPOINTMENT_CANCELLED)

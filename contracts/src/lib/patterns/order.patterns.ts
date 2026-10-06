@@ -9,6 +9,8 @@ export const OrderPatterns = {
     ACCEPT: 'orders.appointments.accept',
     COMPLETE_PAYMENT: 'orders.appointments.completePayment',
     COMPLETE_APPOINTMENT: 'orders.appointments.completeAppointment',
+    CONFIRM_COMPLETION: 'orders.appointments.confirmCompletion',
+    CANCEL: 'orders.appointments.cancel',
     GET_SIGNATURE: 'orders.appointments.getSignature',
     GET_ZAK: 'orders.appointments.getZak',
     GET_PATIENTS: 'orders.appointments.getPatients',

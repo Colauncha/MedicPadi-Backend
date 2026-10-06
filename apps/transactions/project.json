@@ -52,6 +52,13 @@
         "staging": { "buildTarget": "transactions:build:staging" }
       }
     },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx jest --config jest.config.json --runInBand",
+        "cwd": "apps/{projectName}"
+      }
+    },
     "docker-build": {
       "executor": "nx:run-commands",
       "options": {

@@ -45,6 +45,17 @@ export class TransactionsService {
     );
   }
 
+  private get commissionRate(): number {
+    const rate = this.configService.get<number>('appConfig.medicpadiCommission');
+    if (rate === undefined || Number.isNaN(rate) || rate < 0 || rate >= 1) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Invalid MEDICPADI_COMMISION configuration',
+      } as ServiceError);
+    }
+    return rate;
+  }
+
   private readonly tranxSourceMap = {
     appointment: OrderPatterns.APPOINTMENTS,
     drug_requisition: OrderPatterns.DRUG_REQUISITIONS,
@@ -288,12 +299,19 @@ export class TransactionsService {
     try {
       const transaction = await queryRunner.manager.findOne(Transaction, {
         where: { source_id: sourceId },
+        order: { createdAt: 'DESC' },
+        lock: { mode: 'pessimistic_write' },
       });
       if (!transaction) {
         throw new RpcException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'Transaction not found',
         } as ServiceError);
+      }
+      // Idempotent: a retried credit must not pay the provider twice
+      if (transaction.payment_status === PaymentStatus.PAID) {
+        await queryRunner.commitTransaction();
+        return { message: 'Provider wallet already credited' };
       }
       if (transaction.payment_status !== PaymentStatus.ESCROW) {
         throw new RpcException({
@@ -303,6 +321,7 @@ export class TransactionsService {
       }
       const wallet = await queryRunner.manager.findOne(Wallet, {
         where: { user_id: transaction.provider_id! },
+        lock: { mode: 'pessimistic_write' },
       });
       if (!wallet) {
         throw new RpcException({
@@ -310,12 +329,21 @@ export class TransactionsService {
           message: 'Provider wallet not found',
         } as ServiceError);
       }
-      wallet.balance += transaction.amount;
+      const amount = Number(transaction.amount);
+      const payout = Math.round(amount * (1 - this.commissionRate) * 100) / 100;
+      const commission = Math.round((amount - payout) * 100) / 100;
+
+      wallet.balance = Math.round((Number(wallet.balance) + payout) * 100) / 100;
       await queryRunner.manager.save(wallet);
       transaction.payment_status = PaymentStatus.PAID;
       await queryRunner.manager.save(transaction);
       await queryRunner.commitTransaction();
-      return { message: 'Provider wallet credited successfully' };
+      return {
+        message: 'Provider wallet credited successfully',
+        amount,
+        commission,
+        payout,
+      };
     } catch (error) {
       logError(error, `${TransactionsService.name}.creditProviderWallet`);
       await queryRunner.rollbackTransaction();
@@ -324,6 +352,84 @@ export class TransactionsService {
         : new RpcException({
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
             message: 'Unable to credit provider wallet',
+          } as ServiceError);
+    } finally {
+      queryRunner.release();
+    }
+  }
+
+  async refundTransaction(sourceId: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const transaction = await queryRunner.manager.findOne(Transaction, {
+        where: { source_id: sourceId },
+        order: { createdAt: 'DESC' },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!transaction) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Transaction not found',
+        } as ServiceError);
+      }
+      // Idempotent: a retried refund must not hit the gateway twice
+      if (transaction.payment_status === PaymentStatus.REFUNDED) {
+        await queryRunner.commitTransaction();
+        return { message: 'Transaction already refunded' };
+      }
+      if (transaction.payment_status !== PaymentStatus.ESCROW) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Only escrowed transactions can be refunded',
+        } as ServiceError);
+      }
+
+      if (transaction.gateway === PaymentGateway.PAYSTACK) {
+        const paystackUrl = this.configService.get<string>(
+          'paystackConfig.paystackApiUrl',
+        );
+        const paystackSecretKey = this.configService.get<string>(
+          'paystackConfig.secretKey',
+        );
+        const response = await fetch(`${paystackUrl}/refund`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${paystackSecretKey}`,
+          },
+          body: JSON.stringify({ transaction: transaction.gateway_reference }),
+        });
+        const data: { status: boolean; message: string } =
+          await response.json();
+
+        if (!data.status) {
+          throw new RpcException({
+            statusCode: HttpStatus.BAD_GATEWAY,
+            message: data.message || 'Unable to refund transaction',
+          } as ServiceError);
+        }
+      } else {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Refunds are not supported for this payment gateway',
+        } as ServiceError);
+      }
+
+      transaction.payment_status = PaymentStatus.REFUNDED;
+      await queryRunner.manager.save(transaction);
+      await queryRunner.commitTransaction();
+      return { message: 'Transaction refunded successfully' };
+    } catch (error) {
+      logError(error, `${TransactionsService.name}.refundTransaction`);
+      await queryRunner.rollbackTransaction();
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Unable to refund transaction',
           } as ServiceError);
     } finally {
       queryRunner.release();

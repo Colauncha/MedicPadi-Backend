@@ -64,6 +64,30 @@ export class AppointmentController {
     );
   }
 
+  @MessagePattern(OrderPatterns.APPOINTMENTS.CONFIRM_COMPLETION)
+  confirmCompletion(
+    @Payload('data') dto: { id: string; userId: string; role: AuthRole },
+  ) {
+    return this.appointmentService.confirmCompletion(
+      dto.id,
+      dto.userId,
+      dto.role,
+    );
+  }
+
+  @MessagePattern(OrderPatterns.APPOINTMENTS.CANCEL)
+  cancel(
+    @Payload('data')
+    dto: { id: string; reason: string; userId: string; role: AuthRole },
+  ) {
+    return this.appointmentService.cancel(
+      dto.id,
+      dto.reason,
+      dto.userId,
+      dto.role,
+    );
+  }
+
   @MessagePattern(OrderPatterns.APPOINTMENTS.GET_SIGNATURE)
   getSignature(@Payload('data') dto: { id: string; role: AuthRole }) {
     return this.appointmentService.getSignature(dto.id, dto.role);

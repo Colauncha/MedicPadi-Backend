@@ -10,6 +10,7 @@ import {
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   AppointmentCancelledEventDto,
+  AppointmentCompletedEventDto,
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
@@ -607,6 +608,20 @@ export class AppointmentService {
       }
       existing.status = AppointmentStatus.COMPLETED;
       await this.appointmentRepo.save(existing);
+
+      // Ask the patient to confirm; the doctor is paid only after confirmation
+      const eventDto: AppointmentCompletedEventDto = {
+        appointmentId: existing.id,
+        patientId: existing.patient_id || '',
+        doctorId: existing.provider_id || '',
+        appointmentTime: existing.appointment_time?.toISOString() ?? '',
+        confirmLink: `${this.serverUrls.frontend}/appointments/${existing.id}`,
+      };
+      this.notificationClient.emit(
+        NotificationEvents.APPOINTMENT_COMPLETED,
+        withServiceAuth(eventDto, this.serviceToken),
+      );
+
       return { success: true, message: 'Appointment completed successfully' };
     } catch (error) {
       logError(error, `${AppointmentService.name}.completeAppointment`);
@@ -620,7 +635,7 @@ export class AppointmentService {
     }
   }
 
-  async cancel(id: string, reason: string) {
+  async confirmCompletion(id: string, userId: string, role: AuthRole) {
     try {
       const existing = await this.appointmentRepo.findOne({ where: { id } });
       if (!existing) {
@@ -629,12 +644,104 @@ export class AppointmentService {
           message: 'Appointment not found',
         } as ServiceError);
       }
+      if (role !== AuthRole.ADMIN && existing.patient_id !== userId) {
+        throw new RpcException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Only the appointment patient can confirm completion',
+        } as ServiceError);
+      }
+      if (existing.paymentStatus === AppointmentPaymentStatus.P_COMPLETED) {
+        return { success: true, message: 'Appointment already confirmed' };
+      }
+      if (
+        existing.status !== AppointmentStatus.COMPLETED ||
+        existing.paymentStatus !== AppointmentPaymentStatus.P_CONFIRMED
+      ) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message:
+            'Only paid appointments marked completed by the doctor can be confirmed.',
+        } as ServiceError);
+      }
+
+      // Credit first: it is idempotent, so a failed save below can be retried
+      await firstValueFrom(
+        this.transactionsClient.send(
+          TransactionPatterns.TRANSACTIONS.CREDIT_PROVIDER,
+          withServiceAuth(existing.id, this.serviceToken),
+        ),
+      );
+      existing.paymentStatus = AppointmentPaymentStatus.P_COMPLETED;
+      await this.appointmentRepo.save(existing);
+      return { success: true, message: 'Appointment confirmed successfully' };
+    } catch (error) {
+      logError(error, `${AppointmentService.name}.confirmCompletion`);
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: 'Unable to confirm appointment completion',
+          } as ServiceError);
+    }
+  }
+
+  async cancel(id: string, reason: string, userId: string, role: AuthRole) {
+    try {
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Appointment not found',
+        } as ServiceError);
+      }
+      if (
+        role !== AuthRole.ADMIN &&
+        existing.patient_id !== userId &&
+        existing.provider_id !== userId
+      ) {
+        throw new RpcException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Only the appointment patient or provider can cancel it',
+        } as ServiceError);
+      }
+
+      const isPaid =
+        existing.paymentStatus === AppointmentPaymentStatus.P_CONFIRMED;
+      const cancellable =
+        existing.status === AppointmentStatus.PENDING ||
+        existing.status === AppointmentStatus.SCHEDULED ||
+        existing.status === AppointmentStatus.CONFIRMED ||
+        // Completed but not yet confirmed by the patient: admin dispute resolution
+        (existing.status === AppointmentStatus.COMPLETED &&
+          isPaid &&
+          role === AuthRole.ADMIN);
+      if (!cancellable) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Appointment cannot be cancelled in its current state (${existing.status}).`,
+        } as ServiceError);
+      }
+
+      // Refund before cancelling so a failed refund leaves the appointment intact
+      if (isPaid) {
+        await firstValueFrom(
+          this.transactionsClient.send(
+            TransactionPatterns.TRANSACTIONS.REFUND,
+            withServiceAuth(existing.id, this.serviceToken),
+          ),
+        );
+      }
+
       if (existing.meeting_id) {
         await this.zoomService.deleteMeeting(existing.meeting_id);
       }
       await this.appointmentRepo.update(
         { id },
-        { status: AppointmentStatus.CANCELLED, doctorsNote: reason },
+        {
+          status: AppointmentStatus.CANCELLED,
+          doctorsNote: reason,
+          ...(isPaid && { paymentStatus: AppointmentPaymentStatus.P_CANCELLED }),
+        },
       );
 
       const token = this.serviceToken;
@@ -649,14 +756,17 @@ export class AppointmentService {
         withServiceAuth(eventDto, token),
       );
 
-      return { message: 'Appointment removed successfully' };
+      return {
+        message: 'Appointment cancelled successfully',
+        refunded: isPaid,
+      };
     } catch (error) {
       logError(error, `${AppointmentService.name}.cancel`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
             statusCode: HttpStatus.REQUEST_TIMEOUT,
-            message: 'Unable to remove appointment',
+            message: 'Unable to cancel appointment',
           } as ServiceError);
     }
   }
@@ -668,6 +778,14 @@ export class AppointmentService {
         throw new RpcException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'Appointment not found',
+        } as ServiceError);
+      }
+      // Paid appointments hold funds in escrow; they must be cancelled (refunded) instead
+      if (existing.paymentStatus === AppointmentPaymentStatus.P_CONFIRMED) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message:
+            'Paid appointments cannot be deleted. Cancel the appointment to refund the patient.',
         } as ServiceError);
       }
       if (existing.meeting_id) {

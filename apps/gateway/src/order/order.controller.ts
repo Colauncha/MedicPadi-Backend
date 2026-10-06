@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   Req,
+  ValidationPipe,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import {
@@ -24,6 +25,7 @@ import {
   PaginationDto,
   DeclineTestRequisitionDto,
   AppointmentQueryDto,
+  CancelAppointmentDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { Roles } from '../guards/decorators/roles.decorator';
@@ -34,6 +36,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
+// The gateway has no global ValidationPipe, so validate at the edge.
+const validate = new ValidationPipe({ whitelist: true, transform: true });
 
 @ApiTags('Orders')
 @ApiBearerAuth('access-token')
@@ -118,7 +123,7 @@ export class OrderController {
   @ApiOperation({
     summary: 'Doctor complete an appointment',
     description:
-      'Marks a confirmed, paid appointment as completed. Accessible by `consultant` (appointment provider only) and `admin` roles.',
+      'Marks a confirmed, paid appointment as completed. The payout is released to the doctor only after the patient confirms completion. Accessible by `consultant` (appointment provider only) and `admin` roles.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the appointment.' })
   @ApiResponse({ status: 200, description: 'Appointment completed.' })
@@ -135,6 +140,76 @@ export class OrderController {
   completeAppointment(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.orderService.completeAppointment(
       id,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  @Patch('/appointments/:id/confirm')
+  @Roles(AuthRole.PATIENT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Patient confirm a completed appointment',
+    description:
+      "Confirms that a doctor-completed appointment took place and releases the payment (minus MedicPadi's commission) to the doctor's wallet. Accessible by `patient` (appointment patient only) and `admin` roles.",
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the appointment.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Appointment confirmed and doctor credited.',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Appointment is not paid or has not been completed by the doctor.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not the appointment patient.',
+  })
+  @ApiResponse({ status: 404, description: 'Appointment not found.' })
+  confirmAppointmentCompletion(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.orderService.confirmAppointmentCompletion(
+      id,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  @Patch('/appointments/:id/cancel')
+  @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Cancel an appointment',
+    description:
+      'Cancels an appointment. If it has been paid, the patient is refunded through the payment gateway first. Accessible by `patient` and `consultant` (participants only) and `admin` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the appointment to cancel.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Appointment cancelled (and refunded if paid).',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Appointment cannot be cancelled in its current state.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not a participant of the appointment.',
+  })
+  @ApiResponse({ status: 404, description: 'Appointment not found.' })
+  @ApiResponse({ status: 502, description: 'Refund could not be processed.' })
+  cancelAppointment(
+    @Param('id') id: string,
+    @Body(validate) dto: CancelAppointmentDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.orderService.cancelAppointment(
+      id,
+      dto.reason,
       req.user.id,
       req.user.role,
     );
@@ -162,12 +237,16 @@ export class OrderController {
   @Delete('/appointments/:id')
   @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
   @ApiOperation({
-    summary: 'Cancel an appointment',
+    summary: 'Delete an appointment',
     description:
-      'Cancels (removes) an appointment. Accessible by `patient`, `consultant`, and `admin` roles.',
+      'Permanently deletes an unpaid appointment. Paid appointments must be cancelled via `PATCH /appointments/:id/cancel` so the patient is refunded. Accessible by `patient`, `consultant`, and `admin` roles.',
   })
-  @ApiParam({ name: 'id', description: 'UUID of the appointment to cancel.' })
-  @ApiResponse({ status: 200, description: 'Appointment cancelled.' })
+  @ApiParam({ name: 'id', description: 'UUID of the appointment to delete.' })
+  @ApiResponse({ status: 200, description: 'Appointment deleted.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Appointment is paid; cancel it instead.',
+  })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   @ApiResponse({ status: 404, description: 'Appointment not found.' })
   removeAppointment(@Param('id') id: string) {

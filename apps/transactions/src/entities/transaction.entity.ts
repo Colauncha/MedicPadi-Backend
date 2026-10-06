@@ -4,6 +4,7 @@ import {
   PaymentStatus,
   TransactionSourceType,
 } from '@medicpadi-backend/contracts';
+import { decimalTransformer } from '@medicpadi-backend/utils';
 import { Column, Entity } from 'typeorm';
 
 @Entity('transactions')
@@ -20,7 +21,13 @@ export class Transaction extends BaseClass {
   @Column({ type: 'uuid', nullable: true })
   provider_id?: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    transformer: decimalTransformer,
+  })
   amount!: number;
 
   @Column({ type: 'varchar', default: 'NGN' })

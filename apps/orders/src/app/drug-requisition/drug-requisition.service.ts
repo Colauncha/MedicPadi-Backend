@@ -308,7 +308,9 @@ export class DrugRequisitionService {
         } as ServiceError);
       }
       if (
-        existing.payment_status === (PaymentStatus.PAID || PaymentStatus.ESCROW)
+        [PaymentStatus.PAID, PaymentStatus.ESCROW].includes(
+          existing.payment_status,
+        )
       ) {
         throw new RpcException({
           statusCode: HttpStatus.BAD_REQUEST,
@@ -344,7 +346,9 @@ export class DrugRequisitionService {
         } as ServiceError);
       }
       if (
-        existing.payment_status !== (PaymentStatus.PAID || PaymentStatus.ESCROW)
+        ![PaymentStatus.PAID, PaymentStatus.ESCROW].includes(
+          existing.payment_status,
+        )
       ) {
         throw new RpcException({
           statusCode: HttpStatus.BAD_REQUEST,
