@@ -17,6 +17,7 @@ import { Doctor } from '../entities/doctor.entity';
 import { Laboratory } from '../entities/laboratory.entity';
 import { Patient } from '../entities/patient.entity';
 import { Reviews } from '../entities/reviews.entity';
+import { migrations } from '../database/migrations';
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { Reviews } from '../entities/reviews.entity';
         return {
           type: 'postgres',
           entities: [Admin, Pharmacy, Doctor, Laboratory, Patient, Reviews],
-          migrations: [__dirname + '/database/migrations/*.ts'],
+          migrations,
           host: configService.get<string>('dbConfig.host'),
           port: configService.get<number>('dbConfig.port'),
           username: configService.get<string>('dbConfig.username'),

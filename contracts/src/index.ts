@@ -51,6 +51,7 @@ export * from './lib/dtos/notification/notification-query.dto';
 export * from './lib/dtos/notification/events/appointment.event.dto';
 export * from './lib/dtos/notification/events/requisition.event.dto';
 export * from './lib/dtos/notification/events/payment.event.dto';
+export * from './lib/dtos/notification/events/withdrawal.event.dto';
 export * from './lib/dtos/notification/events/ehr.event.dto';
 
 // Auth-triggered email DTOs (callers already hold this data at emit time)
@@ -108,7 +109,8 @@ export * from './lib/dtos/community/update-community-post.dto';
 export * from './lib/dtos/transactions/create-transaction.dto';
 export * from './lib/dtos/transactions/update-transaction.dto';
 export * from './lib/dtos/transactions/create-wallet.dto';
-export * from './lib/dtos/transactions/create-wallet.dto';
+export * from './lib/dtos/transactions/save-payout-account.dto';
+export * from './lib/dtos/transactions/create-withdrawal.dto';
 
 // AI Agent DTOs
 export * from './lib/dtos/ai-agent/send-message.dto';

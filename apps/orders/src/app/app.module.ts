@@ -22,6 +22,7 @@ import { TestRequisitionItem } from '../entities/test-requisition-item.entity';
 import { DrugRequisition } from '../entities/drug-requisition.entity';
 import { DrugRequisitionItem } from '../entities/drug-requisition-item.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { migrations } from '../database/migrations';
 
 @Module({
   imports: [
@@ -49,7 +50,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
             DrugRequisition,
             DrugRequisitionItem,
           ],
-          migrations: [__dirname + '/database/migrations/*.ts'],
+          migrations,
           host: configService.get<string>('dbConfig.host'),
           port: configService.get<number>('dbConfig.port'),
           username: configService.get<string>('dbConfig.username'),

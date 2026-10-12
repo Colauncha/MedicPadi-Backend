@@ -13,6 +13,8 @@ export const NotificationJobNames = {
   TEST_REQUISITION_ACCEPTED: 'requisition.accepted',
   TEST_REQUISITION_DECLINED: 'requisition.declined',
   PAYMENT_SUCCESS: 'payment.success',
+  WITHDRAWAL_SUCCESS: 'withdrawal.success',
+  WITHDRAWAL_FAILED: 'withdrawal.failed',
   DRUG_REQUISITION_CREATED: 'drug-requisition.created',
   VERIFY_EMAIL: 'verify-email',
   EHR_ACCESS_REQUESTED: 'ehr.access-requested',

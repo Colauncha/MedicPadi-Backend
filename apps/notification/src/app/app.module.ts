@@ -11,6 +11,7 @@ import { DispatchModule } from './dispatch/dispatch.module';
 import { Notification } from './notification/entities/notification.entity';
 import { DeviceToken } from './push/entities/device-token.entity';
 import { PushModule } from './push/push.module';
+import { migrations } from '../database/migrations';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { PushModule } from './push/push.module';
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
         entities: [Notification, DeviceToken],
-        migrations: [__dirname + '/database/migrations/*.ts'],
+        migrations,
         host: configService.get<string>('dbConfig.host'),
         port: configService.get<number>('dbConfig.port'),
         username: configService.get<string>('dbConfig.username'),

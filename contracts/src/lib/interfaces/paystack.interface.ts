@@ -25,3 +25,45 @@ export interface PaystackVerifyResponse {
     ip_address: string;
   };
 }
+
+export interface PaystackResponse<T> {
+  status: boolean;
+  message: string;
+  data: T;
+  meta?: { next?: string | null };
+}
+
+export interface PaystackBank {
+  id: number;
+  name: string;
+  code: string;
+  currency: string;
+  type: string;
+  active: boolean;
+}
+
+export interface PaystackResolvedAccount {
+  account_number: string;
+  account_name: string;
+  bank_id: number;
+}
+
+export interface PaystackTransferRecipient {
+  recipient_code: string;
+  name: string;
+  details: {
+    account_number: string;
+    account_name: string | null;
+    bank_code: string;
+    bank_name: string;
+  };
+}
+
+export interface PaystackTransfer {
+  reference: string;
+  transfer_code: string;
+  amount: number;
+  currency: string;
+  // 'otp' means the Paystack account requires OTP confirmation, which this flow does not support
+  status: 'pending' | 'success' | 'failed' | 'reversed' | 'otp' | 'received';
+}

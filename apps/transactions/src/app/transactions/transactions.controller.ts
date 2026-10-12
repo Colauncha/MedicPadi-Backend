@@ -3,7 +3,9 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateTransactionDto,
   CreateWalletDto,
+  CreateWithdrawalDto,
   PaginationDto,
+  SavePayoutAccountDto,
   TransactionPatterns,
   UpdateTransactionDto,
 } from '@medicpadi-backend/contracts';
@@ -71,5 +73,30 @@ export class TransactionsController {
   @MessagePattern(TransactionPatterns.WALLET.RETRIEVE)
   getWallet(@Payload('data') userId: string) {
     return this.transactionsService.getWallet(userId);
+  }
+
+  @MessagePattern(TransactionPatterns.PAYOUT.LIST_BANKS)
+  listBanks() {
+    return this.transactionsService.listBanks();
+  }
+
+  @MessagePattern(TransactionPatterns.PAYOUT.SAVE_ACCOUNT)
+  savePayoutAccount(@Payload('data') dto: SavePayoutAccountDto) {
+    return this.transactionsService.savePayoutAccount(dto);
+  }
+
+  @MessagePattern(TransactionPatterns.PAYOUT.GET_ACCOUNT)
+  getPayoutAccount(@Payload('data') userId: string) {
+    return this.transactionsService.getPayoutAccount(userId);
+  }
+
+  @MessagePattern(TransactionPatterns.WITHDRAWAL.CREATE)
+  createWithdrawal(@Payload('data') dto: CreateWithdrawalDto) {
+    return this.transactionsService.createWithdrawal(dto);
+  }
+
+  @MessagePattern(TransactionPatterns.WITHDRAWAL.FIND_ALL)
+  findWithdrawals(@Payload('data') query: PaginationDto) {
+    return this.transactionsService.findWithdrawals(query);
   }
 }

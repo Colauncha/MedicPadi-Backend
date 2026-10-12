@@ -1,9 +1,17 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   TransactionPatterns,
+  AuthRole,
   CreateTransactionDto,
+  CreateWithdrawalDto,
   UpdateTransactionDto,
   PaginationDto,
+  SavePayoutAccountDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -38,13 +46,20 @@ export class TransactionsService {
     );
   }
 
-  async findOne(id: string) {
-    return firstValueFrom(
+  async findOne(id: string, user: { id: string; role: string }) {
+    const transaction = await firstValueFrom(
       this.transactionsClient.send(
         TransactionPatterns.TRANSACTIONS.RETRIEVE,
         withServiceAuth(id, this.serviceToken),
       ),
     );
+    // Non-admins only see transactions they paid or received; others look missing
+    const isParty =
+      transaction?.user_id === user.id || transaction?.provider_id === user.id;
+    if (!transaction || (user.role !== AuthRole.ADMIN && !isParty)) {
+      throw new NotFoundException('Transaction not found');
+    }
+    return transaction;
   }
 
   async update(id: string, dto: UpdateTransactionDto) {
@@ -67,6 +82,51 @@ export class TransactionsService {
       this.transactionsClient.send(
         TransactionPatterns.TRANSACTIONS.VERIFY,
         withServiceAuth(reference, this.serviceToken),
+      ),
+    );
+  }
+
+  async listBanks() {
+    return firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.PAYOUT.LIST_BANKS,
+        withServiceAuth({}, this.serviceToken),
+      ),
+    );
+  }
+
+  async getPayoutAccount(userId: string) {
+    return firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.PAYOUT.GET_ACCOUNT,
+        withServiceAuth(userId, this.serviceToken),
+      ),
+    );
+  }
+
+  async savePayoutAccount(dto: SavePayoutAccountDto) {
+    return firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.PAYOUT.SAVE_ACCOUNT,
+        withServiceAuth(dto, this.serviceToken),
+      ),
+    );
+  }
+
+  async createWithdrawal(dto: CreateWithdrawalDto) {
+    return firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.WITHDRAWAL.CREATE,
+        withServiceAuth(dto, this.serviceToken),
+      ),
+    );
+  }
+
+  async findWithdrawals(query: PaginationDto) {
+    return firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.WITHDRAWAL.FIND_ALL,
+        withServiceAuth(query, this.serviceToken),
       ),
     );
   }

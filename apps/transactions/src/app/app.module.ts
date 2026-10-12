@@ -10,7 +10,10 @@ import {
 import { TransactionsModule } from './transactions/transactions.module';
 import { Transaction } from '../entities/transaction.entity';
 import { Wallet } from '../entities/wallet.entity';
+import { PayoutAccount } from '../entities/payout-account.entity';
+import { Withdrawal } from '../entities/withdrawal.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { migrations } from '../database/migrations';
 
 @Module({
   imports: [
@@ -24,8 +27,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
-        entities: [Transaction, Wallet],
-        migrations: [__dirname + '/database/migrations/*.ts'],
+        entities: [Transaction, Wallet, PayoutAccount, Withdrawal],
+        migrations,
         host: configService.get<string>('dbConfig.host'),
         port: configService.get<number>('dbConfig.port'),
         username: configService.get<string>('dbConfig.username'),

@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transaction } from '../../entities/transaction.entity';
 import { Wallet } from '../../entities/wallet.entity';
+import { PayoutAccount } from '../../entities/payout-account.entity';
+import { Withdrawal } from '../../entities/withdrawal.entity';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 import { ConfigService } from '@nestjs/config';
@@ -46,7 +48,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         inject: [ConfigService],
       },
     ]),
-    TypeOrmModule.forFeature([Transaction, Wallet]),
+    TypeOrmModule.forFeature([Transaction, Wallet, PayoutAccount, Withdrawal]),
   ],
   controllers: [TransactionsController],
   providers: [TransactionsService],

@@ -16,4 +16,13 @@ export const TransactionPatterns = {
     CREATE: 'transactions.wallet.create',
     RETRIEVE: 'transactions.wallet.retrieve',
   },
+  PAYOUT: {
+    LIST_BANKS: 'transactions.payout.listBanks',
+    SAVE_ACCOUNT: 'transactions.payout.saveAccount',
+    GET_ACCOUNT: 'transactions.payout.getAccount',
+  },
+  WITHDRAWAL: {
+    CREATE: 'transactions.withdrawal.create',
+    FIND_ALL: 'transactions.withdrawal.findAll',
+  },
 };

@@ -76,31 +76,58 @@
     "migration:generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "typeorm-ts-node-esm migration:generate apps/services/src/migrations/ServicesMigration -d apps/services/data-source.ts"
+        "commands": [
+          "TS_NODE_PROJECT=apps/services/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:generate apps/services/src/database/migrations/{args.name} -d apps/services/data-source.ts --pretty",
+          {
+            "command": "node scripts/sync-migration-index.mjs apps/services",
+            "forwardAllArgs": false
+          },
+          {
+            "command": "prettier --write apps/services/src/database/migrations",
+            "forwardAllArgs": false
+          }
+        ],
+        "parallel": false
+      }
+    },
+    "migration:sync-index": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "node scripts/sync-migration-index.mjs apps/services",
+          "prettier --write apps/services/src/database/migrations/index.ts"
+        ],
+        "parallel": false
+      }
+    },
+    "migration:show": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "TS_NODE_PROJECT=apps/services/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:show -d apps/services/data-source.ts"
       }
     },
     "migration:run": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "typeorm-ts-node-esm migration:run -d apps/services/data-source.ts"
+        "command": "TS_NODE_PROJECT=apps/services/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:run -d apps/services/data-source.ts"
       }
     },
     "migration:run:fake": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "typeorm-ts-node-esm migration:run -d apps/services/data-source.ts --fake"
+        "command": "TS_NODE_PROJECT=apps/services/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:run -d apps/services/data-source.ts --fake"
       }
     },
     "migration:revert": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "typeorm-ts-node-esm migration:revert -d apps/services/data-source.ts"
+        "command": "TS_NODE_PROJECT=apps/services/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:revert -d apps/services/data-source.ts"
       }
     },
     "migration:revert:fake": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "typeorm-ts-node-esm migration:revert -d apps/services/data-source.ts --fake"
+        "command": "TS_NODE_PROJECT=apps/services/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:revert -d apps/services/data-source.ts --fake"
       }
     }
   },

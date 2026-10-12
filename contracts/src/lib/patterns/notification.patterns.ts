@@ -30,6 +30,8 @@ export const NotificationEvents = {
   TEST_REQUISITION_ACCEPTED: 'notification.event.requisition.accepted',
   TEST_REQUISITION_DECLINED: 'notification.event.requisition.declined',
   PAYMENT_SUCCESS: 'notification.event.payment.success',
+  WITHDRAWAL_SUCCESS: 'notification.event.withdrawal.success',
+  WITHDRAWAL_FAILED: 'notification.event.withdrawal.failed',
   DRUG_REQUISITION_CREATED: 'notification.event.drug-requisition.created',
   VERIFY_EMAIL: 'notification.event.verify-email',
   EHR_ACCESS_REQUESTED: 'notification.event.ehr.access-requested',

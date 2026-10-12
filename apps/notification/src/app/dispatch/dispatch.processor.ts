@@ -21,6 +21,7 @@ import {
   VerifyEmailDto,
   WaitlistEmailDto,
   WelcomeEmailDto,
+  WithdrawalEventDto,
 } from '@medicpadi-backend/contracts';
 import { EmailService } from '../email/email.service';
 import { NotificationService } from '../notification/notification.service';
@@ -75,6 +76,10 @@ export class DispatchProcessor extends WorkerHost {
         return this.handleTestRequisitionDeclined(job as Job<TestRequisitionDeclinedEventDto>);
       case NotificationJobNames.PAYMENT_SUCCESS:
         return this.handlePaymentSuccess(job as Job<PaymentSuccessEventDto>);
+      case NotificationJobNames.WITHDRAWAL_SUCCESS:
+        return this.handleWithdrawalSuccess(job as Job<WithdrawalEventDto>);
+      case NotificationJobNames.WITHDRAWAL_FAILED:
+        return this.handleWithdrawalFailed(job as Job<WithdrawalEventDto>);
       case NotificationJobNames.DRUG_REQUISITION_CREATED:
         return this.handleDrugRequisitionCreated(job as Job<DrugRequisitionCreatedEventDto>);
       case NotificationJobNames.VERIFY_EMAIL:
@@ -489,6 +494,34 @@ export class DispatchProcessor extends WorkerHost {
       user_id: userId,
       title: 'Payment Successful',
       body: `Your payment of ${amount.toLocaleString()} ${currency} (ref: ${reference}) was successful.`,
+      type: NotificationType.PAYMENT,
+      source_id: reference,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private async handleWithdrawalSuccess(job: Job<WithdrawalEventDto>) {
+    const { userId, amount, currency, reference } = job.data;
+
+    await this.notifyUser(PUSH_ALL_ENABLED, {
+      user_id: userId,
+      title: 'Withdrawal Successful',
+      body: `Your withdrawal of ${amount.toLocaleString()} ${currency} has been paid into your bank account.`,
+      type: NotificationType.PAYMENT,
+      source_id: reference,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private async handleWithdrawalFailed(job: Job<WithdrawalEventDto>) {
+    const { userId, amount, currency, reference, reason } = job.data;
+
+    await this.notifyUser(PUSH_ALL_ENABLED, {
+      user_id: userId,
+      title: 'Withdrawal Failed',
+      body: `Your withdrawal of ${amount.toLocaleString()} ${currency} could not be completed${
+        reason ? ` (${reason})` : ''
+      }. The amount has been returned to your wallet.`,
       type: NotificationType.PAYMENT,
       source_id: reference,
       channel: NotificationChannel.IN_APP,

@@ -19,6 +19,7 @@ import {
   VerifyEmailDto,
   WaitlistEmailDto,
   WelcomeEmailDto,
+  WithdrawalEventDto,
 } from '@medicpadi-backend/contracts';
 import { NOTIFICATION_QUEUE, NotificationJobNames } from './dispatch.constants';
 
@@ -91,6 +92,16 @@ export class DispatchController {
   @EventPattern(NotificationEvents.PAYMENT_SUCCESS)
   paymentSuccess(@Payload('data') dto: PaymentSuccessEventDto) {
     return this.queue.add(NotificationJobNames.PAYMENT_SUCCESS, dto, JOB_OPTIONS);
+  }
+
+  @EventPattern(NotificationEvents.WITHDRAWAL_SUCCESS)
+  withdrawalSuccess(@Payload('data') dto: WithdrawalEventDto) {
+    return this.queue.add(NotificationJobNames.WITHDRAWAL_SUCCESS, dto, JOB_OPTIONS);
+  }
+
+  @EventPattern(NotificationEvents.WITHDRAWAL_FAILED)
+  withdrawalFailed(@Payload('data') dto: WithdrawalEventDto) {
+    return this.queue.add(NotificationJobNames.WITHDRAWAL_FAILED, dto, JOB_OPTIONS);
   }
 
   @EventPattern(NotificationEvents.DRUG_REQUISITION_CREATED)

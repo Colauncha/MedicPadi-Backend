@@ -8,6 +8,7 @@ import { serviceConfig, dbConfig, appConfig } from '@medicpadi-backend/config';
 import { Auth } from './auth/entities/auth.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { migrations } from '../database/migrations';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { AuthModule } from './auth/auth.module';
         return {
           type: 'postgres',
           entities: [Auth],
-          migrations: [__dirname + '/database/migrations/*.ts'],
+          migrations,
           host: configService.get<string>('dbConfig.host'),
           port: configService.get<number>('dbConfig.port'),
           username: configService.get<string>('dbConfig.username'),

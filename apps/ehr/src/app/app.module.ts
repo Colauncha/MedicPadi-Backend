@@ -7,6 +7,7 @@ import { ConsentModule } from './consent/consent.module';
 import { EhrRecord } from '../entities/ehr-record.entity';
 import { ConsentGrant } from '../entities/consent-grant.entity';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { migrations } from '../database/migrations';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
         entities: [EhrRecord, ConsentGrant],
-        migrations: [__dirname + '/database/migrations/*.ts'],
+        migrations,
         host: configService.get<string>('dbConfig.host'),
         port: configService.get<number>('dbConfig.port'),
         username: configService.get<string>('dbConfig.username'),

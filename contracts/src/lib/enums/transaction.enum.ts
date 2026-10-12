@@ -10,3 +10,11 @@ export enum PaymentGateway {
   FLUTTERWAVE = 'flutterwave',
   HMO_CLAIM = 'hmo_claim',
 }
+
+export enum WithdrawalStatus {
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+  REVERSED = 'reversed',
+}

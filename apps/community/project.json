@@ -61,24 +61,59 @@
     "migration:generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "typeorm-ts-node-esm migration:generate apps/community/src/migrations/CommunityMigration -d apps/community/data-source.ts"
+        "commands": [
+          "TS_NODE_PROJECT=apps/community/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:generate apps/community/src/database/migrations/{args.name} -d apps/community/data-source.ts --pretty",
+          {
+            "command": "node scripts/sync-migration-index.mjs apps/community",
+            "forwardAllArgs": false
+          },
+          {
+            "command": "prettier --write apps/community/src/database/migrations",
+            "forwardAllArgs": false
+          }
+        ],
+        "parallel": false
+      }
+    },
+    "migration:sync-index": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "node scripts/sync-migration-index.mjs apps/community",
+          "prettier --write apps/community/src/database/migrations/index.ts"
+        ],
+        "parallel": false
+      }
+    },
+    "migration:show": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "TS_NODE_PROJECT=apps/community/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:show -d apps/community/data-source.ts"
       }
     },
     "migration:run": {
       "executor": "nx:run-commands",
-      "options": { "command": "typeorm-ts-node-esm migration:run -d apps/community/data-source.ts" }
+      "options": {
+        "command": "TS_NODE_PROJECT=apps/community/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:run -d apps/community/data-source.ts"
+      }
     },
     "migration:run:fake": {
       "executor": "nx:run-commands",
-      "options": { "command": "typeorm-ts-node-esm migration:run -d apps/community/data-source.ts --fake" }
+      "options": {
+        "command": "TS_NODE_PROJECT=apps/community/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:run -d apps/community/data-source.ts --fake"
+      }
     },
     "migration:revert": {
       "executor": "nx:run-commands",
-      "options": { "command": "typeorm-ts-node-esm migration:revert -d apps/community/data-source.ts" }
+      "options": {
+        "command": "TS_NODE_PROJECT=apps/community/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:revert -d apps/community/data-source.ts"
+      }
     },
     "migration:revert:fake": {
       "executor": "nx:run-commands",
-      "options": { "command": "typeorm-ts-node-esm migration:revert -d apps/community/data-source.ts --fake" }
+      "options": {
+        "command": "TS_NODE_PROJECT=apps/community/tsconfig.app.json ts-node -r ./scripts/register-ts-paths.js ./node_modules/typeorm/cli.js migration:revert -d apps/community/data-source.ts --fake"
+      }
     }
   },
   "tags": []

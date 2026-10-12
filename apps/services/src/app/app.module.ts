@@ -12,6 +12,7 @@ import { LabTest } from '../entities/lab-test.entity';
 import { PharmacyDrug } from '../entities/pharmacy-drug.entity';
 import { Department } from '../entities/department.entity';
 import { DrugCategory } from '../entities/drug_category.entity';
+import { migrations } from '../database/migrations';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { DrugCategory } from '../entities/drug_category.entity';
         return {
           type: 'postgres',
           entities: [LabTest, PharmacyDrug, Department, DrugCategory],
-          migrations: [__dirname + '/database/migrations/*.ts'],
+          migrations,
           host: configService.get<string>('dbConfig.host'),
           port: configService.get<number>('dbConfig.port'),
           username: configService.get<string>('dbConfig.username'),

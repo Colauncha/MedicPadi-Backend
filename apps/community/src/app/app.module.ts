@@ -6,6 +6,7 @@ import { GroupsModule } from './groups/groups.module';
 import { PostsModule } from './posts/posts.module';
 import { CommunityGroup } from '../entities/community-group.entity';
 import { CommunityPost } from '../entities/community-post.entity';
+import { migrations } from '../database/migrations';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { CommunityPost } from '../entities/community-post.entity';
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
         entities: [CommunityGroup, CommunityPost],
-        migrations: [__dirname + '/database/migrations/*.ts'],
+        migrations,
         host: configService.get<string>('dbConfig.host'),
         port: configService.get<number>('dbConfig.port'),
         username: configService.get<string>('dbConfig.username'),

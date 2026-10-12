@@ -48,6 +48,9 @@ const appConfig = registerAs('appConfig', () => ({
   // Platform commission (fraction of each payment kept by MedicPadi)
   medicpadiCommission: parseFloat(process.env['MEDICPADI_COMMISION'] ?? '0.05'),
 
+  // Smallest amount a provider can withdraw from their wallet
+  minWithdrawal: parseFloat(process.env['MIN_WITHDRAWAL_AMOUNT'] ?? '1000'),
+
   // Caching and Redis
   redisHost: process.env['REDIS_HOST'],
   redisPort: parseInt(process.env['REDIS_PORT'] || '6379'),
