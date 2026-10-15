@@ -76,6 +76,7 @@ export * from './lib/dtos/orders/appointments/update-appointment.dto';
 export * from './lib/dtos/orders/appointments/doctor.get-appointment.dto';
 export * from './lib/dtos/orders/appointments/patient.get-appointment.dto';
 export * from './lib/dtos/orders/appointments/cancel-appointment.dto';
+export * from './lib/dtos/orders/appointments/reschedule-appointment.dto';
 export * from './lib/dtos/orders/prescriptions/create-prescription-item.dto';
 export * from './lib/dtos/orders/prescriptions/create-prescription.dto';
 export * from './lib/dtos/orders/prescriptions/update-prescription.dto';

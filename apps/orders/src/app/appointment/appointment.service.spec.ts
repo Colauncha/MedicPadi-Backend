@@ -49,7 +49,11 @@ describe('AppointmentService payment flows', () => {
     remove: jest.Mock;
   };
   let transactionsClient: { send: jest.Mock };
-  let zoomService: { deleteMeeting: jest.Mock };
+  let zoomService: {
+    deleteMeeting: jest.Mock;
+    createMeeting: jest.Mock;
+    updateMeeting: jest.Mock;
+  };
   let notificationClient: { emit: jest.Mock };
 
   beforeEach(() => {
@@ -60,7 +64,16 @@ describe('AppointmentService payment flows', () => {
       remove: jest.fn(),
     };
     transactionsClient = { send: jest.fn(() => of({ message: 'ok' })) };
-    zoomService = { deleteMeeting: jest.fn() };
+    zoomService = {
+      deleteMeeting: jest.fn(),
+      createMeeting: jest.fn(async () => ({
+        meeting_id: 999,
+        meeting_password: 'pw',
+        start_url: 'https://zoom.test/start',
+        join_url: 'https://zoom.test/join',
+      })),
+      updateMeeting: jest.fn(),
+    };
     notificationClient = { emit: jest.fn() };
     const configService = {
       getOrThrow: jest.fn(() => 'token'),
@@ -335,6 +348,237 @@ describe('AppointmentService payment flows', () => {
           service.cancel('appointment-1', 'x', 'admin-1', AuthRole.ADMIN),
         ),
       ).toBe(HttpStatus.BAD_REQUEST);
+    });
+  });
+
+  describe('completePayment', () => {
+    it('creates the Zoom meeting once paid and sends its links', async () => {
+      const appointment = makeAppointment({
+        paymentStatus: AppointmentPaymentStatus.P_PENDING,
+        sessionLen: 30,
+        sessions: 2,
+      });
+      repo.findOne.mockResolvedValue(appointment);
+
+      await service.completePayment('appointment-1');
+
+      expect(zoomService.createMeeting).toHaveBeenCalledWith(
+        expect.any(String),
+        '2026-10-10T10:00:00.000Z',
+        60,
+      );
+      expect(repo.update).toHaveBeenCalledWith(
+        { id: 'appointment-1' },
+        {
+          meeting_id: 999,
+          meeting_password: 'pw',
+          meeting_link: 'https://zoom.test/start',
+          join_link: 'https://zoom.test/join',
+        },
+      );
+      expect(notificationClient.emit).toHaveBeenCalledWith(
+        NotificationEvents.APPOINTMENT_PAYMENT_CONFIRMED,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            joinLink: 'https://zoom.test/join',
+            meetingLink: 'https://zoom.test/start',
+          }),
+        }),
+      );
+    });
+
+    it('does not create a second meeting when payment is confirmed twice', async () => {
+      repo.findOne.mockResolvedValue(makeAppointment({ meeting_id: 123 }));
+
+      await service.completePayment('appointment-1');
+
+      expect(zoomService.createMeeting).not.toHaveBeenCalled();
+    });
+
+    it('still confirms the payment when Zoom fails', async () => {
+      const appointment = makeAppointment({
+        paymentStatus: AppointmentPaymentStatus.P_PENDING,
+      });
+      repo.findOne.mockResolvedValue(appointment);
+      zoomService.createMeeting.mockRejectedValue(new Error('zoom down'));
+
+      await service.completePayment('appointment-1');
+
+      expect(appointment.paymentStatus).toBe(
+        AppointmentPaymentStatus.P_CONFIRMED,
+      );
+      expect(repo.save).toHaveBeenCalledWith(appointment);
+      expect(notificationClient.emit).toHaveBeenCalled();
+    });
+  });
+
+  describe('accept', () => {
+    it('does not start a new payment for an already paid appointment', async () => {
+      repo.findOne.mockResolvedValue(
+        makeAppointment({ status: AppointmentStatus.PENDING }),
+      );
+
+      await service.accept('appointment-1');
+
+      expect(transactionsClient.send).not.toHaveBeenCalled();
+      expect(notificationClient.emit).toHaveBeenCalledWith(
+        NotificationEvents.APPOINTMENT_CONFIRMED,
+        expect.objectContaining({
+          data: expect.objectContaining({ paymentLink: undefined }),
+        }),
+      );
+    });
+
+    it('reuses an existing unpaid transaction', async () => {
+      repo.findOne.mockResolvedValue(
+        makeAppointment({
+          status: AppointmentStatus.PENDING,
+          paymentStatus: AppointmentPaymentStatus.P_PENDING,
+        }),
+      );
+      transactionsClient.send.mockReturnValue(of({ access_code: 'abc' }));
+
+      await service.accept('appointment-1');
+
+      expect(transactionsClient.send).toHaveBeenCalledTimes(1);
+      expect(transactionsClient.send).toHaveBeenCalledWith(
+        TransactionPatterns.TRANSACTIONS.FIND_BY_ORDER_ID,
+        expect.anything(),
+      );
+      expect(notificationClient.emit).toHaveBeenCalledWith(
+        NotificationEvents.APPOINTMENT_CONFIRMED,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            paymentLink: 'https://checkout.paystack.com/abc',
+          }),
+        }),
+      );
+    });
+
+    it('creates a transaction when none exists', async () => {
+      repo.findOne.mockResolvedValue(
+        makeAppointment({
+          status: AppointmentStatus.PENDING,
+          paymentStatus: AppointmentPaymentStatus.P_PENDING,
+        }),
+      );
+      transactionsClient.send
+        .mockReturnValueOnce(of(null))
+        .mockReturnValueOnce(
+          of({ data: { authorization_url: 'https://pay.test/x' } }),
+        );
+
+      await service.accept('appointment-1');
+
+      expect(transactionsClient.send).toHaveBeenLastCalledWith(
+        TransactionPatterns.TRANSACTIONS.CREATE,
+        expect.anything(),
+      );
+    });
+  });
+
+  describe('reschedule', () => {
+    const NEW_TIME = '2099-01-01T09:00:00.000Z';
+    const load = (appointment: Appointment, clash: Appointment | null = null) =>
+      repo.findOne
+        .mockResolvedValueOnce(appointment)
+        .mockResolvedValueOnce(clash);
+
+    it('sends a patient-moved confirmed appointment back to the doctor', async () => {
+      load(makeAppointment({ meeting_id: 123 }));
+
+      const result = await service.reschedule(
+        'appointment-1',
+        NEW_TIME,
+        'Travelling',
+        PATIENT,
+        AuthRole.PATIENT,
+      );
+
+      expect(zoomService.updateMeeting).toHaveBeenCalledWith(
+        123,
+        undefined,
+        NEW_TIME,
+      );
+      expect(repo.update).toHaveBeenCalledWith(
+        { id: 'appointment-1' },
+        { appointment_time: new Date(NEW_TIME), status: AppointmentStatus.PENDING },
+      );
+      expect(result).toMatchObject({ requiresAcceptance: true });
+      expect(notificationClient.emit).toHaveBeenCalledWith(
+        NotificationEvents.APPOINTMENT_RESCHEDULED,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            requiresAcceptance: true,
+            acceptLink: expect.stringContaining('/appointments/appointment-1/accept'),
+          }),
+        }),
+      );
+    });
+
+    it('keeps the status when the doctor reschedules', async () => {
+      load(makeAppointment());
+
+      const result = await service.reschedule(
+        'appointment-1',
+        NEW_TIME,
+        undefined,
+        DOCTOR,
+        AuthRole.CONSULTANT,
+      );
+
+      expect(repo.update).toHaveBeenCalledWith(
+        { id: 'appointment-1' },
+        { appointment_time: new Date(NEW_TIME), status: AppointmentStatus.CONFIRMED },
+      );
+      expect(result).toMatchObject({ requiresAcceptance: false });
+    });
+
+    it('skips Zoom when no meeting exists yet', async () => {
+      load(makeAppointment());
+
+      await service.reschedule('appointment-1', NEW_TIME, undefined, DOCTOR, AuthRole.CONSULTANT);
+
+      expect(zoomService.updateMeeting).not.toHaveBeenCalled();
+    });
+
+    it('forbids users who are not part of the appointment', async () => {
+      load(makeAppointment());
+
+      expect(
+        await rpcStatus(
+          service.reschedule('appointment-1', NEW_TIME, undefined, 'stranger', AuthRole.PATIENT),
+        ),
+      ).toBe(HttpStatus.FORBIDDEN);
+    });
+
+    it('rejects cancelled appointments and past times', async () => {
+      load(makeAppointment({ status: AppointmentStatus.CANCELLED }));
+      expect(
+        await rpcStatus(
+          service.reschedule('appointment-1', NEW_TIME, undefined, PATIENT, AuthRole.PATIENT),
+        ),
+      ).toBe(HttpStatus.BAD_REQUEST);
+
+      repo.findOne.mockReset();
+      load(makeAppointment());
+      expect(
+        await rpcStatus(
+          service.reschedule('appointment-1', '2000-01-01T00:00:00Z', undefined, PATIENT, AuthRole.PATIENT),
+        ),
+      ).toBe(HttpStatus.BAD_REQUEST);
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects a time the doctor is already booked', async () => {
+      load(makeAppointment(), makeAppointment({ id: 'other' }));
+
+      expect(
+        await rpcStatus(
+          service.reschedule('appointment-1', NEW_TIME, undefined, PATIENT, AuthRole.PATIENT),
+        ),
+      ).toBe(HttpStatus.CONFLICT);
+      expect(zoomService.updateMeeting).not.toHaveBeenCalled();
     });
   });
 

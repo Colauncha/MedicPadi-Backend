@@ -1,4 +1,10 @@
-import { IsDateString, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class AppointmentCreatedEventDto {
   @IsUUID()
@@ -89,4 +95,35 @@ export class AppointmentCancelledEventDto {
   @IsOptional()
   @IsString()
   reason?: string;
+}
+
+export class AppointmentRescheduledEventDto {
+  @IsUUID()
+  appointmentId!: string;
+
+  @IsUUID()
+  patientId!: string;
+
+  @IsUUID()
+  doctorId!: string;
+
+  @IsDateString()
+  oldTime!: string;
+
+  @IsDateString()
+  newTime!: string;
+
+  @IsString()
+  rescheduledBy!: string;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+
+  @IsBoolean()
+  requiresAcceptance!: boolean;
+
+  @IsOptional()
+  @IsString()
+  acceptLink?: string;
 }

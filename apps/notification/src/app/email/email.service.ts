@@ -149,6 +149,33 @@ export class EmailService {
     });
   }
 
+  async appointmentRescheduledEmail(
+    email: string,
+    recipientName: string,
+    otherPartyName: string,
+    oldTime: string,
+    newTime: string,
+    reason?: string,
+    acceptLink?: string,
+  ) {
+    return this.mailerService.sendMail({
+      to: email,
+      subject: 'Your Appointment Has Been Rescheduled',
+      template: 'appointment-rescheduled',
+      context: {
+        recipientName,
+        otherPartyName,
+        oldTime: oldTime ? new Date(oldTime).toLocaleString() : undefined,
+        newTime: new Date(newTime).toLocaleString(),
+        reason,
+        acceptLink,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
   async appointmentCompletedEmail(
     email: string,
     patientName: string,

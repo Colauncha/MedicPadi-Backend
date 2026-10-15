@@ -202,6 +202,7 @@ export class TransactionsService {
         : new RpcException({
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
             message: 'Unable to create transaction',
+            error: error instanceof Error ? error.message : String(error),
           } as ServiceError);
     } finally {
       await queryRunner.release();

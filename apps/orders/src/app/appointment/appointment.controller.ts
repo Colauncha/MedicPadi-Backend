@@ -88,6 +88,26 @@ export class AppointmentController {
     );
   }
 
+  @MessagePattern(OrderPatterns.APPOINTMENTS.RESCHEDULE)
+  reschedule(
+    @Payload('data')
+    dto: {
+      id: string;
+      appointment_time: string;
+      reason?: string;
+      userId: string;
+      role: AuthRole;
+    },
+  ) {
+    return this.appointmentService.reschedule(
+      dto.id,
+      dto.appointment_time,
+      dto.reason,
+      dto.userId,
+      dto.role,
+    );
+  }
+
   @MessagePattern(OrderPatterns.APPOINTMENTS.GET_SIGNATURE)
   getSignature(@Payload('data') dto: { id: string; role: AuthRole }) {
     return this.appointmentService.getSignature(dto.id, dto.role);

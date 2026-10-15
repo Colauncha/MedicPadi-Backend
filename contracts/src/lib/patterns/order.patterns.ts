@@ -11,6 +11,7 @@ export const OrderPatterns = {
     COMPLETE_APPOINTMENT: 'orders.appointments.completeAppointment',
     CONFIRM_COMPLETION: 'orders.appointments.confirmCompletion',
     CANCEL: 'orders.appointments.cancel',
+    RESCHEDULE: 'orders.appointments.reschedule',
     GET_SIGNATURE: 'orders.appointments.getSignature',
     GET_ZAK: 'orders.appointments.getZak',
     GET_PATIENTS: 'orders.appointments.getPatients',

@@ -7,6 +7,7 @@ export const NotificationJobNames = {
   APPOINTMENT_CREATED: 'appointment.created',
   APPOINTMENT_CONFIRMED: 'appointment.confirmed',
   APPOINTMENT_CANCELLED: 'appointment.cancelled',
+  APPOINTMENT_RESCHEDULED: 'appointment.rescheduled',
   APPOINTMENT_PAYMENT_CONFIRMED: 'appointment.payment-confirmed',
   APPOINTMENT_COMPLETED: 'appointment.completed',
   TEST_REQUISITION_CREATED: 'requisition.created',

@@ -17,6 +17,7 @@ import {
   DoctorStatsDto,
   LabStatsDto,
   PharmacyStatsDto,
+  RescheduleAppointmentDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -153,6 +154,20 @@ export class OrderService {
       this.orderClient.send(
         OrderPatterns.APPOINTMENTS.CANCEL,
         withServiceAuth({ id, reason, userId, role }, this.serviceToken),
+      ),
+    );
+  }
+
+  async rescheduleAppointment(
+    id: string,
+    dto: RescheduleAppointmentDto,
+    userId: string,
+    role: AuthRole,
+  ) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.APPOINTMENTS.RESCHEDULE,
+        withServiceAuth({ id, ...dto, userId, role }, this.serviceToken),
       ),
     );
   }

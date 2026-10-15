@@ -26,6 +26,7 @@ import {
   DeclineTestRequisitionDto,
   AppointmentQueryDto,
   CancelAppointmentDto,
+  RescheduleAppointmentDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { Roles } from '../guards/decorators/roles.decorator';
@@ -210,6 +211,43 @@ export class OrderController {
     return this.orderService.cancelAppointment(
       id,
       dto.reason,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  @Patch('/appointments/:id/reschedule')
+  @Roles(AuthRole.PATIENT, AuthRole.CONSULTANT, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Reschedule an appointment',
+    description:
+      'Moves an appointment to a new time and updates its Zoom meeting. When the patient reschedules a confirmed appointment, it returns to `pending` and the doctor must accept it again (payment is kept). The other participant is notified. Accessible by `patient` and `consultant` (participants only) and `admin` roles.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the appointment to reschedule.' })
+  @ApiResponse({ status: 200, description: 'Appointment rescheduled.' })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Invalid time, or appointment cannot be rescheduled in its current state.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not a participant of the appointment.',
+  })
+  @ApiResponse({ status: 404, description: 'Appointment not found.' })
+  @ApiResponse({
+    status: 409,
+    description: 'The doctor already has an appointment at that time.',
+  })
+  rescheduleAppointment(
+    @Param('id') id: string,
+    @Body(validate) dto: RescheduleAppointmentDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.orderService.rescheduleAppointment(
+      id,
+      dto,
       req.user.id,
       req.user.role,
     );

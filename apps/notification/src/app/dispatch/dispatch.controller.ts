@@ -8,6 +8,7 @@ import {
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
+  AppointmentRescheduledEventDto,
   DrugRequisitionCreatedEventDto,
   EhrAccessRequestedEventDto,
   NotificationEvents,
@@ -72,6 +73,11 @@ export class DispatchController {
   @EventPattern(NotificationEvents.APPOINTMENT_CANCELLED)
   appointmentCancelled(@Payload('data') dto: AppointmentCancelledEventDto) {
     return this.queue.add(NotificationJobNames.APPOINTMENT_CANCELLED, dto, JOB_OPTIONS);
+  }
+
+  @EventPattern(NotificationEvents.APPOINTMENT_RESCHEDULED)
+  appointmentRescheduled(@Payload('data') dto: AppointmentRescheduledEventDto) {
+    return this.queue.add(NotificationJobNames.APPOINTMENT_RESCHEDULED, dto, JOB_OPTIONS);
   }
 
   @EventPattern(NotificationEvents.TEST_REQUISITION_CREATED)

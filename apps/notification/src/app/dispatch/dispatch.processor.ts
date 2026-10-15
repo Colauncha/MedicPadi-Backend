@@ -7,6 +7,8 @@ import {
   AppointmentConfirmedEventDto,
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
+  AppointmentRescheduledEventDto,
+  AuthRole,
   ConsentAccessLevel,
   CreateNotificationDto,
   DrugRequisitionCreatedEventDto,
@@ -68,6 +70,8 @@ export class DispatchProcessor extends WorkerHost {
         return this.handleAppointmentCompleted(job as Job<AppointmentCompletedEventDto>);
       case NotificationJobNames.APPOINTMENT_CANCELLED:
         return this.handleAppointmentCancelled(job as Job<AppointmentCancelledEventDto>);
+      case NotificationJobNames.APPOINTMENT_RESCHEDULED:
+        return this.handleAppointmentRescheduled(job as Job<AppointmentRescheduledEventDto>);
       case NotificationJobNames.TEST_REQUISITION_CREATED:
         return this.handleTestRequisitionCreated(job as Job<TestRequisitionCreatedEventDto>);
       case NotificationJobNames.TEST_REQUISITION_ACCEPTED:
@@ -338,6 +342,63 @@ export class DispatchProcessor extends WorkerHost {
       source_id: appointmentId,
       channel: NotificationChannel.IN_APP,
     });
+  }
+
+  private async handleAppointmentRescheduled(job: Job<AppointmentRescheduledEventDto>) {
+    const { appointmentId, patientId, doctorId, oldTime, newTime, rescheduledBy, reason, requiresAcceptance, acceptLink } =
+      job.data;
+
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
+      this.dispatchService.resolveUserAuth(patientId),
+      this.dispatchService.resolvePatient(patientId),
+      this.dispatchService.resolveUserAuth(doctorId),
+      this.dispatchService.resolveDoctor(doctorId),
+    ]);
+
+    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
+    const when = new Date(newTime).toLocaleString();
+    const tasks: Promise<unknown>[] = [];
+
+    // Notify whoever did not make the change; an admin change notifies both sides
+    if (rescheduledBy !== AuthRole.PATIENT) {
+      if (patientProfile.emailNotificationsEnabled) {
+        tasks.push(
+          this.emailService.appointmentRescheduledEmail(patientAuth.email, patientName, doctorName, oldTime, newTime, reason),
+        );
+      }
+      tasks.push(
+        this.notifyUser(patientProfile, {
+          user_id: patientId,
+          title: 'Appointment Rescheduled',
+          body: `Your appointment with ${doctorName} has been moved to ${when}.${reason ? ` Reason: ${reason}` : ''}`,
+          type: NotificationType.APPOINTMENT,
+          source_id: appointmentId,
+          channel: NotificationChannel.IN_APP,
+        }),
+      );
+    }
+
+    if (rescheduledBy !== AuthRole.CONSULTANT) {
+      const link = requiresAcceptance ? acceptLink : undefined;
+      if (doctorProfile.emailNotificationsEnabled) {
+        tasks.push(
+          this.emailService.appointmentRescheduledEmail(doctorAuth.email, doctorName, patientName, oldTime, newTime, reason, link),
+        );
+      }
+      tasks.push(
+        this.notifyUser(doctorProfile, {
+          user_id: doctorId,
+          title: 'Appointment Rescheduled',
+          body: `Your appointment with ${patientName} has been moved to ${when}.${link ? ' Please accept the new time.' : ''}`,
+          type: NotificationType.APPOINTMENT,
+          source_id: appointmentId,
+          channel: NotificationChannel.IN_APP,
+        }),
+      );
+    }
+
+    await Promise.all(tasks);
   }
 
   private async handleTestRequisitionCreated(job: Job<TestRequisitionCreatedEventDto>) {

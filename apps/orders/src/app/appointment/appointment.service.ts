@@ -15,6 +15,7 @@ import {
   AppointmentCreatedEventDto,
   AppointmentPaymentConfirmedEventDto,
   AppointmentQueryDto,
+  AppointmentRescheduledEventDto,
   AppointmentStatus,
   AuthPatterns,
   CreateAppointmentDto,
@@ -93,8 +94,6 @@ export class AppointmentService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    let zoomMeetingId: number | undefined;
-
     try {
       const appointmentTime =
         typeof dto.appointment_time === 'string'
@@ -132,34 +131,9 @@ export class AppointmentService {
         ),
       ]);
 
-      const meeting = await this.zoomService.createMeeting(
-        `Appointment between ${dto.patient_id} and ${dto.provider_id}`,
-        appointmentTime.toISOString(),
-        doctor.sessionLength * dto.sessions,
-      );
-
-      if (!meeting) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Unable to create Zoom meeting',
-        } as ServiceError);
-      }
-
-      zoomMeetingId = meeting.meeting_id;
-
-      type ZoomResponse = {
-        meeting_id: number;
-        meeting_link: string;
-        join_link: string;
-        meeting_password: string;
-      };
-      type AppointmentDataType = CreateAppointmentDto & ZoomResponse;
-      const appointmentData: AppointmentDataType = {
+      // The Zoom meeting is created once payment is confirmed (see completePayment)
+      const appointmentData: CreateAppointmentDto = {
         ...dto,
-        meeting_password: meeting.meeting_password,
-        meeting_id: meeting.meeting_id,
-        meeting_link: meeting.start_url,
-        join_link: meeting.join_url,
         sessionCost: doctor.costPerSession * dto.sessions,
         sessionLen: doctor.sessionLength || 30,
       };
@@ -188,9 +162,6 @@ export class AppointmentService {
     } catch (error) {
       logError(error, `${AppointmentService.name}.create`);
       await queryRunner.rollbackTransaction();
-      if (zoomMeetingId) {
-        await this.zoomService.deleteMeeting(zoomMeetingId).catch(() => {});
-      }
       throw error instanceof RpcException
         ? error
         : new RpcException({
@@ -398,29 +369,19 @@ export class AppointmentService {
       existing.status = AppointmentStatus.CONFIRMED;
       await this.appointmentRepo.save(existing);
 
-      const transactionDto: CreateTransactionDto = {
-        user_id: existing.patient_id || '',
-        source_type: TransactionSourceType.APPOINTMENT,
-        source_id: existing.id,
-        provider_id: existing.provider_id,
-        amount: existing.sessionCost || 0,
-        gateway: PaymentGateway.PAYSTACK,
-      };
-
       const token = this.serviceToken;
-      const initTransaction: PaystackInitializeResponse = await firstValueFrom(
-        this.transactionsClient.send(
-          TransactionPatterns.TRANSACTIONS.CREATE,
-          withServiceAuth(transactionDto, token),
-        ),
-      );
+      // Re-accepting after a patient reschedule must not charge twice
+      const paymentLink =
+        existing.paymentStatus === AppointmentPaymentStatus.P_CONFIRMED
+          ? undefined
+          : await this.getOrCreatePaymentLink(existing, token);
 
       const eventDto: AppointmentConfirmedEventDto = {
         appointmentId: existing.id,
         patientId: existing.patient_id || '',
         doctorId: existing.provider_id || '',
         appointmentTime: existing.appointment_time?.toISOString() ?? '',
-        paymentLink: initTransaction.data.authorization_url,
+        paymentLink,
       };
       this.notificationClient.emit(
         NotificationEvents.APPOINTMENT_CONFIRMED,
@@ -440,6 +401,35 @@ export class AppointmentService {
     }
   }
 
+  /** Reuses the appointment's pending transaction if one exists, else starts a new one. */
+  private async getOrCreatePaymentLink(appointment: Appointment, token: string) {
+    const transaction = await firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.TRANSACTIONS.FIND_BY_ORDER_ID,
+        withServiceAuth(appointment.id, token),
+      ),
+    );
+    if (transaction?.access_code) {
+      return `https://checkout.paystack.com/${transaction.access_code}`;
+    }
+
+    const transactionDto: CreateTransactionDto = {
+      user_id: appointment.patient_id || '',
+      source_type: TransactionSourceType.APPOINTMENT,
+      source_id: appointment.id,
+      provider_id: appointment.provider_id,
+      amount: appointment.sessionCost || 0,
+      gateway: PaymentGateway.PAYSTACK,
+    };
+    const initTransaction: PaystackInitializeResponse = await firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.TRANSACTIONS.CREATE,
+        withServiceAuth(transactionDto, token),
+      ),
+    );
+    return initTransaction.data.authorization_url;
+  }
+
   async completePayment(id: string) {
     try {
       const existing = await this.appointmentRepo.findOne({ where: { id } });
@@ -451,6 +441,11 @@ export class AppointmentService {
       }
       existing.paymentStatus = AppointmentPaymentStatus.P_CONFIRMED;
       await this.appointmentRepo.save(existing);
+
+      // A Zoom failure must not undo a confirmed payment; getSignature/getZak retry it
+      await this.ensureMeeting(existing).catch((error) =>
+        logError(error, `${AppointmentService.name}.completePayment.ensureMeeting`),
+      );
 
       const token = this.serviceToken;
       const eventDto: AppointmentPaymentConfirmedEventDto = {
@@ -477,6 +472,43 @@ export class AppointmentService {
     }
   }
 
+  /**
+   * Creates the Zoom meeting for a paid appointment if it doesn't have one yet.
+   * Idempotent: completePayment can fire from both verify() and the webhook.
+   */
+  private async ensureMeeting(appointment: Appointment) {
+    if (
+      appointment.meeting_id ||
+      appointment.paymentStatus !== AppointmentPaymentStatus.P_CONFIRMED
+    ) {
+      return appointment;
+    }
+
+    const meeting = await this.zoomService.createMeeting(
+      `Appointment between ${appointment.patient_id} and ${appointment.provider_id}`,
+      (appointment.appointment_time ?? new Date()).toISOString(),
+      (appointment.sessionLen || 30) * (appointment.sessions || 1),
+    );
+    if (!meeting) {
+      throw new Error('Unable to create Zoom meeting');
+    }
+
+    appointment.meeting_id = meeting.meeting_id;
+    appointment.meeting_password = meeting.meeting_password;
+    appointment.meeting_link = meeting.start_url;
+    appointment.join_link = meeting.join_url;
+    await this.appointmentRepo.update(
+      { id: appointment.id },
+      {
+        meeting_id: appointment.meeting_id,
+        meeting_password: appointment.meeting_password,
+        meeting_link: appointment.meeting_link,
+        join_link: appointment.join_link,
+      },
+    );
+    return appointment;
+  }
+
   async getSignature(id: string, role: AuthRole) {
     try {
       const existing = await this.appointmentRepo.findOne({ where: { id } });
@@ -486,6 +518,7 @@ export class AppointmentService {
           message: 'Appointment not found',
         } as ServiceError);
       }
+      await this.ensureMeeting(existing);
       if (!existing.meeting_id) {
         throw new RpcException({
           statusCode: HttpStatus.BAD_REQUEST,
@@ -555,6 +588,7 @@ export class AppointmentService {
           message: 'Only the appointment provider can host this meeting',
         } as ServiceError);
       }
+      await this.ensureMeeting(existing);
       if (!existing.meeting_id) {
         throw new RpcException({
           statusCode: HttpStatus.BAD_REQUEST,
@@ -767,6 +801,132 @@ export class AppointmentService {
         : new RpcException({
             statusCode: HttpStatus.REQUEST_TIMEOUT,
             message: 'Unable to cancel appointment',
+          } as ServiceError);
+    }
+  }
+
+  async reschedule(
+    id: string,
+    appointmentTime: string,
+    reason: string | undefined,
+    userId: string,
+    role: AuthRole,
+  ) {
+    try {
+      const existing = await this.appointmentRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Appointment not found',
+        } as ServiceError);
+      }
+      if (
+        role !== AuthRole.ADMIN &&
+        existing.patient_id !== userId &&
+        existing.provider_id !== userId
+      ) {
+        throw new RpcException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Only the appointment patient or provider can reschedule it',
+        } as ServiceError);
+      }
+
+      const reschedulable =
+        existing.status === AppointmentStatus.PENDING ||
+        existing.status === AppointmentStatus.SCHEDULED ||
+        existing.status === AppointmentStatus.CONFIRMED;
+      if (!reschedulable) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Appointment cannot be rescheduled in its current state (${existing.status}).`,
+        } as ServiceError);
+      }
+
+      const newTime = new Date(appointmentTime);
+      if (isNaN(newTime.getTime()) || newTime.getTime() <= Date.now()) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'New appointment time must be a valid date in the future',
+        } as ServiceError);
+      }
+      if (existing.appointment_time?.getTime() === newTime.getTime()) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'New appointment time is the same as the current one',
+        } as ServiceError);
+      }
+
+      const clash = await this.appointmentRepo.findOne({
+        where: {
+          provider_id: existing.provider_id || '',
+          appointment_time: newTime,
+          status: In([
+            AppointmentStatus.PENDING,
+            AppointmentStatus.SCHEDULED,
+            AppointmentStatus.CONFIRMED,
+          ]),
+        },
+      });
+      if (clash && clash.id !== existing.id) {
+        throw new RpcException({
+          statusCode: HttpStatus.CONFLICT,
+          message: 'The doctor already has an appointment at that time',
+        } as ServiceError);
+      }
+
+      // Move the Zoom meeting first so a Zoom failure leaves the appointment untouched
+      if (existing.meeting_id) {
+        await this.zoomService.updateMeeting(
+          existing.meeting_id,
+          undefined,
+          newTime.toISOString(),
+        );
+      }
+
+      // A patient moving a confirmed appointment needs the doctor to accept again
+      const requiresAcceptance =
+        role === AuthRole.PATIENT &&
+        existing.status === AppointmentStatus.CONFIRMED;
+      const status = requiresAcceptance
+        ? AppointmentStatus.PENDING
+        : existing.status;
+      await this.appointmentRepo.update(
+        { id },
+        { appointment_time: newTime, status },
+      );
+
+      const eventDto: AppointmentRescheduledEventDto = {
+        appointmentId: existing.id,
+        patientId: existing.patient_id || '',
+        doctorId: existing.provider_id || '',
+        oldTime: existing.appointment_time?.toISOString() ?? '',
+        newTime: newTime.toISOString(),
+        rescheduledBy: role,
+        reason,
+        requiresAcceptance,
+        ...(requiresAcceptance && {
+          acceptLink: `${this.serverUrls.backend}/orders/appointments/${existing.id}/accept`,
+        }),
+      };
+      this.notificationClient.emit(
+        NotificationEvents.APPOINTMENT_RESCHEDULED,
+        withServiceAuth(eventDto, this.serviceToken),
+      );
+
+      return {
+        message: 'Appointment rescheduled successfully',
+        appointment_time: newTime,
+        status,
+        requiresAcceptance,
+      };
+    } catch (error) {
+      logError(error, `${AppointmentService.name}.reschedule`);
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: 'Unable to reschedule appointment',
+            error: error instanceof Error ? error.message : String(error),
           } as ServiceError);
     }
   }

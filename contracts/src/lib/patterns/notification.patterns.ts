@@ -24,6 +24,7 @@ export const NotificationEvents = {
   APPOINTMENT_CREATED: 'notification.event.appointment.created',
   APPOINTMENT_CONFIRMED: 'notification.event.appointment.confirmed',
   APPOINTMENT_CANCELLED: 'notification.event.appointment.cancelled',
+  APPOINTMENT_RESCHEDULED: 'notification.event.appointment.rescheduled',
   APPOINTMENT_PAYMENT_CONFIRMED: 'notification.event.appointment.payment.confirmed',
   APPOINTMENT_COMPLETED: 'notification.event.appointment.completed',
   TEST_REQUISITION_CREATED: 'notification.event.requisition.created',
