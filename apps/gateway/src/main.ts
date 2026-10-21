@@ -58,7 +58,16 @@ Each endpoint documents which roles are permitted in its description.`,
 
   // Start App
   const port = process.env.PORT || 3000;
-  app.enableCors();
+  const ENV = process.env.ENV || 'staging';
+  app.enableCors({
+    origin: [
+      'https://medicpadi.com',
+      'https://www.medicpadi.com',
+      ...[ENV === 'staging' ? 'http://localhost:5173' : ''],
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
   await app.listen(port);
   Logger.log(
     `🚀 Gateway Application is running on: http://localhost:${port}/${globalPrefix}`,
