@@ -101,4 +101,7 @@ export class Pharmacy extends BaseClass {
     nullable: true,
   })
   totalReviews?: number | null;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  deliveryCost?: number | null;
 }

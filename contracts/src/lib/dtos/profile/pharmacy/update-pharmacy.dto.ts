@@ -27,4 +27,9 @@ export class UpdatePharmacyDto extends PartialType(CreatePharmacyDto) {
   @IsOptional()
   @IsNumber()
   awards?: number | null;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  deliveryCost?: number | null;
 }

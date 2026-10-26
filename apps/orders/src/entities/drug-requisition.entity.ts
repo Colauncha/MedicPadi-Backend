@@ -25,6 +25,9 @@ export class DrugRequisition extends BaseClass {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   total_amount?: number;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  delivery_cost?: number | null;
+
   @Column({
     type: 'enum',
     enum: PaymentStatus,

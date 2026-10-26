@@ -97,6 +97,7 @@ export class PharmacyService {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to retrieve Pharmacy profile',
+        error,
       } as ServiceError);
     }
     return profile;
@@ -136,6 +137,7 @@ export class PharmacyService {
       !!profile?.address &&
       !!profile?.profilePicture?.url &&
       !!profile?.about &&
+      !!profile?.deliveryCost &&
       !!auth?.isEmailVerified;
     await this.pharmacyRepository.update({ user_id: userId }, { isProfileComplete });
   }

@@ -16,8 +16,12 @@ import { DrugRequisitionService } from './drug-requisition.service';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: configService.get<string>('appConfig.notificationServiceHost'),
-            port: configService.get<number>('appConfig.notificationServicePort'),
+            host: configService.get<string>(
+              'appConfig.notificationServiceHost',
+            ),
+            port: configService.get<number>(
+              'appConfig.notificationServicePort',
+            ),
           },
         }),
         inject: [ConfigService],
@@ -27,8 +31,23 @@ import { DrugRequisitionService } from './drug-requisition.service';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: configService.get<string>('appConfig.transactionsServiceHost'),
-            port: configService.get<number>('appConfig.transactionsServicePort'),
+            host: configService.get<string>(
+              'appConfig.transactionsServiceHost',
+            ),
+            port: configService.get<number>(
+              'appConfig.transactionsServicePort',
+            ),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'PROFILE_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('appConfig.profileServiceHost'),
+            port: configService.get<number>('appConfig.profileServicePort'),
           },
         }),
         inject: [ConfigService],

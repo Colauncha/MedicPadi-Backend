@@ -22,6 +22,7 @@ import {
   TransactionPatterns,
   TransactionSourceType,
   UpdateDrugRequisitionDto,
+  PharmacyPatterns,
 } from '@medicpadi-backend/contracts';
 import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 import { DrugRequisition } from '../../entities/drug-requisition.entity';
@@ -41,6 +42,8 @@ export class DrugRequisitionService {
     private readonly notificationClient: ClientProxy,
     @Inject('TRANSACTIONS_SERVICE')
     private readonly transactionsClient: ClientProxy,
+    @Inject('PROFILE_SERVICE')
+    private readonly profileClient: ClientProxy,
     private readonly dataSource: DataSource,
     @Inject() private readonly configService: ConfigService,
   ) {}
@@ -92,10 +95,17 @@ export class DrugRequisitionService {
     await queryRunner.startTransaction();
     try {
       const { items, ...requisitionData } = dto;
-      requisition = queryRunner.manager.create(
-        DrugRequisition,
-        requisitionData,
+      const pharmProfile = await firstValueFrom(
+        this.profileClient.send(
+          PharmacyPatterns.RETRIEVE,
+          withServiceAuth(requisitionData.pharmacy_id, this.serviceToken),
+        ),
       );
+
+      requisition = queryRunner.manager.create(DrugRequisition, {
+        ...requisitionData,
+        delivery_cost: pharmProfile.deliveryCost,
+      });
       await queryRunner.manager.save(requisition);
       total = items.reduce(
         (sum, item) => sum + item.unit_price * item.quantity,
@@ -104,7 +114,7 @@ export class DrugRequisitionService {
       await queryRunner.manager.update(
         DrugRequisition,
         { id: requisition.id },
-        { total_amount: total },
+        { total_amount: total + pharmProfile.deliveryCost },
       );
 
       let hasPrescriptionRequired = items.some(
