@@ -57,7 +57,7 @@ export class DrugRequisitionService {
   private async initializePaymentAndNotify(
     requisition: DrugRequisition,
     amount: number,
-  ): Promise<void> {
+  ): Promise<PaystackInitializeResponse> {
     const token = this.serviceToken;
     const transactionDto: CreateTransactionDto = {
       user_id: requisition.patient_id,
@@ -83,6 +83,7 @@ export class DrugRequisitionService {
       NotificationEvents.DRUG_REQUISITION_CREATED,
       withServiceAuth(eventDto, token),
     );
+    return initTransaction;
   }
 
   async create(dto: CreateDrugRequisitionDto) {
@@ -95,14 +96,12 @@ export class DrugRequisitionService {
     await queryRunner.startTransaction();
     try {
       const { items, ...requisitionData } = dto;
-      console.log('Data: ', requisitionData);
       const pharmProfile = await firstValueFrom(
         this.profileClient.send(
           PharmacyPatterns.RETRIEVE,
           withServiceAuth(requisitionData.pharmacy_id, this.serviceToken),
         ),
       );
-      console.log('Pharm: ', pharmProfile);
 
       requisition = queryRunner.manager.create(DrugRequisition, {
         ...requisitionData,
@@ -113,11 +112,11 @@ export class DrugRequisitionService {
         (sum, item) => sum + item.unit_price * item.quantity,
         0,
       );
-      console.log('Req: ', requisition);
+      total = total + parseInt(pharmProfile.deliveryCost, 10);
       await queryRunner.manager.update(
         DrugRequisition,
         { id: requisition.id },
-        { total_amount: total + pharmProfile.deliveryCost },
+        { total_amount: total },
       );
 
       let hasPrescriptionRequired = items.some(
@@ -152,8 +151,14 @@ export class DrugRequisitionService {
       await queryRunner.release();
     }
 
-    await this.initializePaymentAndNotify(requisition, total);
-    return { ...requisition, total_amount: total, items: reqItems };
+    const tranx: PaystackInitializeResponse =
+      await this.initializePaymentAndNotify(requisition, total);
+    return {
+      ...requisition,
+      total_amount: total,
+      items: reqItems,
+      tranx: tranx.data,
+    };
   }
 
   async requisitionFromPrescription(prescriptionId: string) {
@@ -195,6 +200,12 @@ export class DrugRequisitionService {
           message: 'Prescription is not electronic',
         } as ServiceError);
       }
+      // const pharmProfile = await firstValueFrom(
+      //   this.profileClient.send(
+      //     PharmacyPatterns.RETRIEVE,
+      //     withServiceAuth(requisitionData.pharmacy_id, this.serviceToken),
+      //   ),
+      // );
       requisition = queryRunner.manager.create(DrugRequisition, {
         patient_id: requisitionData.patient_id,
         pharmacy_id: requisitionData.provider_id,
@@ -230,8 +241,9 @@ export class DrugRequisitionService {
       await queryRunner.release();
     }
 
-    await this.initializePaymentAndNotify(requisition, total);
-    return { ...requisition, total_amount: total, items: reqItems };
+    const tranx: PaystackInitializeResponse =
+      await this.initializePaymentAndNotify(requisition, total);
+    return { ...requisition, total_amount: total, items: reqItems, tranx };
   }
 
   //   async requisitionFromNonElectronicPrescription(prescriptionId: string) {
