@@ -12,7 +12,13 @@ import {
 import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
 import { Pharmacy } from '../../entities/pharmacy.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsOrderValue, FindOptionsWhere, ILike, Repository } from 'typeorm';
+import {
+  FindOptionsOrderValue,
+  FindOptionsWhere,
+  ILike,
+  In,
+  Repository,
+} from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
@@ -51,7 +57,7 @@ export class PharmacyService {
   ): Promise<PaginationResponseDto<Pharmacy>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const { id, order, search, yearsOfService } = query;
+    const { id, order, search, yearsOfService, ids } = query;
     try {
       const baseFilter: FindOptionsWhere<Pharmacy> = {};
       if (yearsOfService) baseFilter.yearsOfService = yearsOfService;
@@ -63,11 +69,15 @@ export class PharmacyService {
           { ...baseFilter, registrationNumber: ILike(`%${search}%`) },
           { ...baseFilter, address: ILike(`%${search}%`) },
         ];
-      } else if (id) {
-        where = [
-          { ...baseFilter, id },
-          { ...baseFilter, user_id: id },
-        ];
+      } else if (!!id || !!ids) {
+        where = id
+          ? [
+              { ...baseFilter, id },
+              { ...baseFilter, user_id: id },
+            ]
+          : ids && ids.length > 0
+            ? { ...baseFilter, id: In(ids) }
+            : baseFilter;
       } else {
         where = baseFilter;
       }

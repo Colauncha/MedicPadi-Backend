@@ -17,6 +17,7 @@ import {
   FindOptionsOrderValue,
   FindOptionsWhere,
   ILike,
+  In,
   Repository,
 } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
@@ -57,8 +58,16 @@ export class DoctorsService {
   async findAll(query: DoctorQueryDto): Promise<PaginationResponseDto<Doctor>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
-    const { id, order, search, gender, speciality, price, yearsOfService } =
-      query;
+    const {
+      id,
+      ids,
+      order,
+      search,
+      gender,
+      speciality,
+      price,
+      yearsOfService,
+    } = query;
     try {
       const baseFilter: FindOptionsWhere<Doctor> = {};
       if (gender) baseFilter.gender = gender;
@@ -75,11 +84,15 @@ export class DoctorsService {
           { ...baseFilter, licenceNumber: ILike(`%${search}%`) },
           { ...baseFilter, placeOfWork: ILike(`%${search}%`) },
         ];
-      } else if (id) {
-        where = [
-          { ...baseFilter, id: ILike(`%${id}%`) },
-          { ...baseFilter, user_id: ILike(`%${id}%`) },
-        ];
+      } else if (!!id || !!ids) {
+        where = id
+          ? [
+              { ...baseFilter, id: ILike(`%${id}%`) },
+              { ...baseFilter, user_id: ILike(`%${id}%`) },
+            ]
+          : ids && ids.length > 0
+            ? { ...baseFilter, id: In(ids) }
+            : baseFilter;
       } else {
         where = baseFilter;
       }
