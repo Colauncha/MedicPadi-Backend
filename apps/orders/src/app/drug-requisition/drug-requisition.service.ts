@@ -95,12 +95,14 @@ export class DrugRequisitionService {
     await queryRunner.startTransaction();
     try {
       const { items, ...requisitionData } = dto;
+      console.log('Data: ', requisitionData);
       const pharmProfile = await firstValueFrom(
         this.profileClient.send(
           PharmacyPatterns.RETRIEVE,
           withServiceAuth(requisitionData.pharmacy_id, this.serviceToken),
         ),
       );
+      console.log('Pharm: ', pharmProfile);
 
       requisition = queryRunner.manager.create(DrugRequisition, {
         ...requisitionData,
@@ -111,6 +113,7 @@ export class DrugRequisitionService {
         (sum, item) => sum + item.unit_price * item.quantity,
         0,
       );
+      console.log('Req: ', requisition);
       await queryRunner.manager.update(
         DrugRequisition,
         { id: requisition.id },
@@ -143,6 +146,7 @@ export class DrugRequisitionService {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to create drug requisition',
+        error,
       } as ServiceError);
     } finally {
       await queryRunner.release();
