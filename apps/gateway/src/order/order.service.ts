@@ -19,6 +19,8 @@ import {
   PharmacyStatsDto,
   RescheduleAppointmentDto,
   RequisitionStatus,
+  DrugRequisitionQueryDto,
+  TestRequisitionQueryDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -240,7 +242,7 @@ export class OrderService {
     );
   }
 
-  async findAllDrugRequisitions(query: PaginationDto) {
+  async findAllDrugRequisitions(query: DrugRequisitionQueryDto) {
     return firstValueFrom(
       this.orderClient.send(
         OrderPatterns.DRUG_REQUISITIONS.FIND_ALL,
@@ -311,7 +313,7 @@ export class OrderService {
     );
   }
 
-  async findAllTestRequisitions(query: PaginationDto) {
+  async findAllTestRequisitions(query: TestRequisitionQueryDto) {
     return firstValueFrom(
       this.orderClient.send(
         OrderPatterns.TEST_REQUISITIONS.FIND_ALL,

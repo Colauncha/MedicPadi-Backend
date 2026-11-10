@@ -3,8 +3,8 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   AuthRole,
   CreateDrugRequisitionDto,
+  DrugRequisitionQueryDto,
   OrderPatterns,
-  PaginationDto,
   RequisitionStatus,
   UpdateDrugRequisitionDto,
 } from '@medicpadi-backend/contracts';
@@ -29,7 +29,7 @@ export class DrugRequisitionController {
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.FIND_ALL)
-  findAll(@Payload('data') query: PaginationDto) {
+  findAll(@Payload('data') query: DrugRequisitionQueryDto) {
     return this.drugRequisitionService.findAll(query);
   }
 
@@ -74,9 +74,7 @@ export class DrugRequisitionController {
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.DELETE)
-  remove(
-    @Payload('data') dto: { id: string; userId: string; role: AuthRole },
-  ) {
+  remove(@Payload('data') dto: { id: string; userId: string; role: AuthRole }) {
     return this.drugRequisitionService.remove(dto.id, dto.userId, dto.role);
   }
 }

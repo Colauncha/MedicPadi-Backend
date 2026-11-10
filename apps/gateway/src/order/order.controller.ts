@@ -29,6 +29,8 @@ import {
   RescheduleAppointmentDto,
   DeclineDrugRequisitionDto,
   RequisitionStatus,
+  DrugRequisitionQueryDto,
+  TestRequisitionQueryDto,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { Roles } from '../guards/decorators/roles.decorator';
@@ -132,7 +134,8 @@ export class OrderController {
   @ApiResponse({ status: 200, description: 'Appointment completed.' })
   @ApiResponse({
     status: 400,
-    description: 'Appointment is not confirmed, not paid, or already completed.',
+    description:
+      'Appointment is not confirmed, not paid, or already completed.',
   })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   @ApiResponse({
@@ -225,7 +228,10 @@ export class OrderController {
     description:
       'Moves an appointment to a new time and updates its Zoom meeting. When the patient reschedules a confirmed appointment, it returns to `pending` and the doctor must accept it again (payment is kept). The other participant is notified. Accessible by `patient` and `consultant` (participants only) and `admin` roles.',
   })
-  @ApiParam({ name: 'id', description: 'UUID of the appointment to reschedule.' })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the appointment to reschedule.',
+  })
   @ApiResponse({ status: 200, description: 'Appointment rescheduled.' })
   @ApiResponse({
     status: 400,
@@ -335,11 +341,7 @@ export class OrderController {
   })
   @ApiResponse({ status: 404, description: 'Appointment not found.' })
   getAppointmentZak(@Param('id') id: string, @Req() req: RequestWithUser) {
-    return this.orderService.getAppointmentZak(
-      id,
-      req.user.id,
-      req.user.role,
-    );
+    return this.orderService.getAppointmentZak(id, req.user.id, req.user.role);
   }
 
   @Get('/appointments/list/patients')
@@ -494,7 +496,7 @@ export class OrderController {
     description: 'Paginated list of drug requisitions.',
   })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  findAllDrugRequisitions(@Query() query: PaginationDto) {
+  findAllDrugRequisitions(@Query() query: DrugRequisitionQueryDto) {
     return this.orderService.findAllDrugRequisitions(query);
   }
 
@@ -567,11 +569,7 @@ export class OrderController {
   })
   @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
   patientReceiveDrug(@Param('id') id: string, @Req() req: RequestWithUser) {
-    return this.orderService.patientReciveDrug(
-      id,
-      req.user.id,
-      req.user.role,
-    );
+    return this.orderService.patientReciveDrug(id, req.user.id, req.user.role);
   }
 
   @Patch('/drug-requisitions/:id/accept')
@@ -683,7 +681,10 @@ export class OrderController {
     description: 'Caller is not the assigned pharmacy.',
   })
   @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
-  dispatchDrugRequisition(@Param('id') id: string, @Req() req: RequestWithUser) {
+  dispatchDrugRequisition(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ) {
     return this.orderService.updateDrugRequisitionStatus(
       id,
       RequisitionStatus.READY,
@@ -716,10 +717,7 @@ export class OrderController {
   })
   @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
   @ApiResponse({ status: 502, description: 'Refund could not be processed.' })
-  removeDrugRequisition(
-    @Param('id') id: string,
-    @Req() req: RequestWithUser,
-  ) {
+  removeDrugRequisition(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.orderService.removeDrugRequisition(
       id,
       req.user.id,
@@ -758,7 +756,7 @@ export class OrderController {
     description: 'Paginated list of test requisitions.',
   })
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
-  findAllTestRequisitions(@Query() query: PaginationDto) {
+  findAllTestRequisitions(@Query() query: TestRequisitionQueryDto) {
     return this.orderService.findAllTestRequisitions(query);
   }
 
