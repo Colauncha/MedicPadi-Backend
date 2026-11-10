@@ -1,6 +1,7 @@
 export enum NotificationType {
   APPOINTMENT = 'appointment',
-  REQUISITION = 'requisition',
+  DRUG_REQUISITION = 'drug_requisition',
+  TEST_REQUISITION = 'test_requisition',
   PRESCRIPTION = 'prescription',
   PAYMENT = 'payment',
   SYSTEM = 'system',

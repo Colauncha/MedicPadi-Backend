@@ -8,10 +8,12 @@ import {
 } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
+  AuthRole,
   CreateDrugRequisitionDto,
   CreateTransactionDto,
   DrugRequisitionQueryDto,
   DrugRequisitionCreatedEventDto,
+  DrugRequisitionStatusChangedEventDto,
   NotificationEvents,
   PaginationResponseDto,
   PaymentGateway,
@@ -24,12 +26,25 @@ import {
   UpdateDrugRequisitionDto,
   PharmacyPatterns,
 } from '@medicpadi-backend/contracts';
-import { buildPaginationResponse, withServiceAuth } from '@medicpadi-backend/utils';
+import { buildPaginationResponse, withServiceAuth, logError } from '@medicpadi-backend/utils';
 import { DrugRequisition } from '../../entities/drug-requisition.entity';
 import { DrugRequisitionItem } from '../../entities/drug-requisition-item.entity';
 import { Prescription } from '../../entities/prescription.entity';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+
+// Target status → statuses the pharmacy may move from. CANCELLED is a decline.
+const PHARMACY_TRANSITIONS: Partial<
+  Record<RequisitionStatus, RequisitionStatus[]>
+> = {
+  [RequisitionStatus.ACCEPTED]: [RequisitionStatus.PENDING],
+  [RequisitionStatus.CANCELLED]: [
+    RequisitionStatus.PENDING,
+    RequisitionStatus.ACCEPTED,
+  ],
+  [RequisitionStatus.PROCESSING]: [RequisitionStatus.ACCEPTED],
+  [RequisitionStatus.READY]: [RequisitionStatus.PROCESSING],
+};
 
 @Injectable()
 export class DrugRequisitionService {
@@ -358,7 +373,7 @@ export class DrugRequisitionService {
     }
   }
 
-  async updateStatusToReceived(id: string) {
+  async updateStatusToReceived(id: string, userId: string, role: AuthRole) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -371,20 +386,22 @@ export class DrugRequisitionService {
           message: 'Drug requisition not found',
         } as ServiceError);
       }
-      if (
-        ![PaymentStatus.PAID, PaymentStatus.ESCROW].includes(
-          existing.payment_status,
-        )
-      ) {
+      if (role !== AuthRole.ADMIN && existing.patient_id !== userId) {
+        throw new RpcException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Only the requisition patient can mark it as received',
+        } as ServiceError);
+      }
+      if (!this.isPaid(existing)) {
         throw new RpcException({
           statusCode: HttpStatus.BAD_REQUEST,
           message: 'Payment not completed for this drug requisition',
         } as ServiceError);
       }
-      if (existing.status === RequisitionStatus.COMPLETED) {
+      if (existing.status !== RequisitionStatus.READY) {
         throw new RpcException({
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Drug requisition is already marked as received',
+          message: `Only dispatched requisitions can be marked as received (current: ${existing.status}).`,
         } as ServiceError);
       }
 
@@ -401,6 +418,7 @@ export class DrugRequisitionService {
         ),
       );
       await queryRunner.commitTransaction();
+      this.emitStatusChanged(existing, RequisitionStatus.COMPLETED, role);
 
       return result.raw;
     } catch (error) {
@@ -414,6 +432,124 @@ export class DrugRequisitionService {
     } finally {
       queryRunner.release();
     }
+  }
+
+  /**
+   * Pharmacy-driven progression: accept, decline (→ cancelled, refunded),
+   * processing and ready (dispatched). The patient completes via
+   * updateStatusToReceived.
+   */
+  async updateStatus(dto: {
+    id: string;
+    status: RequisitionStatus;
+    userId: string;
+    role: AuthRole;
+    notes?: string;
+  }) {
+    const { id, status, userId, role, notes } = dto;
+    try {
+      const allowedFrom = PHARMACY_TRANSITIONS[status];
+      if (!allowedFrom) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Pharmacy cannot set drug requisition status to ${status}`,
+        } as ServiceError);
+      }
+      const existing = await this.requisitionRepo.findOne({ where: { id } });
+      if (!existing) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Drug requisition not found',
+        } as ServiceError);
+      }
+      if (role !== AuthRole.ADMIN && existing.pharmacy_id !== userId) {
+        throw new RpcException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Only the assigned pharmacy can update this requisition',
+        } as ServiceError);
+      }
+      if (!allowedFrom.includes(existing.status)) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Drug requisition cannot move from ${existing.status} to ${status}.`,
+        } as ServiceError);
+      }
+      // Drugs aren't prepared until the patient has paid
+      if (status === RequisitionStatus.PROCESSING && !this.isPaid(existing)) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Payment not completed for this drug requisition',
+        } as ServiceError);
+      }
+
+      let refunded = false;
+      if (status === RequisitionStatus.CANCELLED) {
+        refunded = await this.refundIfEscrowed(existing.id);
+      }
+      await this.requisitionRepo.update(
+        { id },
+        {
+          status,
+          ...(notes && { notes }),
+          ...(refunded && { payment_status: PaymentStatus.REFUNDED }),
+        },
+      );
+      this.emitStatusChanged(existing, status, role, { notes, refunded });
+
+      return { id, status, refunded };
+    } catch (error) {
+      logError(error, `${DrugRequisitionService.name}.updateStatus`);
+      throw error instanceof RpcException
+        ? error
+        : new RpcException({
+            statusCode: HttpStatus.REQUEST_TIMEOUT,
+            message: 'Unable to update drug requisition status',
+          } as ServiceError);
+    }
+  }
+
+  private isPaid(requisition: DrugRequisition) {
+    return [PaymentStatus.PAID, PaymentStatus.ESCROW].includes(
+      requisition.payment_status,
+    );
+  }
+
+  /** Refunds the requisition's payment when it is still held in escrow. */
+  private async refundIfEscrowed(requisitionId: string): Promise<boolean> {
+    const tranx = await firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.TRANSACTIONS.FIND_BY_ORDER_ID,
+        withServiceAuth(requisitionId, this.serviceToken),
+      ),
+    );
+    if (tranx?.payment_status !== PaymentStatus.ESCROW) return false;
+    await firstValueFrom(
+      this.transactionsClient.send(
+        TransactionPatterns.TRANSACTIONS.REFUND,
+        withServiceAuth(requisitionId, this.serviceToken),
+      ),
+    );
+    return true;
+  }
+
+  private emitStatusChanged(
+    requisition: DrugRequisition,
+    status: RequisitionStatus,
+    changedBy: AuthRole,
+    extras: { notes?: string; refunded?: boolean } = {},
+  ) {
+    const eventDto: DrugRequisitionStatusChangedEventDto = {
+      requisitionId: requisition.id,
+      patientId: requisition.patient_id,
+      pharmacyId: requisition.pharmacy_id,
+      status,
+      changedBy,
+      ...extras,
+    };
+    this.notificationClient.emit(
+      NotificationEvents.DRUG_REQUISITION_STATUS_CHANGED,
+      withServiceAuth(eventDto, this.serviceToken),
+    );
   }
 
   async findAll(
@@ -489,10 +625,7 @@ export class DrugRequisitionService {
     }
   }
 
-  async remove(id: string) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async remove(id: string, userId: string, role: AuthRole) {
     try {
       const existing = await this.requisitionRepo.findOne({ where: { id } });
       if (!existing) {
@@ -501,22 +634,45 @@ export class DrugRequisitionService {
           message: 'Drug requisition not found',
         } as ServiceError);
       }
-      await queryRunner.manager.delete(DrugRequisitionItem, {
-        requisition_id: id,
+      if (role !== AuthRole.ADMIN && existing.patient_id !== userId) {
+        throw new RpcException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: 'Only the requisition patient can cancel it',
+        } as ServiceError);
+      }
+      const cancellable = [
+        RequisitionStatus.PENDING,
+        RequisitionStatus.ACCEPTED,
+        RequisitionStatus.PROCESSING,
+      ].includes(existing.status);
+      if (!cancellable) {
+        throw new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Drug requisition cannot be cancelled in its current state (${existing.status}).`,
+        } as ServiceError);
+      }
+
+      // Refund before cancelling so a failed refund leaves the requisition intact
+      const refunded = await this.refundIfEscrowed(existing.id);
+      await this.requisitionRepo.update(
+        { id },
+        {
+          status: RequisitionStatus.CANCELLED,
+          ...(refunded && { payment_status: PaymentStatus.REFUNDED }),
+        },
+      );
+      this.emitStatusChanged(existing, RequisitionStatus.CANCELLED, role, {
+        refunded,
       });
-      await queryRunner.manager.remove(existing);
-      await queryRunner.commitTransaction();
-      return { message: 'Drug requisition removed successfully' };
+      return { message: 'Drug requisition cancelled successfully', refunded };
     } catch (error) {
-      await queryRunner.rollbackTransaction();
+      logError(error, `${DrugRequisitionService.name}.remove`);
       throw error instanceof RpcException
         ? error
         : new RpcException({
             statusCode: HttpStatus.REQUEST_TIMEOUT,
-            message: 'Unable to remove drug requisition',
+            message: 'Unable to cancel drug requisition',
           } as ServiceError);
-    } finally {
-      await queryRunner.release();
     }
   }
 }

@@ -27,6 +27,8 @@ import {
   AppointmentQueryDto,
   CancelAppointmentDto,
   RescheduleAppointmentDto,
+  DeclineDrugRequisitionDto,
+  RequisitionStatus,
 } from '@medicpadi-backend/contracts';
 import { AuthGuard, RequestWithUser } from '../guards/auth/auth.guard';
 import { Roles } from '../guards/decorators/roles.decorator';
@@ -544,7 +546,7 @@ export class OrderController {
   @ApiOperation({
     summary: 'Patient receive drug',
     description:
-      'Marks a drug requisition as received by the patient. Accessible by `patient` and `admin` roles.',
+      'Marks a `ready` (dispatched) drug requisition as `completed` and releases payment to the pharmacy. Accessible by the requisition `patient` and `admin`.',
   })
   @ApiParam({
     name: 'id',
@@ -559,9 +561,135 @@ export class OrderController {
     status: 403,
     description: 'Insufficient permissions — patient or admin role required.',
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Requisition is not dispatched, or payment is not completed.',
+  })
   @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
-  patientReceiveDrug(@Param('id') id: string) {
-    return this.orderService.patientReciveDrug(id);
+  patientReceiveDrug(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.orderService.patientReciveDrug(
+      id,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  @Patch('/drug-requisitions/:id/accept')
+  @Roles(AuthRole.PHARMACY, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Accept a drug requisition',
+    description:
+      'Moves a `pending` requisition to `accepted`. Accessible by the assigned `pharmacy` and `admin`.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the drug requisition.' })
+  @ApiResponse({ status: 200, description: 'Drug requisition accepted.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Requisition is not pending.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not the assigned pharmacy.',
+  })
+  @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
+  acceptDrugRequisition(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.orderService.updateDrugRequisitionStatus(
+      id,
+      RequisitionStatus.ACCEPTED,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  @Patch('/drug-requisitions/:id/decline')
+  @Roles(AuthRole.PHARMACY, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Decline a drug requisition',
+    description:
+      'Moves a `pending` or `accepted` requisition to `cancelled` and refunds any escrowed payment. Accessible by the assigned `pharmacy` and `admin`.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the drug requisition.' })
+  @ApiResponse({ status: 200, description: 'Drug requisition declined.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Requisition is not pending or accepted.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not the assigned pharmacy.',
+  })
+  @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
+  @ApiResponse({ status: 502, description: 'Refund could not be processed.' })
+  declineDrugRequisition(
+    @Param('id') id: string,
+    @Body(validate) dto: DeclineDrugRequisitionDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.orderService.updateDrugRequisitionStatus(
+      id,
+      RequisitionStatus.CANCELLED,
+      req.user.id,
+      req.user.role,
+      dto.notes,
+    );
+  }
+
+  @Patch('/drug-requisitions/:id/processing')
+  @Roles(AuthRole.PHARMACY, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Start processing a drug requisition',
+    description:
+      'Moves an `accepted`, paid requisition to `processing`. Accessible by the assigned `pharmacy` and `admin`.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the drug requisition.' })
+  @ApiResponse({ status: 200, description: 'Drug requisition is processing.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Requisition is not accepted, or payment is not completed.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not the assigned pharmacy.',
+  })
+  @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
+  processDrugRequisition(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.orderService.updateDrugRequisitionStatus(
+      id,
+      RequisitionStatus.PROCESSING,
+      req.user.id,
+      req.user.role,
+    );
+  }
+
+  @Patch('/drug-requisitions/:id/dispatch')
+  @Roles(AuthRole.PHARMACY, AuthRole.ADMIN)
+  @ApiOperation({
+    summary: 'Dispatch a drug requisition',
+    description:
+      'Moves a `processing` requisition to `ready` (dispatched to the patient). Accessible by the assigned `pharmacy` and `admin`.',
+  })
+  @ApiParam({ name: 'id', description: 'UUID of the drug requisition.' })
+  @ApiResponse({ status: 200, description: 'Drug requisition dispatched.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Requisition is not processing.',
+  })
+  @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Caller is not the assigned pharmacy.',
+  })
+  @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
+  dispatchDrugRequisition(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.orderService.updateDrugRequisitionStatus(
+      id,
+      RequisitionStatus.READY,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @Delete('/drug-requisitions/:id')
@@ -579,11 +707,24 @@ export class OrderController {
   @ApiResponse({ status: 401, description: 'Missing or invalid token.' })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions — patient or admin role required.',
+    description:
+      'Insufficient permissions, or caller is not the requisition patient.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Drug requisition cannot be cancelled in its current state.',
   })
   @ApiResponse({ status: 404, description: 'Drug requisition not found.' })
-  removeDrugRequisition(@Param('id') id: string) {
-    return this.orderService.removeDrugRequisition(id);
+  @ApiResponse({ status: 502, description: 'Refund could not be processed.' })
+  removeDrugRequisition(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.orderService.removeDrugRequisition(
+      id,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   // ──────────────────────────────────────────────

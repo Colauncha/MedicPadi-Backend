@@ -34,6 +34,8 @@ export const NotificationEvents = {
   WITHDRAWAL_SUCCESS: 'notification.event.withdrawal.success',
   WITHDRAWAL_FAILED: 'notification.event.withdrawal.failed',
   DRUG_REQUISITION_CREATED: 'notification.event.drug-requisition.created',
+  DRUG_REQUISITION_STATUS_CHANGED:
+    'notification.event.drug-requisition.status-changed',
   VERIFY_EMAIL: 'notification.event.verify-email',
   EHR_ACCESS_REQUESTED: 'notification.event.ehr.access-requested',
 };

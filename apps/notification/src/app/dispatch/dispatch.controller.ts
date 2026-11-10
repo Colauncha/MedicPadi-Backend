@@ -10,6 +10,7 @@ import {
   AppointmentPaymentConfirmedEventDto,
   AppointmentRescheduledEventDto,
   DrugRequisitionCreatedEventDto,
+  DrugRequisitionStatusChangedEventDto,
   EhrAccessRequestedEventDto,
   NotificationEvents,
   PaymentSuccessEventDto,
@@ -113,6 +114,11 @@ export class DispatchController {
   @EventPattern(NotificationEvents.DRUG_REQUISITION_CREATED)
   drugRequisitionCreated(@Payload('data') dto: DrugRequisitionCreatedEventDto) {
     return this.queue.add(NotificationJobNames.DRUG_REQUISITION_CREATED, dto, JOB_OPTIONS);
+  }
+
+  @EventPattern(NotificationEvents.DRUG_REQUISITION_STATUS_CHANGED)
+  drugRequisitionStatusChanged(@Payload('data') dto: DrugRequisitionStatusChangedEventDto) {
+    return this.queue.add(NotificationJobNames.DRUG_REQUISITION_STATUS_CHANGED, dto, JOB_OPTIONS);
   }
 
   @EventPattern(NotificationEvents.VERIFY_EMAIL)

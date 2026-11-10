@@ -18,6 +18,7 @@ import {
   LabStatsDto,
   PharmacyStatsDto,
   RescheduleAppointmentDto,
+  RequisitionStatus,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ClientProxy } from '@nestjs/microservices';
@@ -266,20 +267,35 @@ export class OrderService {
     );
   }
 
-  async patientReciveDrug(id: string) {
+  async patientReciveDrug(id: string, userId: string, role: AuthRole) {
     return firstValueFrom(
       this.orderClient.send(
-        OrderPatterns.DRUG_REQUISITIONS.UPDATE,
-        withServiceAuth(id, this.serviceToken),
+        OrderPatterns.DRUG_REQUISITIONS.PATIENT_RECEIVE,
+        withServiceAuth({ id, userId, role }, this.serviceToken),
       ),
     );
   }
 
-  async removeDrugRequisition(id: string) {
+  async updateDrugRequisitionStatus(
+    id: string,
+    status: RequisitionStatus,
+    userId: string,
+    role: AuthRole,
+    notes?: string,
+  ) {
+    return firstValueFrom(
+      this.orderClient.send(
+        OrderPatterns.DRUG_REQUISITIONS.UPDATE_STATUS,
+        withServiceAuth({ id, status, userId, role, notes }, this.serviceToken),
+      ),
+    );
+  }
+
+  async removeDrugRequisition(id: string, userId: string, role: AuthRole) {
     return firstValueFrom(
       this.orderClient.send(
         OrderPatterns.DRUG_REQUISITIONS.DELETE,
-        withServiceAuth(id, this.serviceToken),
+        withServiceAuth({ id, userId, role }, this.serviceToken),
       ),
     );
   }

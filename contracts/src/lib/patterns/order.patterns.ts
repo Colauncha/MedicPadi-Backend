@@ -32,6 +32,7 @@ export const OrderPatterns = {
     FIND_ALL: 'orders.drugRequisitions.findAll',
     DELETE: 'orders.drugRequisitions.delete',
     PATIENT_RECEIVE: 'orders.drugRequisitions.patientReceive',
+    UPDATE_STATUS: 'orders.drugRequisitions.updateStatus',
     COMPLETE_PAYMENT: 'orders.drugRequisitions.completePayment',
   },
   TEST_REQUISITIONS: {

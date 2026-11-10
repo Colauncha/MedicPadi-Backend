@@ -17,6 +17,7 @@ export const NotificationJobNames = {
   WITHDRAWAL_SUCCESS: 'withdrawal.success',
   WITHDRAWAL_FAILED: 'withdrawal.failed',
   DRUG_REQUISITION_CREATED: 'drug-requisition.created',
+  DRUG_REQUISITION_STATUS_CHANGED: 'drug-requisition.status-changed',
   VERIFY_EMAIL: 'verify-email',
   EHR_ACCESS_REQUESTED: 'ehr.access-requested',
   PUSH_RECEIPTS: 'push.receipts',

@@ -1,4 +1,12 @@
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+import { AuthRole } from '../../../enums/auth.enum';
+import { RequisitionStatus } from '../../../enums/requisition-status.enum';
 
 // Test requisitions
 export class TestRequisitionCreatedEventDto {
@@ -60,4 +68,29 @@ export class DrugRequisitionCreatedEventDto {
   @IsOptional()
   @IsString()
   paymentLink?: string;
+}
+export class DrugRequisitionStatusChangedEventDto {
+  @IsUUID()
+  requisitionId!: string;
+
+  @IsUUID()
+  patientId!: string;
+
+  @IsUUID()
+  pharmacyId!: string;
+
+  @IsEnum(RequisitionStatus)
+  status!: RequisitionStatus;
+
+  // Who made the change; decides which party is notified on cancellation
+  @IsEnum(AuthRole)
+  changedBy!: AuthRole;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  refunded?: boolean;
 }

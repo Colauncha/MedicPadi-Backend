@@ -83,6 +83,7 @@ export * from './lib/dtos/orders/prescriptions/update-prescription.dto';
 export * from './lib/dtos/orders/drug-requisition/create-drug-requisition-item.dto';
 export * from './lib/dtos/orders/drug-requisition/create-drug-requisition.dto';
 export * from './lib/dtos/orders/drug-requisition/update-drug-requisition.dto';
+export * from './lib/dtos/orders/drug-requisition/update-drug-requisition-status.dto';
 export * from './lib/dtos/orders/test-requisition/create-test-requisition-item.dto';
 export * from './lib/dtos/orders/test-requisition/create-test-requisition.dto';
 export * from './lib/dtos/orders/test-requisition/update-test-requisition.dto';

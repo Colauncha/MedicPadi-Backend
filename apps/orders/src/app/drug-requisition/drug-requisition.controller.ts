@@ -1,9 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
+  AuthRole,
   CreateDrugRequisitionDto,
   OrderPatterns,
   PaginationDto,
+  RequisitionStatus,
   UpdateDrugRequisitionDto,
 } from '@medicpadi-backend/contracts';
 import { DrugRequisitionService } from './drug-requisition.service';
@@ -47,12 +49,34 @@ export class DrugRequisitionController {
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.PATIENT_RECEIVE)
-  updateStatusToReceived(@Payload('data') id: string) {
-    return this.drugRequisitionService.updateStatusToReceived(id);
+  updateStatusToReceived(
+    @Payload('data') dto: { id: string; userId: string; role: AuthRole },
+  ) {
+    return this.drugRequisitionService.updateStatusToReceived(
+      dto.id,
+      dto.userId,
+      dto.role,
+    );
+  }
+
+  @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.UPDATE_STATUS)
+  updateStatus(
+    @Payload('data')
+    dto: {
+      id: string;
+      status: RequisitionStatus;
+      userId: string;
+      role: AuthRole;
+      notes?: string;
+    },
+  ) {
+    return this.drugRequisitionService.updateStatus(dto);
   }
 
   @MessagePattern(OrderPatterns.DRUG_REQUISITIONS.DELETE)
-  remove(@Payload('data') id: string) {
-    return this.drugRequisitionService.remove(id);
+  remove(
+    @Payload('data') dto: { id: string; userId: string; role: AuthRole },
+  ) {
+    return this.drugRequisitionService.remove(dto.id, dto.userId, dto.role);
   }
 }

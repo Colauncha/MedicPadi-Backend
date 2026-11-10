@@ -985,7 +985,11 @@ export class TransactionsService {
 
   async findByOrderId(id: string) {
     try {
-      return await this.transactionRepo.findOne({ where: { source_id: id } });
+      // Latest attempt, matching the transaction refundTransaction acts on
+      return await this.transactionRepo.findOne({
+        where: { source_id: id },
+        order: { createdAt: 'DESC' },
+      });
     } catch (error) {
       logError(error, `${TransactionsService.name}.findByOrderId`);
       throw new RpcException({

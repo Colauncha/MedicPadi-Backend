@@ -12,10 +12,12 @@ import {
   ConsentAccessLevel,
   CreateNotificationDto,
   DrugRequisitionCreatedEventDto,
+  DrugRequisitionStatusChangedEventDto,
   EhrAccessRequestedEventDto,
   NotificationChannel,
   NotificationType,
   PaymentSuccessEventDto,
+  RequisitionStatus,
   ResetPasswordEmailDto,
   TestRequisitionAcceptedEventDto,
   TestRequisitionCreatedEventDto,
@@ -86,6 +88,8 @@ export class DispatchProcessor extends WorkerHost {
         return this.handleWithdrawalFailed(job as Job<WithdrawalEventDto>);
       case NotificationJobNames.DRUG_REQUISITION_CREATED:
         return this.handleDrugRequisitionCreated(job as Job<DrugRequisitionCreatedEventDto>);
+      case NotificationJobNames.DRUG_REQUISITION_STATUS_CHANGED:
+        return this.handleDrugRequisitionStatusChanged(job as Job<DrugRequisitionStatusChangedEventDto>);
       case NotificationJobNames.VERIFY_EMAIL:
         return this.handleVerifyEmail(job as Job<VerifyEmailDto>);
       case NotificationJobNames.EHR_ACCESS_REQUESTED:
@@ -426,7 +430,7 @@ export class DispatchProcessor extends WorkerHost {
         user_id: patientId,
         title: 'Lab Test Requisition Submitted',
         body: `Your test requisition has been submitted to ${labProfile.name}.`,
-        type: NotificationType.REQUISITION,
+        type: NotificationType.TEST_REQUISITION,
         source_id: requisitionId,
         channel: NotificationChannel.IN_APP,
       }),
@@ -434,7 +438,7 @@ export class DispatchProcessor extends WorkerHost {
         user_id: labId,
         title: 'New Lab Test Requisition',
         body: `${patientName} has submitted a new test requisition.${acceptLink ? ` Review: ${acceptLink}` : ''}`,
-        type: NotificationType.REQUISITION,
+        type: NotificationType.TEST_REQUISITION,
         source_id: requisitionId,
         channel: NotificationChannel.IN_APP,
       }),
@@ -465,7 +469,7 @@ export class DispatchProcessor extends WorkerHost {
       user_id: patientId,
       title: 'Lab Test Requisition Accepted',
       body: `Your test requisition has been accepted by ${labProfile.name}.${paymentLink ? ' Please proceed to payment.' : ''}`,
-      type: NotificationType.REQUISITION,
+      type: NotificationType.TEST_REQUISITION,
       source_id: requisitionId,
       channel: NotificationChannel.IN_APP,
     });
@@ -496,7 +500,7 @@ export class DispatchProcessor extends WorkerHost {
       user_id: patientId,
       title: 'Lab Test Requisition Declined',
       body: `Your test requisition was declined by ${labProfile.name}.${notes ? ` Reason: ${notes}` : ''}`,
-      type: NotificationType.REQUISITION,
+      type: NotificationType.TEST_REQUISITION,
       source_id: requisitionId,
       channel: NotificationChannel.IN_APP,
     });
@@ -527,10 +531,88 @@ export class DispatchProcessor extends WorkerHost {
       user_id: patientId,
       title: 'Drug Requisition Created',
       body: `Your drug requisition has been submitted to ${pharmacyProfile.name}.${paymentLink ? ' Please proceed to payment.' : ''}`,
-      type: NotificationType.REQUISITION,
+      type: NotificationType.DRUG_REQUISITION,
       source_id: requisitionId,
       channel: NotificationChannel.IN_APP,
     });
+
+    await this.notifyUser(pharmacyProfile, {
+      user_id: pharmacyId,
+      title: 'New Drug Requisition',
+      body: `${patientName} has submitted a new drug requisition. Review and accept or decline it.`,
+      type: NotificationType.DRUG_REQUISITION,
+      source_id: requisitionId,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private async handleDrugRequisitionStatusChanged(job: Job<DrugRequisitionStatusChangedEventDto>) {
+    const { requisitionId, patientId, pharmacyId, status, changedBy, notes, refunded } = job.data;
+
+    const [patientAuth, patientProfile, pharmacyProfile] = await Promise.all([
+      this.dispatchService.resolveUserAuth(patientId),
+      this.dispatchService.resolvePatient(patientId),
+      this.dispatchService.resolvePharmacy(pharmacyId),
+    ]);
+
+    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const pharmacyName = pharmacyProfile.name;
+    const refundNote = refunded ? ' Your payment has been refunded.' : '';
+    const reasonNote = notes ? ` Reason: ${notes}` : '';
+
+    const notifyPatient = (title: string, body: string) =>
+      this.notifyUser(patientProfile, {
+        user_id: patientId,
+        title,
+        body,
+        type: NotificationType.DRUG_REQUISITION,
+        source_id: requisitionId,
+        channel: NotificationChannel.IN_APP,
+      });
+    const notifyPharmacy = (title: string, body: string) =>
+      this.notifyUser(pharmacyProfile, {
+        user_id: pharmacyId,
+        title,
+        body,
+        type: NotificationType.DRUG_REQUISITION,
+        source_id: requisitionId,
+        channel: NotificationChannel.IN_APP,
+      });
+
+    switch (status) {
+      case RequisitionStatus.ACCEPTED:
+        await notifyPatient('Drug Requisition Accepted', `${pharmacyName} has accepted your drug requisition.`);
+        return;
+      case RequisitionStatus.PROCESSING:
+        await notifyPatient('Drug Requisition Processing', `${pharmacyName} is preparing your drugs.`);
+        return;
+      case RequisitionStatus.READY:
+        await notifyPatient(
+          'Drug Requisition Dispatched',
+          `${pharmacyName} has dispatched your drugs. Mark the requisition as received once they arrive.`,
+        );
+        return;
+      case RequisitionStatus.COMPLETED:
+        await notifyPharmacy(
+          'Drug Requisition Completed',
+          `${patientName} has confirmed receipt of their drugs. Payment has been released to your wallet.`,
+        );
+        return;
+      case RequisitionStatus.CANCELLED:
+        // A pharmacy cancellation is a decline; notify whichever party didn't act (both for admin)
+        if (changedBy !== AuthRole.PATIENT) {
+          await notifyPatient(
+            changedBy === AuthRole.PHARMACY ? 'Drug Requisition Declined' : 'Drug Requisition Cancelled',
+            `Your drug requisition with ${pharmacyName} was ${changedBy === AuthRole.PHARMACY ? 'declined' : 'cancelled'}.${reasonNote}${refundNote}`,
+          );
+        }
+        if (changedBy !== AuthRole.PHARMACY) {
+          await notifyPharmacy('Drug Requisition Cancelled', `${patientName}'s drug requisition was cancelled.`);
+        }
+        return;
+      default:
+        this.logger.warn(`No notification for drug requisition status: ${status}`);
+    }
   }
 
   private async handleVerifyEmail(job: Job<VerifyEmailDto>) {
