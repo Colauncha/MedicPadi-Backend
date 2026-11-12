@@ -5,7 +5,10 @@ export const AiAgentPatterns = {
     HISTORY: 'ai-agent.chat.history',
   },
   AGENT: {
-    RUN: 'ai-agent.agent.run',
+    MESSAGE: 'ai-agent.agent.message',
+    CONFIRM_ACTION: 'ai-agent.agent.confirmAction',
+    REJECT_ACTION: 'ai-agent.agent.rejectAction',
+    GET_SESSION: 'ai-agent.agent.getSession',
   },
   PROCESSOR: {
     ANALYZE: 'ai-agent.processor.analyze',

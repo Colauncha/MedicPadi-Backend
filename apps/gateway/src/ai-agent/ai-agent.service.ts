@@ -4,8 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import {
   AiAgentPatterns,
+  AgentActionDto,
+  AgentMessageDto,
+  AgentSessionQueryDto,
   ProcessDocumentDto,
-  RunAgentDto,
   SendMessageDto,
 } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
@@ -41,13 +43,29 @@ export class AiAgentService {
     );
   }
 
-  async runAgent(dto: RunAgentDto) {
+  private send<T>(pattern: string, data: unknown) {
     return firstValueFrom(
-      this.aiAgentClient.send(
-        AiAgentPatterns.AGENT.RUN,
-        withServiceAuth(dto, this.serviceToken),
+      this.aiAgentClient.send<T>(
+        pattern,
+        withServiceAuth(data, this.serviceToken),
       ),
     );
+  }
+
+  async agentMessage(dto: AgentMessageDto) {
+    return this.send(AiAgentPatterns.AGENT.MESSAGE, dto);
+  }
+
+  async confirmAgentAction(dto: AgentActionDto) {
+    return this.send(AiAgentPatterns.AGENT.CONFIRM_ACTION, dto);
+  }
+
+  async rejectAgentAction(dto: AgentActionDto) {
+    return this.send(AiAgentPatterns.AGENT.REJECT_ACTION, dto);
+  }
+
+  async getAgentSession(dto: AgentSessionQueryDto) {
+    return this.send(AiAgentPatterns.AGENT.GET_SESSION, dto);
   }
 
   async processDocument(dto: ProcessDocumentDto) {

@@ -10,6 +10,10 @@ import { firstValueFrom } from 'rxjs';
 import { AuthPatterns, SubscriptionLevel } from '@medicpadi-backend/contracts';
 import { withServiceAuth } from '@medicpadi-backend/utils';
 import { ConfigService } from '@nestjs/config';
+import {
+  REQUIRES_PLAN_KEY,
+  SUBSCRIPTION_RANK,
+} from '../decorators/requires-plan.decorator';
 
 export type RequestWithUser = Request & { user?: any };
 export type RequestWithSub = Request & {
@@ -109,6 +113,7 @@ export class SubscriptionGuard implements CanActivate {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authProxy: ClientProxy,
     private readonly configService: ConfigService,
+    private readonly reflector: Reflector,
   ) {}
 
   private get serviceToken(): string {
@@ -118,26 +123,46 @@ export class SubscriptionGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const targets = [context.getHandler(), context.getClass()];
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+      'roles',
+      targets,
+    );
+    const requiredPlan =
+      this.reflector.getAllAndOverride<SubscriptionLevel>(
+        REQUIRES_PLAN_KEY,
+        targets,
+      ) ?? SubscriptionLevel.BASIC;
+
     const req = context.switchToHttp().getRequest();
     const token =
       req.cookies?.['auth_token'] ||
-      req.headers?.authoriztion?.replace('Bearer ', '');
+      req.headers?.authorization?.replace('Bearer ', '');
 
     if (!token) return false;
 
-    const { valid, user } = await firstValueFrom(
+    const result = await firstValueFrom(
       this.authProxy.send(
         AuthPatterns.VERIFY,
         withServiceAuth(token, this.serviceToken),
       ),
     );
+    const user = result?.user;
 
-    if (!valid || !user.isVerified || !user.earlyUser) return false;
-    if (!user.subscription || user.subscription === 'free') return false;
+    if (!result?.valid || !user) return false;
+    if (!user.isVerified || !user.earlyUser) return false;
+
+    const userRank =
+      SUBSCRIPTION_RANK[user.subscription as SubscriptionLevel] ?? 0;
+    if (userRank < SUBSCRIPTION_RANK[requiredPlan]) return false;
+
+    if (requiredRoles?.length && !requiredRoles.includes(user.role)) {
+      return false;
+    }
 
     req.user = user;
     req.subscription = user.subscription;
 
-    return user && valid;
+    return true;
   }
 }

@@ -116,7 +116,7 @@ export * from './lib/dtos/transactions/create-withdrawal.dto';
 
 // AI Agent DTOs
 export * from './lib/dtos/ai-agent/send-message.dto';
-export * from './lib/dtos/ai-agent/run-agent.dto';
+export * from './lib/dtos/ai-agent/agent.dto';
 export * from './lib/dtos/ai-agent/process-document.dto';
 
 // Search DTOs

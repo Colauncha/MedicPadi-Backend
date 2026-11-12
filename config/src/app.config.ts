@@ -65,6 +65,8 @@ const appConfig = registerAs('appConfig', () => ({
   anthropicApiKey: process.env['ANTHROPIC_API_KEY'],
   openaiApiKey: process.env['OPENAI_API_KEY'],
   aiDefaultModel: process.env['AI_DEFAULT_MODEL'] ?? 'claude-sonnet-4-6',
+  // Idle lifetime of an AI agent conversation in Redis (seconds)
+  agentSessionTtl: parseInt(process.env['AGENT_SESSION_TTL'] || '1800'),
 }));
 
 export default appConfig;
