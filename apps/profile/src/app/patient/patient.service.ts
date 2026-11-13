@@ -104,6 +104,19 @@ export class PatientService {
     return profile;
   }
 
+  findBy(arg0: { user_id: string }) {
+    try {
+      return this.patientRepository.findOne({
+        where: arg0,
+      });
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.REQUEST_TIMEOUT,
+        message: 'Unable to retrieve Patient profile',
+      } as ServiceError);
+    }
+  }
+
   async retrieveMany(ids: string[]) {
     let profiles: Patient[] | null;
     try {
@@ -164,17 +177,14 @@ export class PatientService {
 
   async updateSettings(id: string, settingsDto: SettingsDto) {
     try {
-      await this.patientRepository.findOne({ where: { user_id: id } });
+      await this.patientRepository.findOne({ where: { id: id } });
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: "Unable to update Patient's settings",
       } as ServiceError);
     }
-    return this.patientRepository.update(
-      { user_id: id },
-      { settings: settingsDto },
-    );
+    return this.patientRepository.update({ id: id }, { settings: settingsDto });
   }
 
   remove(id: string) {

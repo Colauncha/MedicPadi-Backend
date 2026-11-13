@@ -175,6 +175,30 @@ export class DoctorsService {
     );
   }
 
+  async updateRating(profile_id: string, rating: number, totalReviews: number) {
+    try {
+      const doctorProfile = await this.doctorsRepository.findOne({
+        where: { id: profile_id },
+      });
+      if (!doctorProfile) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Doctor profile not found',
+        } as ServiceError);
+      }
+      const newRating = doctorProfile.rating
+        ? (doctorProfile.rating * totalReviews + rating) / (totalReviews + 1)
+        : rating;
+
+      await this.doctorsRepository.update(
+        { id: profile_id },
+        { rating: newRating, totalReviews: totalReviews + 1 },
+      );
+    } catch (error) {
+      throw new Error('Error updating ratings.');
+    }
+  }
+
   async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {
     let existingDoctorProfile: Doctor | null;
     try {

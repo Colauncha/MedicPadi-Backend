@@ -25,5 +25,6 @@ import { ConfigService } from '@nestjs/config';
   ],
   controllers: [PharmacyController],
   providers: [PharmacyService],
+  exports: [PharmacyService],
 })
 export class PharmacyModule {}

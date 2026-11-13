@@ -34,7 +34,9 @@ export class LaboratoryService {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   create(createLaboratoryDto: CreateLaboratoryDto) {
@@ -117,7 +119,9 @@ export class LaboratoryService {
     updateLaboratoryDto: UpdateLaboratoryDto,
   ) {
     try {
-      const existing = await this.labRepository.findOne({ where: { user_id: id } });
+      const existing = await this.labRepository.findOne({
+        where: { user_id: id },
+      });
       if (!existing) {
         throw new RpcException({
           statusCode: HttpStatus.NOT_FOUND,
@@ -161,6 +165,31 @@ export class LaboratoryService {
     await this.labRepository.update({ user_id: userId }, { isProfileComplete });
   }
 
+  async updateRating(profile_id: string, rating: number, totalReviews: number) {
+    try {
+      const laboratoryProfile = await this.labRepository.findOne({
+        where: { id: profile_id },
+      });
+      if (!laboratoryProfile) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Laboratory profile not found',
+        } as ServiceError);
+      }
+      const newRating = laboratoryProfile.rating
+        ? (laboratoryProfile.rating * totalReviews + rating) /
+          (totalReviews + 1)
+        : rating;
+
+      await this.labRepository.update(
+        { id: profile_id },
+        { rating: newRating, totalReviews: totalReviews + 1 },
+      );
+    } catch (error) {
+      throw new Error('Error updating ratings.');
+    }
+  }
+
   async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {
     let existingLaboratoryProfile: Laboratory | null;
     try {
@@ -196,7 +225,10 @@ export class LaboratoryService {
         message: "Unable to update Laboratory's settings",
       } as ServiceError);
     }
-    return this.labRepository.update({ user_id: id }, { settings: settingsDto });
+    return this.labRepository.update(
+      { user_id: id },
+      { settings: settingsDto },
+    );
   }
 
   remove(id: string) {

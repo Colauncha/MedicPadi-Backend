@@ -17,12 +17,20 @@ import {
 } from '@medicpadi-backend/contracts';
 import { buildPaginationResponse } from '@medicpadi-backend/utils';
 import { RpcException } from '@nestjs/microservices';
+import { LaboratoryService } from '../laboratory/laboratory.service';
+import { PharmacyService } from '../pharmacy/pharmacy.service';
+import { DoctorsService } from '../doctors/doctors.service';
+import { PatientService } from '../patient/patient.service';
 
 @Injectable()
 export class ReviewService {
   constructor(
     @InjectRepository(Reviews)
     private readonly reviewRepository: Repository<Reviews>,
+    private readonly doctorService: DoctorsService,
+    private readonly pharmacyService: PharmacyService,
+    private readonly laboratoryService: LaboratoryService,
+    private readonly patientService: PatientService,
   ) {}
 
   private resolveProfileRef(
@@ -36,16 +44,62 @@ export class ReviewService {
     return { laboratory_id: profile_id };
   }
 
+  async updateProviderRating(
+    profile_type: ReviewedProfileType,
+    profile_id: string,
+    rating: number,
+    totalReviews: number,
+  ) {
+    console.log('Check 2');
+    if (profile_type === ReviewedProfileType.Doctor) {
+      await this.doctorService.updateRating(profile_id, rating, totalReviews);
+    } else if (profile_type === ReviewedProfileType.Pharmacy) {
+      await this.pharmacyService.updateRating(profile_id, rating, totalReviews);
+    } else if (profile_type === ReviewedProfileType.Laboratory) {
+      await this.laboratoryService.updateRating(
+        profile_id,
+        rating,
+        totalReviews,
+      );
+    }
+    console.log('Check 3');
+  }
+
   async create(reviewDto: CreateReviewDto & { reviewer_id: string }) {
     try {
-      const { profile_id, profile_type, reviewer_id, ...rest } = reviewDto;
+      const { profile_id, profile_type, reviewer_id, rating, message } =
+        reviewDto;
+      const final_rating = Math.min(Math.max(rating, 1), 5);
+
+      const totalReviews = await this.reviewRepository.count({
+        where: this.resolveProfileRef(profile_type, profile_id),
+      });
+
+      const patient = await this.patientService.findBy({
+        user_id: reviewer_id,
+      });
+      if (!patient) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Reviewer not found',
+        } as ServiceError);
+      }
+
+      console.log('Check 1');
       const review = this.reviewRepository.create({
-        ...rest,
+        message,
+        rating: final_rating,
         profile_type,
-        reviewer_id,
+        reviewer_id: patient.id,
         ...this.resolveProfileRef(profile_type, profile_id),
       });
       await this.reviewRepository.save(review);
+      await this.updateProviderRating(
+        profile_type,
+        profile_id,
+        final_rating,
+        totalReviews,
+      );
       return review;
     } catch (error) {
       throw new RpcException({
@@ -116,29 +170,54 @@ export class ReviewService {
       existingReview = await this.reviewRepository.findOne({
         where: { id: id },
       });
+      if (!existingReview) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Review not found',
+        } as ServiceError);
+      }
+
+      const { profile_id, profile_type, message, rating } = updateReviewDto;
+      const profileRef =
+        profile_type && profile_id
+          ? this.resolveProfileRef(profile_type, profile_id)
+          : {};
+
+      const formatedRating = rating ? Math.min(Math.max(rating, 1), 5) : 1;
+
+      const updateResponse = await this.reviewRepository.update(
+        { id: id },
+        {
+          message,
+          rating: formatedRating,
+          ...(profile_type ? { profile_type } : {}),
+          ...profileRef,
+        },
+      );
+      await this.updateProviderRating(
+        existingReview.profile_type,
+        existingReview.doctor_id ||
+          existingReview.pharmacy_id ||
+          existingReview.laboratory_id ||
+          '',
+        formatedRating,
+        await this.reviewRepository.count({
+          where: this.resolveProfileRef(
+            existingReview.profile_type,
+            existingReview.doctor_id ||
+              existingReview.pharmacy_id ||
+              existingReview.laboratory_id ||
+              '',
+          ),
+        }),
+      );
+      return updateResponse;
     } catch (error) {
       throw new RpcException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,
         message: 'Unable to update Review',
       } as ServiceError);
     }
-    if (!existingReview) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Review not found',
-      } as ServiceError);
-    }
-
-    const { profile_id, profile_type, ...rest } = updateReviewDto;
-    const profileRef =
-      profile_type && profile_id
-        ? this.resolveProfileRef(profile_type, profile_id)
-        : {};
-
-    return this.reviewRepository.update(
-      { id: id },
-      { ...rest, ...(profile_type ? { profile_type } : {}), ...profileRef },
-    );
   }
 
   async remove(id: string) {

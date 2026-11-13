@@ -34,7 +34,9 @@ export class PharmacyService {
   ) {}
 
   private get serviceToken(): string {
-    return this.configService.getOrThrow<string>('appConfig.internalServiceToken');
+    return this.configService.getOrThrow<string>(
+      'appConfig.internalServiceToken',
+    );
   }
 
   create(createPharmacyDto: CreatePharmacyDto) {
@@ -149,7 +151,34 @@ export class PharmacyService {
       !!profile?.about &&
       !!profile?.deliveryCost &&
       !!auth?.isEmailVerified;
-    await this.pharmacyRepository.update({ user_id: userId }, { isProfileComplete });
+    await this.pharmacyRepository.update(
+      { user_id: userId },
+      { isProfileComplete },
+    );
+  }
+
+  async updateRating(profile_id: string, rating: number, totalReviews: number) {
+    try {
+      const pharmacyProfile = await this.pharmacyRepository.findOne({
+        where: { id: profile_id },
+      });
+      if (!pharmacyProfile) {
+        throw new RpcException({
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'Pharmacy profile not found',
+        } as ServiceError);
+      }
+      const newRating = pharmacyProfile.rating
+      ? (pharmacyProfile.rating * totalReviews + rating) / (totalReviews + 1)
+      : rating;
+
+      await this.pharmacyRepository.update(
+        { id: profile_id },
+        { rating: newRating, totalReviews: totalReviews + 1 },
+      );
+    } catch (error) {
+      throw new Error('Error updating ratings.');
+    }
   }
 
   async updateBusinessHours(id: string, businessHoursDto: BusinessHoursDto) {
@@ -180,7 +209,10 @@ export class PharmacyService {
         message: "Unable to update Pharmacy's settings",
       } as ServiceError);
     }
-    return this.pharmacyRepository.update({ user_id: id }, { settings: settingsDto });
+    return this.pharmacyRepository.update(
+      { user_id: id },
+      { settings: settingsDto },
+    );
   }
 
   remove(id: string) {

@@ -150,7 +150,7 @@ export class SubscriptionGuard implements CanActivate {
     const user = result?.user;
 
     if (!result?.valid || !user) return false;
-    if (!user.isVerified || !user.earlyUser) return false;
+    if (!user.isVerified) return false;
 
     const userRank =
       SUBSCRIPTION_RANK[user.subscription as SubscriptionLevel] ?? 0;

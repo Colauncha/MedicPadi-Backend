@@ -25,5 +25,6 @@ import { ConfigService } from '@nestjs/config';
   ],
   controllers: [LaboratoryController],
   providers: [LaboratoryService],
+  exports: [LaboratoryService],
 })
 export class LaboratoryModule {}
