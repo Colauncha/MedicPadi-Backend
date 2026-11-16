@@ -25,7 +25,8 @@ export const NotificationEvents = {
   APPOINTMENT_CONFIRMED: 'notification.event.appointment.confirmed',
   APPOINTMENT_CANCELLED: 'notification.event.appointment.cancelled',
   APPOINTMENT_RESCHEDULED: 'notification.event.appointment.rescheduled',
-  APPOINTMENT_PAYMENT_CONFIRMED: 'notification.event.appointment.payment.confirmed',
+  APPOINTMENT_PAYMENT_CONFIRMED:
+    'notification.event.appointment.payment.confirmed',
   APPOINTMENT_COMPLETED: 'notification.event.appointment.completed',
   TEST_REQUISITION_CREATED: 'notification.event.requisition.created',
   TEST_REQUISITION_ACCEPTED: 'notification.event.requisition.accepted',
@@ -38,4 +39,9 @@ export const NotificationEvents = {
     'notification.event.drug-requisition.status-changed',
   VERIFY_EMAIL: 'notification.event.verify-email',
   EHR_ACCESS_REQUESTED: 'notification.event.ehr.access-requested',
+  SUBSCRIPTION_ACTIVATED: 'notification.event.subscription.activated',
+  SUBSCRIPTION_RENEWAL_REMINDER:
+    'notification.event.subscription.renewal-reminder',
+  SUBSCRIPTION_PAYMENT_FAILED: 'notification.event.subscription.payment-failed',
+  SUBSCRIPTION_DOWNGRADED: 'notification.event.subscription.downgraded',
 };

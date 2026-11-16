@@ -6,6 +6,7 @@ import {
   UpdateAuthDto,
   LoginDto,
   ResetPasswordDto,
+  UpdateSubscriptionLevelDto,
 } from '@medicpadi-backend/contracts';
 import { AuthPatterns } from '@medicpadi-backend/contracts';
 
@@ -41,6 +42,11 @@ export class AuthController {
   @MessagePattern(AuthPatterns.UPDATE)
   update(@Payload('data') updateAuthDto: UpdateAuthDto) {
     return this.authService.update(updateAuthDto);
+  }
+
+  @MessagePattern(AuthPatterns.UPDATE_SUBSCRIPTION)
+  updateSubscription(@Payload('data') dto: UpdateSubscriptionLevelDto) {
+    return this.authService.updateSubscription(dto);
   }
 
   @MessagePattern(AuthPatterns.REQUEST_PASSWORD_RESET)

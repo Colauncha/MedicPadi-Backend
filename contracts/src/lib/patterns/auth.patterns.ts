@@ -7,6 +7,7 @@ export default {
   REFRESH: 'auth.refresh',
   FIND_BY_ID: 'auth.findById',
   UPDATE: 'auth.update',
+  UPDATE_SUBSCRIPTION: 'auth.updateSubscription',
   DELETE: 'auth.delete',
   REQUEST_PASSWORD_RESET: 'auth.requestPasswordReset',
   RESET_PASSWORD: 'auth.resetPassword',

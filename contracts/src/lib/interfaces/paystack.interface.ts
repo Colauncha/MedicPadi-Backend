@@ -8,23 +8,55 @@ export interface PaystackInitializeResponse {
   };
 }
 
+/** Card authorization returned by Paystack on a successful charge. Reusable ones can be charged again. */
+export interface PaystackAuthorization {
+  authorization_code: string;
+  bin?: string;
+  last4?: string;
+  exp_month?: string;
+  exp_year?: string;
+  channel?: string;
+  card_type?: string;
+  bank?: string;
+  country_code?: string;
+  brand?: string;
+  reusable: boolean;
+  signature?: string;
+  account_name?: string | null;
+}
+
+export interface PaystackCustomer {
+  id?: number;
+  email: string;
+  customer_code?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+}
+
+export interface PaystackChargeData {
+  amount: number;
+  currency: string;
+  transaction_date: string;
+  status: string;
+  reference: string;
+  domain: string;
+  metadata: any;
+  gateway_response: string;
+  message: string;
+  channel: string;
+  ip_address: string;
+  authorization?: PaystackAuthorization;
+  customer?: PaystackCustomer;
+}
+
 export interface PaystackVerifyResponse {
   status: boolean;
   message: string;
-  data: {
-    amount: number;
-    currency: string;
-    transaction_date: string;
-    status: string;
-    reference: string;
-    domain: string;
-    metadata: any;
-    gateway_response: string;
-    message: string;
-    channel: string;
-    ip_address: string;
-  };
+  data: PaystackChargeData;
 }
+
+/** Response of POST /transaction/charge_authorization; same data shape as verify. */
+export type PaystackChargeAuthorizationResponse = PaystackVerifyResponse;
 
 export interface PaystackResponse<T> {
   status: boolean;

@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
+  ChargeAuthorizationDto,
   CreateTransactionDto,
   CreateWalletDto,
   CreateWithdrawalDto,
@@ -63,6 +64,11 @@ export class TransactionsController {
   @MessagePattern(TransactionPatterns.TRANSACTIONS.REFUND)
   refundTransaction(@Payload('data') sourceId: string) {
     return this.transactionsService.refundTransaction(sourceId);
+  }
+
+  @MessagePattern(TransactionPatterns.TRANSACTIONS.CHARGE_AUTHORIZATION)
+  chargeAuthorization(@Payload('data') dto: ChargeAuthorizationDto) {
+    return this.transactionsService.chargeAuthorization(dto);
   }
 
   @MessagePattern(TransactionPatterns.WALLET.CREATE)

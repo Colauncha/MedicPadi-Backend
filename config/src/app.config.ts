@@ -51,6 +51,16 @@ const appConfig = registerAs('appConfig', () => ({
   // Smallest amount a provider can withdraw from their wallet
   minWithdrawal: parseFloat(process.env['MIN_WITHDRAWAL_AMOUNT'] ?? '1000'),
 
+  // Subscriptions: days of grace after a failed renewal before downgrading to Free,
+  // and the daily schedules (UTC) of the reminder and charge jobs.
+  subscriptionGraceDays: parseInt(
+    process.env['SUBSCRIPTION_GRACE_DAYS'] ?? '3',
+  ),
+  subscriptionReminderCron:
+    process.env['SUBSCRIPTION_REMINDER_CRON'] ?? '0 9 * * *',
+  subscriptionChargeCron:
+    process.env['SUBSCRIPTION_CHARGE_CRON'] ?? '0 2 * * *',
+
   // Caching and Redis
   redisHost: process.env['REDIS_HOST'],
   redisPort: parseInt(process.env['REDIS_PORT'] || '6379'),

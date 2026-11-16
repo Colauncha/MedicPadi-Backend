@@ -2,10 +2,13 @@ import { RpcException } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, Repository } from 'typeorm';
 import { ClientProxy } from '@nestjs/microservices';
+import { of } from 'rxjs';
 import {
   NotificationEvents,
   PaymentGateway,
   PaymentStatus,
+  SubscriptionPatterns,
+  TransactionSourceType,
   WithdrawalStatus,
 } from '@medicpadi-backend/contracts';
 import { TransactionsService } from './transactions.service';
@@ -54,6 +57,13 @@ describe('TransactionsService', () => {
   let config: Record<string, unknown>;
   let client: ClientProxy;
   let withdrawalRepo: { findOne: jest.Mock; update: jest.Mock };
+  let transactionRepo: {
+    findOne: jest.Mock;
+    update: jest.Mock;
+    save: jest.Mock;
+    create: jest.Mock;
+  };
+  let profileClient: ClientProxy;
 
   beforeEach(() => {
     manager = {
@@ -91,9 +101,19 @@ describe('TransactionsService', () => {
       findOne: jest.fn(),
       update: jest.fn(),
     };
+    transactionRepo = {
+      findOne: jest.fn(),
+      update: jest.fn(),
+      save: jest.fn(async (e) => ({ id: 'tx-new', ...e })),
+      create: jest.fn((d) => ({ ...d })),
+    };
+    profileClient = {
+      send: jest.fn(),
+      emit: jest.fn(),
+    } as unknown as ClientProxy;
 
     service = new TransactionsService(
-      {} as Repository<Transaction>,
+      transactionRepo as unknown as Repository<Transaction>,
       {} as Repository<Wallet>,
       {} as Repository<PayoutAccount>,
       withdrawalRepo as unknown as Repository<Withdrawal>,
@@ -102,6 +122,7 @@ describe('TransactionsService', () => {
       client,
       client,
       client,
+      profileClient,
     );
   });
 
@@ -258,7 +279,10 @@ describe('TransactionsService', () => {
       ]);
       // Honours the In(...) status filter used for the in-flight check
       manager.findOne.mockImplementation(
-        async (entity: unknown, options: { where?: { status?: { value?: unknown } } }) => {
+        async (
+          entity: unknown,
+          options: { where?: { status?: { value?: unknown } } },
+        ) => {
           const row = rows.get(entity) as { status?: string } | null;
           const allowed = options?.where?.status?.value;
           if (row && Array.isArray(allowed) && !allowed.includes(row.status)) {
@@ -321,7 +345,10 @@ describe('TransactionsService', () => {
 
       it('returns the hold when Paystack declines the transfer', async () => {
         fetchMock.mockResolvedValue(
-          paystackReply({ status: false, message: 'Insufficient balance' }, 400),
+          paystackReply(
+            { status: false, message: 'Insufficient balance' },
+            400,
+          ),
         );
         // finalizeWithdrawal re-reads the withdrawal that holdWithdrawal saved
         manager.save.mockImplementation((e) => {
@@ -387,7 +414,10 @@ describe('TransactionsService', () => {
       });
 
       it('re-credits a transfer reversed after it succeeded', async () => {
-        rows.set(Withdrawal, makeWithdrawal({ status: WithdrawalStatus.SUCCESS }));
+        rows.set(
+          Withdrawal,
+          makeWithdrawal({ status: WithdrawalStatus.SUCCESS }),
+        );
 
         await service.handleWebhook({
           event: 'transfer.reversed',
@@ -412,7 +442,10 @@ describe('TransactionsService', () => {
       });
 
       it('ignores a success that arrives after a failure', async () => {
-        rows.set(Withdrawal, makeWithdrawal({ status: WithdrawalStatus.FAILED }));
+        rows.set(
+          Withdrawal,
+          makeWithdrawal({ status: WithdrawalStatus.FAILED }),
+        );
 
         await service.handleWebhook({
           event: 'transfer.success',
@@ -433,7 +466,10 @@ describe('TransactionsService', () => {
         rows.set(Withdrawal, stale);
         fetchMock
           .mockResolvedValueOnce(
-            paystackReply({ status: false, message: 'Transfer not found' }, 404),
+            paystackReply(
+              { status: false, message: 'Transfer not found' },
+              404,
+            ),
           )
           .mockResolvedValueOnce(
             paystackReply({ status: true, data: { status: 'pending' } }),
@@ -448,6 +484,256 @@ describe('TransactionsService', () => {
         // 20000 + 5000 released - 5000 held for the new withdrawal
         expect(wallet.balance).toBe(20000);
         expect(fetchMock).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('subscriptions', () => {
+    const unwrap = (payload: any) => payload?.data ?? payload;
+    let fetchMock: jest.SpyInstance;
+
+    beforeEach(() => {
+      fetchMock = jest.spyOn(global, 'fetch');
+      (profileClient.send as jest.Mock).mockReturnValue(of({ id: 'sub-1' }));
+    });
+
+    const subscriptionTx = (overrides: Partial<Transaction> = {}) =>
+      makeTransaction({
+        id: 'tx-sub',
+        user_id: 'patient-1',
+        source_type: TransactionSourceType.SUBSCRIPTION,
+        source_id: 'sub-1',
+        provider_id: undefined,
+        amount: 2500,
+        payment_status: PaymentStatus.PENDING,
+        gateway_reference: 'ref-sub',
+        ...overrides,
+      });
+
+    const authorization = {
+      authorization_code: 'AUTH_abc',
+      reusable: true,
+      last4: '4081',
+    };
+
+    describe('charge.success webhook for a subscription', () => {
+      it('activates the plan in the profile service and marks the transaction paid', async () => {
+        const tx = subscriptionTx();
+        transactionRepo.findOne.mockResolvedValue(tx);
+        fetchMock.mockResolvedValue(
+          paystackReply({
+            status: true,
+            data: {
+              status: 'success',
+              reference: 'ref-sub',
+              amount: 250000,
+              currency: 'NGN',
+              metadata: {
+                user_id: 'patient-1',
+                source_type: 'subscription',
+                source_id: 'sub-1',
+              },
+              authorization,
+              customer: { email: 'p@test.com' },
+            },
+          }),
+        );
+
+        await service.handleWebhook({
+          event: 'charge.success',
+          data: { reference: 'ref-sub' },
+        });
+
+        const activate = (profileClient.send as jest.Mock).mock.calls.find(
+          ([pattern]) => pattern === SubscriptionPatterns.ACTIVATE,
+        );
+        expect(activate).toBeDefined();
+        expect(unwrap(activate![1])).toEqual({
+          subscriptionId: 'sub-1',
+          reference: 'ref-sub',
+          amount: 2500,
+          currency: 'NGN',
+          customerEmail: 'p@test.com',
+          authorization,
+        });
+        expect(transactionRepo.update).toHaveBeenCalledWith('tx-sub', {
+          payment_status: PaymentStatus.PAID,
+        });
+        // Subscription payments get their own notification from the profile service.
+        expect(client.emit).not.toHaveBeenCalledWith(
+          NotificationEvents.PAYMENT_SUCCESS,
+          expect.anything(),
+        );
+      });
+
+      it('still emits the generic payment notification for non-subscription sources', async () => {
+        const tx = makeTransaction({
+          source_type: TransactionSourceType.APPOINTMENT,
+        });
+        transactionRepo.findOne.mockResolvedValue(tx);
+        fetchMock.mockResolvedValue(
+          paystackReply({
+            status: true,
+            data: {
+              status: 'success',
+              reference: 'ref-123',
+              amount: 1000000,
+              currency: 'NGN',
+              metadata: {},
+            },
+          }),
+        );
+
+        await service.handleWebhook({
+          event: 'charge.success',
+          data: { reference: 'ref-123' },
+        });
+
+        expect(profileClient.send).not.toHaveBeenCalled();
+        expect(client.emit).toHaveBeenCalledWith(
+          NotificationEvents.PAYMENT_SUCCESS,
+          expect.anything(),
+        );
+      });
+    });
+
+    describe('chargeAuthorization', () => {
+      const dto = {
+        user_id: 'patient-1',
+        email: 'p@test.com',
+        amount: 2500,
+        currency: 'NGN',
+        authorization_code: 'AUTH_abc',
+        reference: 'sub_1_20261115_a1',
+        source_id: 'sub-1',
+      };
+
+      it('creates a pending transaction, charges the card and marks it paid', async () => {
+        transactionRepo.findOne.mockResolvedValue(null);
+        fetchMock.mockResolvedValue(
+          paystackReply({
+            status: true,
+            data: {
+              status: 'success',
+              reference: dto.reference,
+              gateway_response: 'Approved',
+              authorization,
+            },
+          }),
+        );
+
+        const result = await service.chargeAuthorization(dto);
+
+        expect(transactionRepo.save).toHaveBeenCalledWith(
+          expect.objectContaining({
+            source_type: TransactionSourceType.SUBSCRIPTION,
+            source_id: 'sub-1',
+            amount: 2500,
+            payment_status: PaymentStatus.PENDING,
+            gateway_reference: dto.reference,
+          }),
+        );
+        expect(fetchMock).toHaveBeenCalledWith(
+          'https://api.paystack.co/transaction/charge_authorization',
+          expect.objectContaining({ method: 'POST' }),
+        );
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body).toMatchObject({
+          email: 'p@test.com',
+          amount: 250000,
+          authorization_code: 'AUTH_abc',
+          reference: dto.reference,
+        });
+        expect(transactionRepo.update).toHaveBeenCalledWith('tx-new', {
+          payment_status: PaymentStatus.PAID,
+        });
+        expect(result).toEqual({
+          success: true,
+          reference: dto.reference,
+          status: 'success',
+          gatewayResponse: 'Approved',
+          authorization,
+        });
+      });
+
+      it('returns success:false when Paystack declines the card', async () => {
+        transactionRepo.findOne.mockResolvedValue(null);
+        fetchMock.mockResolvedValue(
+          paystackReply({ status: false, message: 'Insufficient Funds' }, 400),
+        );
+
+        const result = await service.chargeAuthorization(dto);
+
+        expect(result).toMatchObject({
+          success: false,
+          status: 'failed',
+          gatewayResponse: 'Insufficient Funds',
+        });
+        expect(transactionRepo.update).toHaveBeenCalledWith('tx-new', {
+          payment_status: PaymentStatus.FAILED,
+        });
+      });
+
+      it('returns success:false when the charge comes back failed', async () => {
+        transactionRepo.findOne.mockResolvedValue(null);
+        fetchMock.mockResolvedValue(
+          paystackReply({
+            status: true,
+            data: { status: 'failed', gateway_response: 'Declined' },
+          }),
+        );
+        const result = await service.chargeAuthorization(dto);
+        expect(result).toMatchObject({
+          success: false,
+          status: 'failed',
+          gatewayResponse: 'Declined',
+        });
+      });
+
+      it('throws and keeps the transaction pending when the outcome is unknown', async () => {
+        transactionRepo.findOne.mockResolvedValue(null);
+        fetchMock.mockResolvedValue(
+          paystackReply({ status: false, message: 'gateway timeout' }, 503),
+        );
+
+        await expect(service.chargeAuthorization(dto)).rejects.toBeInstanceOf(
+          RpcException,
+        );
+        expect(transactionRepo.update).not.toHaveBeenCalled();
+      });
+
+      it('is idempotent: a paid reference is not charged again', async () => {
+        transactionRepo.findOne.mockResolvedValue(
+          subscriptionTx({ payment_status: PaymentStatus.PAID }),
+        );
+        const result = await service.chargeAuthorization(dto);
+        expect(result).toEqual({
+          success: true,
+          reference: dto.reference,
+          status: 'success',
+        });
+        expect(fetchMock).not.toHaveBeenCalled();
+      });
+
+      it('verifies instead of re-charging a reference that is still pending', async () => {
+        transactionRepo.findOne.mockResolvedValue(
+          subscriptionTx({ payment_status: PaymentStatus.PENDING }),
+        );
+        fetchMock.mockResolvedValue(
+          paystackReply({
+            status: true,
+            data: { status: 'success', gateway_response: 'Approved' },
+          }),
+        );
+
+        const result = await service.chargeAuthorization(dto);
+
+        expect(fetchMock).toHaveBeenCalledWith(
+          `https://api.paystack.co/transaction/verify/${dto.reference}`,
+          expect.not.objectContaining({ method: 'POST' }),
+        );
+        expect(transactionRepo.save).not.toHaveBeenCalled();
+        expect(result.success).toBe(true);
       });
     });
   });

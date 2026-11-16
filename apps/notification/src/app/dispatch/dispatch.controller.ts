@@ -15,6 +15,10 @@ import {
   NotificationEvents,
   PaymentSuccessEventDto,
   ResetPasswordEmailDto,
+  SubscriptionActivatedEventDto,
+  SubscriptionDowngradedEventDto,
+  SubscriptionPaymentFailedEventDto,
+  SubscriptionRenewalReminderEventDto,
   TestRequisitionAcceptedEventDto,
   TestRequisitionCreatedEventDto,
   TestRequisitionDeclinedEventDto,
@@ -48,77 +52,145 @@ export class DispatchController {
 
   @EventPattern(NotificationEvents.RESET_PASSWORD)
   resetPassword(@Payload('data') dto: ResetPasswordEmailDto) {
-    return this.queue.add(NotificationJobNames.RESET_PASSWORD, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.RESET_PASSWORD,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.APPOINTMENT_CREATED)
   appointmentCreated(@Payload('data') dto: AppointmentCreatedEventDto) {
-    return this.queue.add(NotificationJobNames.APPOINTMENT_CREATED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.APPOINTMENT_CREATED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.APPOINTMENT_CONFIRMED)
   appointmentConfirmed(@Payload('data') dto: AppointmentConfirmedEventDto) {
-    return this.queue.add(NotificationJobNames.APPOINTMENT_CONFIRMED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.APPOINTMENT_CONFIRMED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.APPOINTMENT_PAYMENT_CONFIRMED)
-  appointmentPaymentConfirmed(@Payload('data') dto: AppointmentPaymentConfirmedEventDto) {
-    return this.queue.add(NotificationJobNames.APPOINTMENT_PAYMENT_CONFIRMED, dto, JOB_OPTIONS);
+  appointmentPaymentConfirmed(
+    @Payload('data') dto: AppointmentPaymentConfirmedEventDto,
+  ) {
+    return this.queue.add(
+      NotificationJobNames.APPOINTMENT_PAYMENT_CONFIRMED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.APPOINTMENT_COMPLETED)
   appointmentCompleted(@Payload('data') dto: AppointmentCompletedEventDto) {
-    return this.queue.add(NotificationJobNames.APPOINTMENT_COMPLETED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.APPOINTMENT_COMPLETED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.APPOINTMENT_CANCELLED)
   appointmentCancelled(@Payload('data') dto: AppointmentCancelledEventDto) {
-    return this.queue.add(NotificationJobNames.APPOINTMENT_CANCELLED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.APPOINTMENT_CANCELLED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.APPOINTMENT_RESCHEDULED)
   appointmentRescheduled(@Payload('data') dto: AppointmentRescheduledEventDto) {
-    return this.queue.add(NotificationJobNames.APPOINTMENT_RESCHEDULED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.APPOINTMENT_RESCHEDULED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.TEST_REQUISITION_CREATED)
   testRequisitionCreated(@Payload('data') dto: TestRequisitionCreatedEventDto) {
-    return this.queue.add(NotificationJobNames.TEST_REQUISITION_CREATED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.TEST_REQUISITION_CREATED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.TEST_REQUISITION_ACCEPTED)
-  testRequisitionAccepted(@Payload('data') dto: TestRequisitionAcceptedEventDto) {
-    return this.queue.add(NotificationJobNames.TEST_REQUISITION_ACCEPTED, dto, JOB_OPTIONS);
+  testRequisitionAccepted(
+    @Payload('data') dto: TestRequisitionAcceptedEventDto,
+  ) {
+    return this.queue.add(
+      NotificationJobNames.TEST_REQUISITION_ACCEPTED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.TEST_REQUISITION_DECLINED)
-  testRequisitionDeclined(@Payload('data') dto: TestRequisitionDeclinedEventDto) {
-    return this.queue.add(NotificationJobNames.TEST_REQUISITION_DECLINED, dto, JOB_OPTIONS);
+  testRequisitionDeclined(
+    @Payload('data') dto: TestRequisitionDeclinedEventDto,
+  ) {
+    return this.queue.add(
+      NotificationJobNames.TEST_REQUISITION_DECLINED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.PAYMENT_SUCCESS)
   paymentSuccess(@Payload('data') dto: PaymentSuccessEventDto) {
-    return this.queue.add(NotificationJobNames.PAYMENT_SUCCESS, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.PAYMENT_SUCCESS,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.WITHDRAWAL_SUCCESS)
   withdrawalSuccess(@Payload('data') dto: WithdrawalEventDto) {
-    return this.queue.add(NotificationJobNames.WITHDRAWAL_SUCCESS, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.WITHDRAWAL_SUCCESS,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.WITHDRAWAL_FAILED)
   withdrawalFailed(@Payload('data') dto: WithdrawalEventDto) {
-    return this.queue.add(NotificationJobNames.WITHDRAWAL_FAILED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.WITHDRAWAL_FAILED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.DRUG_REQUISITION_CREATED)
   drugRequisitionCreated(@Payload('data') dto: DrugRequisitionCreatedEventDto) {
-    return this.queue.add(NotificationJobNames.DRUG_REQUISITION_CREATED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.DRUG_REQUISITION_CREATED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.DRUG_REQUISITION_STATUS_CHANGED)
-  drugRequisitionStatusChanged(@Payload('data') dto: DrugRequisitionStatusChangedEventDto) {
-    return this.queue.add(NotificationJobNames.DRUG_REQUISITION_STATUS_CHANGED, dto, JOB_OPTIONS);
+  drugRequisitionStatusChanged(
+    @Payload('data') dto: DrugRequisitionStatusChangedEventDto,
+  ) {
+    return this.queue.add(
+      NotificationJobNames.DRUG_REQUISITION_STATUS_CHANGED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 
   @EventPattern(NotificationEvents.VERIFY_EMAIL)
@@ -128,6 +200,50 @@ export class DispatchController {
 
   @EventPattern(NotificationEvents.EHR_ACCESS_REQUESTED)
   ehrAccessRequested(@Payload('data') dto: EhrAccessRequestedEventDto) {
-    return this.queue.add(NotificationJobNames.EHR_ACCESS_REQUESTED, dto, JOB_OPTIONS);
+    return this.queue.add(
+      NotificationJobNames.EHR_ACCESS_REQUESTED,
+      dto,
+      JOB_OPTIONS,
+    );
+  }
+
+  @EventPattern(NotificationEvents.SUBSCRIPTION_ACTIVATED)
+  subscriptionActivated(@Payload('data') dto: SubscriptionActivatedEventDto) {
+    return this.queue.add(
+      NotificationJobNames.SUBSCRIPTION_ACTIVATED,
+      dto,
+      JOB_OPTIONS,
+    );
+  }
+
+  @EventPattern(NotificationEvents.SUBSCRIPTION_RENEWAL_REMINDER)
+  subscriptionRenewalReminder(
+    @Payload('data') dto: SubscriptionRenewalReminderEventDto,
+  ) {
+    return this.queue.add(
+      NotificationJobNames.SUBSCRIPTION_RENEWAL_REMINDER,
+      dto,
+      JOB_OPTIONS,
+    );
+  }
+
+  @EventPattern(NotificationEvents.SUBSCRIPTION_PAYMENT_FAILED)
+  subscriptionPaymentFailed(
+    @Payload('data') dto: SubscriptionPaymentFailedEventDto,
+  ) {
+    return this.queue.add(
+      NotificationJobNames.SUBSCRIPTION_PAYMENT_FAILED,
+      dto,
+      JOB_OPTIONS,
+    );
+  }
+
+  @EventPattern(NotificationEvents.SUBSCRIPTION_DOWNGRADED)
+  subscriptionDowngraded(@Payload('data') dto: SubscriptionDowngradedEventDto) {
+    return this.queue.add(
+      NotificationJobNames.SUBSCRIPTION_DOWNGRADED,
+      dto,
+      JOB_OPTIONS,
+    );
   }
 }

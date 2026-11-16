@@ -2,5 +2,12 @@
 // Imported explicitly (not globbed) so webpack bundles the migrations into the app.
 import { InitialSchema1791760548308 } from './1791760548308-InitialSchema';
 import { Migrations1793039173744 } from './1793039173744-migrations';
+import { AddSubscriptions1794844873868 } from './1794844873868-AddSubscriptions';
+import { SeedSubscriptionPlans1794844873869 } from './1794844873869-SeedSubscriptionPlans';
 
-export const migrations = [InitialSchema1791760548308, Migrations1793039173744];
+export const migrations = [
+  InitialSchema1791760548308,
+  Migrations1793039173744,
+  AddSubscriptions1794844873868,
+  SeedSubscriptionPlans1794844873869,
+];

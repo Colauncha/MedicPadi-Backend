@@ -4,6 +4,7 @@ export enum NotificationType {
   TEST_REQUISITION = 'test_requisition',
   PRESCRIPTION = 'prescription',
   PAYMENT = 'payment',
+  SUBSCRIPTION = 'subscription',
   SYSTEM = 'system',
   OTHER = 'other',
 }

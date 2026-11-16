@@ -2,8 +2,10 @@
 // Imported explicitly (not globbed) so webpack bundles the migrations into the app.
 import { InitialSchema1791760522790 } from './1791760522790-InitialSchema';
 import { SplitRequisitionNotificationType1793390000000 } from './1793390000000-SplitRequisitionNotificationType';
+import { AddSubscriptionNotificationType1794000000000 } from './1794000000000-AddSubscriptionNotificationType';
 
 export const migrations = [
   InitialSchema1791760522790,
   SplitRequisitionNotificationType1793390000000,
+  AddSubscriptionNotificationType1794000000000,
 ];

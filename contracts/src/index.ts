@@ -13,6 +13,7 @@ export * from './lib/enums/notification.enum';
 export * from './lib/enums/ehr.enum';
 export * from './lib/enums/transaction.enum';
 export * from './lib/enums/reviews.enum';
+export * from './lib/enums/subscription.enum';
 
 // DTOs
 // auth DTOs
@@ -21,6 +22,7 @@ export * from './lib/dtos/auth/update-auth.dto';
 export * from './lib/dtos/auth/get-auth.dto';
 export * from './lib/dtos/auth/login.dto';
 export * from './lib/dtos/auth/reset-password.dto';
+export * from './lib/dtos/auth/update-subscription.dto';
 
 // profile DTOs
 export * from './lib/dtos/profile/doctor/create-doctor.dto';
@@ -40,6 +42,9 @@ export * from './lib/dtos/profile/review/update-review.dto';
 export * from './lib/dtos/profile/pagination.dto';
 export * from './lib/dtos/profile/settings.dto';
 export * from './lib/dtos/profile/next-of-kin.dto';
+export * from './lib/dtos/profile/subscription/subscribe.dto';
+export * from './lib/dtos/profile/subscription/update-subscription-plan.dto';
+export * from './lib/dtos/profile/subscription/activate-subscription.dto';
 
 // Notification DTOs
 export * from './lib/dtos/notification/create-notification.dto';
@@ -53,6 +58,7 @@ export * from './lib/dtos/notification/events/requisition.event.dto';
 export * from './lib/dtos/notification/events/payment.event.dto';
 export * from './lib/dtos/notification/events/withdrawal.event.dto';
 export * from './lib/dtos/notification/events/ehr.event.dto';
+export * from './lib/dtos/notification/events/subscription.event.dto';
 
 // Auth-triggered email DTOs (callers already hold this data at emit time)
 export * from './lib/dtos/email/welcome.dto';
@@ -113,6 +119,7 @@ export * from './lib/dtos/transactions/update-transaction.dto';
 export * from './lib/dtos/transactions/create-wallet.dto';
 export * from './lib/dtos/transactions/save-payout-account.dto';
 export * from './lib/dtos/transactions/create-withdrawal.dto';
+export * from './lib/dtos/transactions/charge-authorization.dto';
 
 // AI Agent DTOs
 export * from './lib/dtos/ai-agent/send-message.dto';

@@ -20,5 +20,9 @@ export const NotificationJobNames = {
   DRUG_REQUISITION_STATUS_CHANGED: 'drug-requisition.status-changed',
   VERIFY_EMAIL: 'verify-email',
   EHR_ACCESS_REQUESTED: 'ehr.access-requested',
+  SUBSCRIPTION_ACTIVATED: 'subscription.activated',
+  SUBSCRIPTION_RENEWAL_REMINDER: 'subscription.renewal-reminder',
+  SUBSCRIPTION_PAYMENT_FAILED: 'subscription.payment-failed',
+  SUBSCRIPTION_DOWNGRADED: 'subscription.downgraded',
   PUSH_RECEIPTS: 'push.receipts',
 } as const;

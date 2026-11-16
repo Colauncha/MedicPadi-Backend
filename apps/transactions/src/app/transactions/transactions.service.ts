@@ -4,6 +4,8 @@ import { DataSource, In, Raw, Repository } from 'typeorm';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { randomUUID } from 'crypto';
 import {
+  ChargeAuthorizationDto,
+  ChargeAuthorizationResult,
   CreateTransactionDto,
   CreateWalletDto,
   CreateWithdrawalDto,
@@ -25,6 +27,9 @@ import {
   PaystackTransfer,
   PaystackTransferRecipient,
   SavePayoutAccountDto,
+  SubscriptionPatterns,
+  SubscriptionPaymentResultDto,
+  TransactionSourceType,
   WithdrawalEventDto,
   WithdrawalStatus,
 } from '@medicpadi-backend/contracts';
@@ -73,6 +78,7 @@ export class TransactionsService {
     @Inject('ORDER_SERVICE') private readonly orderClient: ClientProxy,
     @Inject('NOTIFICATION_SERVICE')
     private readonly notificationClient: ClientProxy,
+    @Inject('PROFILE_SERVICE') private readonly profileClient: ClientProxy,
   ) {}
 
   private get serviceToken(): string {
@@ -82,7 +88,9 @@ export class TransactionsService {
   }
 
   private get commissionRate(): number {
-    const rate = this.configService.get<number>('appConfig.medicpadiCommission');
+    const rate = this.configService.get<number>(
+      'appConfig.medicpadiCommission',
+    );
     if (rate === undefined || Number.isNaN(rate) || rate < 0 || rate >= 1) {
       throw new RpcException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -148,8 +156,148 @@ export class TransactionsService {
     appointment: OrderPatterns.APPOINTMENTS,
     drug_requisition: OrderPatterns.DRUG_REQUISITIONS,
     test_requisition: OrderPatterns.TEST_REQUISITIONS,
-    subscription: null,
   };
+
+  /**
+   * Subscription payments have no provider to pay out, so they go straight to PAID and the
+   * profile service is told to activate the plan (idempotent on the reference, since both
+   * the client-side verify and the webhook can land here). Returns false for other sources.
+   */
+  private async settleSubscriptionPayment(
+    transaction: Transaction | null,
+    verifyData: PaystackVerifyResponse,
+  ): Promise<boolean> {
+    if (
+      !transaction ||
+      transaction.source_type !== TransactionSourceType.SUBSCRIPTION ||
+      !transaction.source_id
+    ) {
+      return false;
+    }
+    const data = verifyData.data;
+    const result: SubscriptionPaymentResultDto = {
+      subscriptionId: transaction.source_id,
+      reference: data.reference,
+      amount: data.amount / 100,
+      currency: data.currency,
+      customerEmail: data.customer?.email ?? data.metadata?.email,
+      authorization: data.authorization,
+    };
+    try {
+      await firstValueFrom(
+        this.profileClient.send(
+          SubscriptionPatterns.ACTIVATE,
+          withServiceAuth(result, this.serviceToken),
+        ),
+      );
+      await this.transactionRepo.update(transaction.id, {
+        payment_status: PaymentStatus.PAID,
+      });
+    } catch (error) {
+      logError(error, `${TransactionsService.name}.settleSubscriptionPayment`);
+    }
+    return true;
+  }
+
+  /**
+   * Bills a saved card for a subscription renewal. Idempotent on `dto.reference`: a repeat
+   * call returns the stored outcome (or verifies a still-pending charge) instead of charging
+   * twice. Declines resolve to `success: false`; unknown outcomes (5xx/network) throw so the
+   * caller can retry later.
+   */
+  async chargeAuthorization(
+    dto: ChargeAuthorizationDto,
+  ): Promise<ChargeAuthorizationResult> {
+    const currency = dto.currency ?? 'NGN';
+    let transaction = await this.transactionRepo.findOne({
+      where: { gateway_reference: dto.reference },
+    });
+
+    if (transaction?.payment_status === PaymentStatus.PAID) {
+      return { success: true, reference: dto.reference, status: 'success' };
+    }
+    if (transaction?.payment_status === PaymentStatus.FAILED) {
+      return { success: false, reference: dto.reference, status: 'failed' };
+    }
+
+    try {
+      let data: PaystackVerifyResponse;
+      if (transaction) {
+        // A previous attempt reached Paystack but we never learned the outcome.
+        data = await this.paystackRequest(
+          `/transaction/verify/${encodeURIComponent(dto.reference)}`,
+          {},
+          'Unable to verify charge',
+        );
+      } else {
+        transaction = await this.transactionRepo.save(
+          this.transactionRepo.create({
+            user_id: dto.user_id,
+            source_type: TransactionSourceType.SUBSCRIPTION,
+            source_id: dto.source_id,
+            amount: dto.amount,
+            currency,
+            payment_status: PaymentStatus.PENDING,
+            gateway: PaymentGateway.PAYSTACK,
+            gateway_reference: dto.reference,
+          }),
+        );
+        data = await this.paystackRequest(
+          '/transaction/charge_authorization',
+          {
+            method: 'POST',
+            body: {
+              email: dto.email,
+              amount: Math.round(dto.amount * 100),
+              currency,
+              authorization_code: dto.authorization_code,
+              reference: dto.reference,
+              metadata: {
+                user_id: dto.user_id,
+                source_type: TransactionSourceType.SUBSCRIPTION,
+                source_id: dto.source_id,
+                ...(dto.metadata ?? {}),
+              },
+            },
+          },
+          'Unable to charge card',
+        );
+      }
+
+      const success = data.data?.status === 'success';
+      await this.transactionRepo.update(transaction.id, {
+        payment_status: success ? PaymentStatus.PAID : PaymentStatus.FAILED,
+      });
+      return {
+        success,
+        reference: dto.reference,
+        status: success ? 'success' : 'failed',
+        gatewayResponse: data.data?.gateway_response,
+        authorization: data.data?.authorization,
+      };
+    } catch (error) {
+      if (error instanceof PaystackRejectedException) {
+        // Paystack answered and declined, so nothing was charged.
+        if (transaction) {
+          await this.transactionRepo.update(transaction.id, {
+            payment_status: PaymentStatus.FAILED,
+          });
+        }
+        return {
+          success: false,
+          reference: dto.reference,
+          status: 'failed',
+          gatewayResponse: error.message,
+        };
+      }
+      logError(error, `${TransactionsService.name}.chargeAuthorization`);
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_GATEWAY,
+        message: 'Charge outcome unknown; retry later',
+        error: error instanceof Error ? error.message : String(error),
+      } as ServiceError);
+    }
+  }
 
   async create(dto: CreateTransactionDto) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -274,6 +422,7 @@ export class TransactionsService {
 
       console.log('Full method invoked');
       if (data.data.status === 'success') {
+        if (await this.settleSubscriptionPayment(transaction, data)) return data;
         const sourcePatterns = transaction?.source_type
           ? (this.tranxSourceMap[transaction.source_type] as any)
           : null;
@@ -325,6 +474,10 @@ export class TransactionsService {
         if (existingTranx) {
           existingTranx.payment_status = PaymentStatus.ESCROW;
           await this.transactionRepo.save(existingTranx);
+        }
+
+        if (await this.settleSubscriptionPayment(existingTranx, verifyData)) {
+          return { received: true };
         }
 
         const sourcePatterns = existingTranx?.source_type
@@ -398,7 +551,8 @@ export class TransactionsService {
       const payout = Math.round(amount * (1 - this.commissionRate) * 100) / 100;
       const commission = Math.round((amount - payout) * 100) / 100;
 
-      wallet.balance = Math.round((Number(wallet.balance) + payout) * 100) / 100;
+      wallet.balance =
+        Math.round((Number(wallet.balance) + payout) * 100) / 100;
       await queryRunner.manager.save(wallet);
       transaction.payment_status = PaymentStatus.PAID;
       await queryRunner.manager.save(transaction);
@@ -715,7 +869,8 @@ export class TransactionsService {
         } as ServiceError);
       }
 
-      wallet.balance = Math.round((Number(wallet.balance) - amount) * 100) / 100;
+      wallet.balance =
+        Math.round((Number(wallet.balance) - amount) * 100) / 100;
       await queryRunner.manager.save(wallet);
       const withdrawal = await queryRunner.manager.save(
         queryRunner.manager.create(Withdrawal, {
@@ -776,7 +931,8 @@ export class TransactionsService {
         ? error
         : new RpcException({
             statusCode: HttpStatus.BAD_GATEWAY,
-            message: 'Unable to confirm your previous withdrawal, try again later',
+            message:
+              'Unable to confirm your previous withdrawal, try again later',
           } as ServiceError);
     }
   }
@@ -885,8 +1041,9 @@ export class TransactionsService {
           } as ServiceError);
         }
         wallet.balance =
-          Math.round((Number(wallet.balance) + Number(withdrawal.amount)) * 100) /
-          100;
+          Math.round(
+            (Number(wallet.balance) + Number(withdrawal.amount)) * 100,
+          ) / 100;
         await queryRunner.manager.save(wallet);
         withdrawal.failure_reason = reason;
       }

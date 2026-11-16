@@ -7,6 +7,7 @@ import {
   NotificationEvents,
   ResetPasswordEmailDto,
   VerifyEmailDto,
+  UpdateSubscriptionLevelDto,
 } from '@medicpadi-backend/contracts';
 import { Repository } from 'typeorm';
 import { Auth } from './entities/auth.entity';
@@ -141,6 +142,33 @@ export class AuthService {
 
   update(updateAuthDto: UpdateAuthDto) {
     return { data: updateAuthDto };
+  }
+
+  /** Sets the plan level the gateway SubscriptionGuard reads. Called by the profile service. */
+  async updateSubscription({
+    userId,
+    subscription,
+  }: UpdateSubscriptionLevelDto) {
+    let result;
+    try {
+      result = await this.authRepository.update(
+        { id: userId },
+        { subscription },
+      );
+    } catch (error) {
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Unable to update subscription level',
+        error: error instanceof Error ? error.message : String(error),
+      } as ServiceError);
+    }
+    if (!result.affected) {
+      throw new RpcException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'User Not found',
+      } as ServiceError);
+    }
+    return { id: userId, subscription };
   }
 
   async findById(id: string) {

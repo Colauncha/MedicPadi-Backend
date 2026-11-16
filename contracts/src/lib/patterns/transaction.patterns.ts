@@ -11,6 +11,7 @@ export const TransactionPatterns = {
     WEBHOOK: 'transactions.webhook',
     CREDIT_PROVIDER: 'transactions.creditProvider',
     REFUND: 'transactions.refund',
+    CHARGE_AUTHORIZATION: 'transactions.chargeAuthorization',
   },
   WALLET: {
     CREATE: 'transactions.wallet.create',

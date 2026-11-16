@@ -54,3 +54,13 @@ export const ReviewPatterns = {
   FIND_ALL: 'profile.review.findAll',
   REMOVE: 'profile.review.remove',
 };
+
+export const SubscriptionPatterns = {
+  FIND_PLANS: 'profile.subscriptions.findPlans',
+  GET_MINE: 'profile.subscriptions.getMine',
+  SUBSCRIBE: 'profile.subscriptions.subscribe',
+  ACTIVATE: 'profile.subscriptions.activate',
+  CANCEL: 'profile.subscriptions.cancel',
+  ADMIN_UPDATE_PLAN: 'profile.subscriptions.adminUpdatePlan',
+  RUN_JOB: 'profile.subscriptions.runJob',
+};

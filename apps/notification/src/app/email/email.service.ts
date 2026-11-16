@@ -343,7 +343,12 @@ export class EmailService {
     });
   }
 
-  async verifyEmail(email: string, name: string, otp: number, verifyUrl?: string) {
+  async verifyEmail(
+    email: string,
+    name: string,
+    otp: number,
+    verifyUrl?: string,
+  ) {
     return this.mailerService.sendMail({
       to: email,
       subject: 'Verify your email address',
@@ -400,6 +405,114 @@ export class EmailService {
         accessLevel,
         message,
         reviewLink,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
+  async subscriptionActivatedEmail(
+    email: string,
+    name: string,
+    planName: string,
+    amount: number,
+    currency: string,
+    periodEnd: string,
+    renewal: boolean,
+  ) {
+    return this.mailerService.sendMail({
+      to: email,
+      subject: renewal
+        ? `Your ${planName} plan has been renewed`
+        : `Welcome to the ${planName} plan`,
+      template: 'subscription-activated',
+      context: {
+        name,
+        planName,
+        amount: amount.toLocaleString(),
+        currency,
+        periodEnd,
+        renewal,
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
+  async subscriptionRenewalReminderEmail(
+    email: string,
+    name: string,
+    planName: string,
+    amount: number,
+    currency: string,
+    renewsOn: string,
+    cardLast4?: string,
+  ) {
+    return this.mailerService.sendMail({
+      to: email,
+      subject: `Your ${planName} plan renews on ${renewsOn}`,
+      template: 'subscription-renewal-reminder',
+      context: {
+        name,
+        planName,
+        amount: amount.toLocaleString(),
+        currency,
+        renewsOn,
+        cardLast4: cardLast4 ?? '',
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
+  async subscriptionPaymentFailedEmail(
+    email: string,
+    name: string,
+    planName: string,
+    amount: number,
+    currency: string,
+    attempt: number,
+    maxAttempts: number,
+    graceUntil: string,
+    reason?: string,
+  ) {
+    return this.mailerService.sendMail({
+      to: email,
+      subject: `Action needed: payment for your ${planName} plan failed`,
+      template: 'subscription-payment-failed',
+      context: {
+        name,
+        planName,
+        amount: amount.toLocaleString(),
+        currency,
+        attempt,
+        maxAttempts,
+        graceUntil,
+        reason: reason ?? '',
+        websiteUrl: 'https://medicpadi.com',
+        year: new Date().getFullYear(),
+      },
+      attachments: [this.logoAttachment],
+    });
+  }
+
+  async subscriptionDowngradedEmail(
+    email: string,
+    name: string,
+    previousPlanName: string,
+    paymentFailed: boolean,
+  ) {
+    return this.mailerService.sendMail({
+      to: email,
+      subject: `Your ${previousPlanName} plan has ended`,
+      template: 'subscription-downgraded',
+      context: {
+        name,
+        previousPlanName,
+        paymentFailed,
         websiteUrl: 'https://medicpadi.com',
         year: new Date().getFullYear(),
       },

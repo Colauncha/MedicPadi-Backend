@@ -19,6 +19,11 @@ import {
   PaymentSuccessEventDto,
   RequisitionStatus,
   ResetPasswordEmailDto,
+  SubscriptionActivatedEventDto,
+  SubscriptionDowngradedEventDto,
+  SubscriptionDowngradeReason,
+  SubscriptionPaymentFailedEventDto,
+  SubscriptionRenewalReminderEventDto,
   TestRequisitionAcceptedEventDto,
   TestRequisitionCreatedEventDto,
   TestRequisitionDeclinedEventDto,
@@ -39,7 +44,10 @@ interface RecipientPushPreferences {
 }
 
 // Used when the recipient's profile isn't resolved for the event
-const PUSH_ALL_ENABLED: RecipientPushPreferences = { mobilePushEnabled: true, webPushEnabled: true };
+const PUSH_ALL_ENABLED: RecipientPushPreferences = {
+  mobilePushEnabled: true,
+  webPushEnabled: true,
+};
 
 @Processor(NOTIFICATION_QUEUE)
 export class DispatchProcessor extends WorkerHost {
@@ -63,23 +71,41 @@ export class DispatchProcessor extends WorkerHost {
       case NotificationJobNames.RESET_PASSWORD:
         return this.handleResetPassword(job as Job<ResetPasswordEmailDto>);
       case NotificationJobNames.APPOINTMENT_CREATED:
-        return this.handleAppointmentCreated(job as Job<AppointmentCreatedEventDto>);
+        return this.handleAppointmentCreated(
+          job as Job<AppointmentCreatedEventDto>,
+        );
       case NotificationJobNames.APPOINTMENT_CONFIRMED:
-        return this.handleAppointmentConfirmed(job as Job<AppointmentConfirmedEventDto>);
+        return this.handleAppointmentConfirmed(
+          job as Job<AppointmentConfirmedEventDto>,
+        );
       case NotificationJobNames.APPOINTMENT_PAYMENT_CONFIRMED:
-        return this.handleAppointmentPaymentConfirmed(job as Job<AppointmentPaymentConfirmedEventDto>);
+        return this.handleAppointmentPaymentConfirmed(
+          job as Job<AppointmentPaymentConfirmedEventDto>,
+        );
       case NotificationJobNames.APPOINTMENT_COMPLETED:
-        return this.handleAppointmentCompleted(job as Job<AppointmentCompletedEventDto>);
+        return this.handleAppointmentCompleted(
+          job as Job<AppointmentCompletedEventDto>,
+        );
       case NotificationJobNames.APPOINTMENT_CANCELLED:
-        return this.handleAppointmentCancelled(job as Job<AppointmentCancelledEventDto>);
+        return this.handleAppointmentCancelled(
+          job as Job<AppointmentCancelledEventDto>,
+        );
       case NotificationJobNames.APPOINTMENT_RESCHEDULED:
-        return this.handleAppointmentRescheduled(job as Job<AppointmentRescheduledEventDto>);
+        return this.handleAppointmentRescheduled(
+          job as Job<AppointmentRescheduledEventDto>,
+        );
       case NotificationJobNames.TEST_REQUISITION_CREATED:
-        return this.handleTestRequisitionCreated(job as Job<TestRequisitionCreatedEventDto>);
+        return this.handleTestRequisitionCreated(
+          job as Job<TestRequisitionCreatedEventDto>,
+        );
       case NotificationJobNames.TEST_REQUISITION_ACCEPTED:
-        return this.handleTestRequisitionAccepted(job as Job<TestRequisitionAcceptedEventDto>);
+        return this.handleTestRequisitionAccepted(
+          job as Job<TestRequisitionAcceptedEventDto>,
+        );
       case NotificationJobNames.TEST_REQUISITION_DECLINED:
-        return this.handleTestRequisitionDeclined(job as Job<TestRequisitionDeclinedEventDto>);
+        return this.handleTestRequisitionDeclined(
+          job as Job<TestRequisitionDeclinedEventDto>,
+        );
       case NotificationJobNames.PAYMENT_SUCCESS:
         return this.handlePaymentSuccess(job as Job<PaymentSuccessEventDto>);
       case NotificationJobNames.WITHDRAWAL_SUCCESS:
@@ -87,15 +113,31 @@ export class DispatchProcessor extends WorkerHost {
       case NotificationJobNames.WITHDRAWAL_FAILED:
         return this.handleWithdrawalFailed(job as Job<WithdrawalEventDto>);
       case NotificationJobNames.DRUG_REQUISITION_CREATED:
-        return this.handleDrugRequisitionCreated(job as Job<DrugRequisitionCreatedEventDto>);
+        return this.handleDrugRequisitionCreated(
+          job as Job<DrugRequisitionCreatedEventDto>,
+        );
       case NotificationJobNames.DRUG_REQUISITION_STATUS_CHANGED:
-        return this.handleDrugRequisitionStatusChanged(job as Job<DrugRequisitionStatusChangedEventDto>);
+        return this.handleDrugRequisitionStatusChanged(
+          job as Job<DrugRequisitionStatusChangedEventDto>,
+        );
       case NotificationJobNames.VERIFY_EMAIL:
         return this.handleVerifyEmail(job as Job<VerifyEmailDto>);
       case NotificationJobNames.EHR_ACCESS_REQUESTED:
-        return this.handleEhrAccessRequested(job as Job<EhrAccessRequestedEventDto>);
+        return this.handleEhrAccessRequested(
+          job as Job<EhrAccessRequestedEventDto>,
+        );
+      case NotificationJobNames.SUBSCRIPTION_ACTIVATED:
+        return this.handleSubscriptionActivated(job);
+      case NotificationJobNames.SUBSCRIPTION_RENEWAL_REMINDER:
+        return this.handleSubscriptionRenewalReminder(job);
+      case NotificationJobNames.SUBSCRIPTION_PAYMENT_FAILED:
+        return this.handleSubscriptionPaymentFailed(job);
+      case NotificationJobNames.SUBSCRIPTION_DOWNGRADED:
+        return this.handleSubscriptionDowngraded(job);
       case NotificationJobNames.PUSH_RECEIPTS:
-        return this.pushService.checkReceipts((job as Job<PushReceiptsJobData>).data);
+        return this.pushService.checkReceipts(
+          (job as Job<PushReceiptsJobData>).data,
+        );
       default:
         this.logger.warn(`Unhandled job name: ${job.name}`);
     }
@@ -115,14 +157,21 @@ export class DispatchProcessor extends WorkerHost {
   }
 
   /** Stores the in-app notification and pushes it to the recipient's registered devices. */
-  private async notifyUser(prefs: RecipientPushPreferences, dto: CreateNotificationDto) {
+  private async notifyUser(
+    prefs: RecipientPushPreferences,
+    dto: CreateNotificationDto,
+  ) {
     const notification = await this.notificationService.create(dto);
     await this.pushService.sendToUser(
       dto.user_id,
       {
         title: dto.title,
         body: dto.body,
-        data: { notificationId: notification.id, type: dto.type, sourceId: dto.source_id },
+        data: {
+          notificationId: notification.id,
+          type: dto.type,
+          sourceId: dto.source_id,
+        },
       },
       { mobile: prefs.mobilePushEnabled, web: prefs.webPushEnabled },
     );
@@ -145,17 +194,28 @@ export class DispatchProcessor extends WorkerHost {
   }
 
   private async handleAppointmentCreated(job: Job<AppointmentCreatedEventDto>) {
-    const { appointmentId, patientId, doctorId, appointmentTime, acceptLink } = job.data;
+    const { appointmentId, patientId, doctorId, appointmentTime, acceptLink } =
+      job.data;
 
-    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
-      this.dispatchService.resolveUserAuth(patientId),
-      this.dispatchService.resolvePatient(patientId),
-      this.dispatchService.resolveUserAuth(doctorId),
-      this.dispatchService.resolveDoctor(doctorId),
-    ]);
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] =
+      await Promise.all([
+        this.dispatchService.resolveUserAuth(patientId),
+        this.dispatchService.resolvePatient(patientId),
+        this.dispatchService.resolveUserAuth(doctorId),
+        this.dispatchService.resolveDoctor(doctorId),
+      ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
-    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
+    const doctorName = this.dispatchService.displayName(
+      doctorProfile.firstName,
+      doctorProfile.lastName,
+      doctorAuth.email,
+      'Dr. ',
+    );
 
     if (patientProfile.emailNotificationsEnabled) {
       await this.emailService.appointmentCreatedEmail(
@@ -187,20 +247,36 @@ export class DispatchProcessor extends WorkerHost {
     });
   }
 
-  private async handleAppointmentConfirmed(job: Job<AppointmentConfirmedEventDto>) {
-    const { appointmentId, patientId, doctorId, appointmentTime, paymentLink } = job.data;
+  private async handleAppointmentConfirmed(
+    job: Job<AppointmentConfirmedEventDto>,
+  ) {
+    const { appointmentId, patientId, doctorId, appointmentTime, paymentLink } =
+      job.data;
 
-    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
-      this.dispatchService.resolveUserAuth(patientId),
-      this.dispatchService.resolvePatient(patientId),
-      this.dispatchService.resolveUserAuth(doctorId),
-      this.dispatchService.resolveDoctor(doctorId),
-    ]);
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] =
+      await Promise.all([
+        this.dispatchService.resolveUserAuth(patientId),
+        this.dispatchService.resolvePatient(patientId),
+        this.dispatchService.resolveUserAuth(doctorId),
+        this.dispatchService.resolveDoctor(doctorId),
+      ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
-    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
+    const doctorName = this.dispatchService.displayName(
+      doctorProfile.firstName,
+      doctorProfile.lastName,
+      doctorAuth.email,
+      'Dr. ',
+    );
 
-    if (patientProfile.emailNotificationsEnabled || doctorProfile.emailNotificationsEnabled) {
+    if (
+      patientProfile.emailNotificationsEnabled ||
+      doctorProfile.emailNotificationsEnabled
+    ) {
       await this.emailService.appointmentConfirmedEmail(
         patientProfile.emailNotificationsEnabled ? patientAuth.email : '',
         patientName,
@@ -231,20 +307,42 @@ export class DispatchProcessor extends WorkerHost {
     ]);
   }
 
-  private async handleAppointmentPaymentConfirmed(job: Job<AppointmentPaymentConfirmedEventDto>) {
-    const { appointmentId, patientId, doctorId, appointmentTime, joinLink, meetingLink } = job.data;
+  private async handleAppointmentPaymentConfirmed(
+    job: Job<AppointmentPaymentConfirmedEventDto>,
+  ) {
+    const {
+      appointmentId,
+      patientId,
+      doctorId,
+      appointmentTime,
+      joinLink,
+      meetingLink,
+    } = job.data;
 
-    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
-      this.dispatchService.resolveUserAuth(patientId),
-      this.dispatchService.resolvePatient(patientId),
-      this.dispatchService.resolveUserAuth(doctorId),
-      this.dispatchService.resolveDoctor(doctorId),
-    ]);
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] =
+      await Promise.all([
+        this.dispatchService.resolveUserAuth(patientId),
+        this.dispatchService.resolvePatient(patientId),
+        this.dispatchService.resolveUserAuth(doctorId),
+        this.dispatchService.resolveDoctor(doctorId),
+      ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
-    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
+    const doctorName = this.dispatchService.displayName(
+      doctorProfile.firstName,
+      doctorProfile.lastName,
+      doctorAuth.email,
+      'Dr. ',
+    );
 
-    if (patientProfile.emailNotificationsEnabled || doctorProfile.emailNotificationsEnabled) {
+    if (
+      patientProfile.emailNotificationsEnabled ||
+      doctorProfile.emailNotificationsEnabled
+    ) {
       await this.emailService.appointmentPaymentConfirmedEmail(
         patientProfile.emailNotificationsEnabled ? patientAuth.email : '',
         patientName,
@@ -276,18 +374,31 @@ export class DispatchProcessor extends WorkerHost {
     ]);
   }
 
-  private async handleAppointmentCompleted(job: Job<AppointmentCompletedEventDto>) {
-    const { appointmentId, patientId, doctorId, appointmentTime, confirmLink } = job.data;
+  private async handleAppointmentCompleted(
+    job: Job<AppointmentCompletedEventDto>,
+  ) {
+    const { appointmentId, patientId, doctorId, appointmentTime, confirmLink } =
+      job.data;
 
-    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
-      this.dispatchService.resolveUserAuth(patientId),
-      this.dispatchService.resolvePatient(patientId),
-      this.dispatchService.resolveUserAuth(doctorId),
-      this.dispatchService.resolveDoctor(doctorId),
-    ]);
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] =
+      await Promise.all([
+        this.dispatchService.resolveUserAuth(patientId),
+        this.dispatchService.resolvePatient(patientId),
+        this.dispatchService.resolveUserAuth(doctorId),
+        this.dispatchService.resolveDoctor(doctorId),
+      ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
-    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
+    const doctorName = this.dispatchService.displayName(
+      doctorProfile.firstName,
+      doctorProfile.lastName,
+      doctorAuth.email,
+      'Dr. ',
+    );
 
     if (patientProfile.emailNotificationsEnabled) {
       await this.emailService.appointmentCompletedEmail(
@@ -319,7 +430,9 @@ export class DispatchProcessor extends WorkerHost {
     ]);
   }
 
-  private async handleAppointmentCancelled(job: Job<AppointmentCancelledEventDto>) {
+  private async handleAppointmentCancelled(
+    job: Job<AppointmentCancelledEventDto>,
+  ) {
     const { appointmentId, patientId, appointmentTime, reason } = job.data;
 
     const [patientAuth, patientProfile] = await Promise.all([
@@ -327,7 +440,11 @@ export class DispatchProcessor extends WorkerHost {
       this.dispatchService.resolvePatient(patientId),
     ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
 
     if (patientProfile.emailNotificationsEnabled) {
       await this.emailService.appointmentCancelledEmail(
@@ -348,19 +465,40 @@ export class DispatchProcessor extends WorkerHost {
     });
   }
 
-  private async handleAppointmentRescheduled(job: Job<AppointmentRescheduledEventDto>) {
-    const { appointmentId, patientId, doctorId, oldTime, newTime, rescheduledBy, reason, requiresAcceptance, acceptLink } =
-      job.data;
+  private async handleAppointmentRescheduled(
+    job: Job<AppointmentRescheduledEventDto>,
+  ) {
+    const {
+      appointmentId,
+      patientId,
+      doctorId,
+      oldTime,
+      newTime,
+      rescheduledBy,
+      reason,
+      requiresAcceptance,
+      acceptLink,
+    } = job.data;
 
-    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
-      this.dispatchService.resolveUserAuth(patientId),
-      this.dispatchService.resolvePatient(patientId),
-      this.dispatchService.resolveUserAuth(doctorId),
-      this.dispatchService.resolveDoctor(doctorId),
-    ]);
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] =
+      await Promise.all([
+        this.dispatchService.resolveUserAuth(patientId),
+        this.dispatchService.resolvePatient(patientId),
+        this.dispatchService.resolveUserAuth(doctorId),
+        this.dispatchService.resolveDoctor(doctorId),
+      ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
-    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
+    const doctorName = this.dispatchService.displayName(
+      doctorProfile.firstName,
+      doctorProfile.lastName,
+      doctorAuth.email,
+      'Dr. ',
+    );
     const when = new Date(newTime).toLocaleString();
     const tasks: Promise<unknown>[] = [];
 
@@ -368,7 +506,14 @@ export class DispatchProcessor extends WorkerHost {
     if (rescheduledBy !== AuthRole.PATIENT) {
       if (patientProfile.emailNotificationsEnabled) {
         tasks.push(
-          this.emailService.appointmentRescheduledEmail(patientAuth.email, patientName, doctorName, oldTime, newTime, reason),
+          this.emailService.appointmentRescheduledEmail(
+            patientAuth.email,
+            patientName,
+            doctorName,
+            oldTime,
+            newTime,
+            reason,
+          ),
         );
       }
       tasks.push(
@@ -387,7 +532,15 @@ export class DispatchProcessor extends WorkerHost {
       const link = requiresAcceptance ? acceptLink : undefined;
       if (doctorProfile.emailNotificationsEnabled) {
         tasks.push(
-          this.emailService.appointmentRescheduledEmail(doctorAuth.email, doctorName, patientName, oldTime, newTime, reason, link),
+          this.emailService.appointmentRescheduledEmail(
+            doctorAuth.email,
+            doctorName,
+            patientName,
+            oldTime,
+            newTime,
+            reason,
+            link,
+          ),
         );
       }
       tasks.push(
@@ -405,17 +558,24 @@ export class DispatchProcessor extends WorkerHost {
     await Promise.all(tasks);
   }
 
-  private async handleTestRequisitionCreated(job: Job<TestRequisitionCreatedEventDto>) {
+  private async handleTestRequisitionCreated(
+    job: Job<TestRequisitionCreatedEventDto>,
+  ) {
     const { requisitionId, patientId, labId, acceptLink } = job.data;
 
-    const [patientAuth, patientProfile, labAuth, labProfile] = await Promise.all([
-      this.dispatchService.resolveUserAuth(patientId),
-      this.dispatchService.resolvePatient(patientId),
-      this.dispatchService.resolveUserAuth(labId),
-      this.dispatchService.resolveLab(labId),
-    ]);
+    const [patientAuth, patientProfile, labAuth, labProfile] =
+      await Promise.all([
+        this.dispatchService.resolveUserAuth(patientId),
+        this.dispatchService.resolvePatient(patientId),
+        this.dispatchService.resolveUserAuth(labId),
+        this.dispatchService.resolveLab(labId),
+      ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
 
     await this.emailService.testRequisitionCreatedEmail(
       patientProfile.emailNotificationsEnabled ? patientAuth.email : '',
@@ -445,7 +605,9 @@ export class DispatchProcessor extends WorkerHost {
     ]);
   }
 
-  private async handleTestRequisitionAccepted(job: Job<TestRequisitionAcceptedEventDto>) {
+  private async handleTestRequisitionAccepted(
+    job: Job<TestRequisitionAcceptedEventDto>,
+  ) {
     const { requisitionId, patientId, labId, paymentLink } = job.data;
 
     const [patientAuth, patientProfile, labProfile] = await Promise.all([
@@ -454,7 +616,11 @@ export class DispatchProcessor extends WorkerHost {
       this.dispatchService.resolveLab(labId),
     ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
 
     if (patientProfile.emailNotificationsEnabled) {
       await this.emailService.testRequisitionAcceptedEmail(
@@ -475,7 +641,9 @@ export class DispatchProcessor extends WorkerHost {
     });
   }
 
-  private async handleTestRequisitionDeclined(job: Job<TestRequisitionDeclinedEventDto>) {
+  private async handleTestRequisitionDeclined(
+    job: Job<TestRequisitionDeclinedEventDto>,
+  ) {
     const { requisitionId, patientId, labId, notes } = job.data;
 
     const [patientAuth, patientProfile, labProfile] = await Promise.all([
@@ -484,7 +652,11 @@ export class DispatchProcessor extends WorkerHost {
       this.dispatchService.resolveLab(labId),
     ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
 
     if (patientProfile.emailNotificationsEnabled) {
       await this.emailService.testRequisitionDeclinedEmail(
@@ -506,7 +678,9 @@ export class DispatchProcessor extends WorkerHost {
     });
   }
 
-  private async handleDrugRequisitionCreated(job: Job<DrugRequisitionCreatedEventDto>) {
+  private async handleDrugRequisitionCreated(
+    job: Job<DrugRequisitionCreatedEventDto>,
+  ) {
     const { requisitionId, patientId, pharmacyId, paymentLink } = job.data;
 
     const [patientAuth, patientProfile, pharmacyProfile] = await Promise.all([
@@ -515,7 +689,11 @@ export class DispatchProcessor extends WorkerHost {
       this.dispatchService.resolvePharmacy(pharmacyId),
     ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
 
     if (patientProfile.emailNotificationsEnabled) {
       await this.emailService.drugRequisitionCreatedEmail(
@@ -546,8 +724,18 @@ export class DispatchProcessor extends WorkerHost {
     });
   }
 
-  private async handleDrugRequisitionStatusChanged(job: Job<DrugRequisitionStatusChangedEventDto>) {
-    const { requisitionId, patientId, pharmacyId, status, changedBy, notes, refunded } = job.data;
+  private async handleDrugRequisitionStatusChanged(
+    job: Job<DrugRequisitionStatusChangedEventDto>,
+  ) {
+    const {
+      requisitionId,
+      patientId,
+      pharmacyId,
+      status,
+      changedBy,
+      notes,
+      refunded,
+    } = job.data;
 
     const [patientAuth, patientProfile, pharmacyProfile] = await Promise.all([
       this.dispatchService.resolveUserAuth(patientId),
@@ -555,7 +743,11 @@ export class DispatchProcessor extends WorkerHost {
       this.dispatchService.resolvePharmacy(pharmacyId),
     ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
     const pharmacyName = pharmacyProfile.name;
     const refundNote = refunded ? ' Your payment has been refunded.' : '';
     const reasonNote = notes ? ` Reason: ${notes}` : '';
@@ -581,10 +773,16 @@ export class DispatchProcessor extends WorkerHost {
 
     switch (status) {
       case RequisitionStatus.ACCEPTED:
-        await notifyPatient('Drug Requisition Accepted', `${pharmacyName} has accepted your drug requisition.`);
+        await notifyPatient(
+          'Drug Requisition Accepted',
+          `${pharmacyName} has accepted your drug requisition.`,
+        );
         return;
       case RequisitionStatus.PROCESSING:
-        await notifyPatient('Drug Requisition Processing', `${pharmacyName} is preparing your drugs.`);
+        await notifyPatient(
+          'Drug Requisition Processing',
+          `${pharmacyName} is preparing your drugs.`,
+        );
         return;
       case RequisitionStatus.READY:
         await notifyPatient(
@@ -602,16 +800,23 @@ export class DispatchProcessor extends WorkerHost {
         // A pharmacy cancellation is a decline; notify whichever party didn't act (both for admin)
         if (changedBy !== AuthRole.PATIENT) {
           await notifyPatient(
-            changedBy === AuthRole.PHARMACY ? 'Drug Requisition Declined' : 'Drug Requisition Cancelled',
+            changedBy === AuthRole.PHARMACY
+              ? 'Drug Requisition Declined'
+              : 'Drug Requisition Cancelled',
             `Your drug requisition with ${pharmacyName} was ${changedBy === AuthRole.PHARMACY ? 'declined' : 'cancelled'}.${reasonNote}${refundNote}`,
           );
         }
         if (changedBy !== AuthRole.PHARMACY) {
-          await notifyPharmacy('Drug Requisition Cancelled', `${patientName}'s drug requisition was cancelled.`);
+          await notifyPharmacy(
+            'Drug Requisition Cancelled',
+            `${patientName}'s drug requisition was cancelled.`,
+          );
         }
         return;
       default:
-        this.logger.warn(`No notification for drug requisition status: ${status}`);
+        this.logger.warn(
+          `No notification for drug requisition status: ${status}`,
+        );
     }
   }
 
@@ -672,18 +877,32 @@ export class DispatchProcessor extends WorkerHost {
   }
 
   private async handleEhrAccessRequested(job: Job<EhrAccessRequestedEventDto>) {
-    const { consentId, patientId, doctorId, accessLevel, message, reviewLink } = job.data;
+    const { consentId, patientId, doctorId, accessLevel, message, reviewLink } =
+      job.data;
 
-    const [patientAuth, patientProfile, doctorAuth, doctorProfile] = await Promise.all([
-      this.dispatchService.resolveUserAuth(patientId),
-      this.dispatchService.resolvePatient(patientId),
-      this.dispatchService.resolveUserAuth(doctorId),
-      this.dispatchService.resolveDoctor(doctorId),
-    ]);
+    const [patientAuth, patientProfile, doctorAuth, doctorProfile] =
+      await Promise.all([
+        this.dispatchService.resolveUserAuth(patientId),
+        this.dispatchService.resolvePatient(patientId),
+        this.dispatchService.resolveUserAuth(doctorId),
+        this.dispatchService.resolveDoctor(doctorId),
+      ]);
 
-    const patientName = this.dispatchService.displayName(patientProfile.firstName, patientProfile.lastName, patientAuth.email);
-    const doctorName = this.dispatchService.displayName(doctorProfile.firstName, doctorProfile.lastName, doctorAuth.email, 'Dr. ');
-    const accessLabel = accessLevel === ConsentAccessLevel.FULL_ACCESS ? 'Full access (view and update)' : 'View only';
+    const patientName = this.dispatchService.displayName(
+      patientProfile.firstName,
+      patientProfile.lastName,
+      patientAuth.email,
+    );
+    const doctorName = this.dispatchService.displayName(
+      doctorProfile.firstName,
+      doctorProfile.lastName,
+      doctorAuth.email,
+      'Dr. ',
+    );
+    const accessLabel =
+      accessLevel === ConsentAccessLevel.FULL_ACCESS
+        ? 'Full access (view and update)'
+        : 'View only';
 
     if (patientProfile.emailNotificationsEnabled) {
       await this.emailService.ehrAccessRequestedEmail(
@@ -702,6 +921,153 @@ export class DispatchProcessor extends WorkerHost {
       body: `${doctorName} has requested ${accessLabel.toLowerCase()} access to your health records. Review: ${reviewLink}`,
       type: NotificationType.OTHER,
       source_id: consentId,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private static formatDate(iso: string) {
+    return new Date(iso).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
+  }
+
+  private async handleSubscriptionActivated(
+    job: Job<SubscriptionActivatedEventDto>,
+  ) {
+    const {
+      userId,
+      subscriptionId,
+      planName,
+      amount,
+      currency,
+      periodEnd,
+      renewal,
+    } = job.data;
+    const userAuth = await this.dispatchService.resolveUserAuth(userId);
+    const until = DispatchProcessor.formatDate(periodEnd);
+
+    await this.emailService.subscriptionActivatedEmail(
+      userAuth.email,
+      userAuth.fullName,
+      planName,
+      amount,
+      currency,
+      until,
+      renewal,
+    );
+
+    await this.notifyUser(PUSH_ALL_ENABLED, {
+      user_id: userId,
+      title: renewal ? 'Subscription Renewed' : 'Subscription Activated',
+      body: renewal
+        ? `Your ${planName} plan has been renewed until ${until}.`
+        : `Your ${planName} plan is now active until ${until}.`,
+      type: NotificationType.SUBSCRIPTION,
+      source_id: subscriptionId,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private async handleSubscriptionRenewalReminder(
+    job: Job<SubscriptionRenewalReminderEventDto>,
+  ) {
+    const {
+      userId,
+      subscriptionId,
+      planName,
+      amount,
+      currency,
+      renewsOn,
+      cardLast4,
+    } = job.data;
+    const userAuth = await this.dispatchService.resolveUserAuth(userId);
+    const renewDate = DispatchProcessor.formatDate(renewsOn);
+
+    await this.emailService.subscriptionRenewalReminderEmail(
+      userAuth.email,
+      userAuth.fullName,
+      planName,
+      amount,
+      currency,
+      renewDate,
+      cardLast4,
+    );
+
+    const card = cardLast4 ? ` using your card ending in ${cardLast4}` : '';
+    await this.notifyUser(PUSH_ALL_ENABLED, {
+      user_id: userId,
+      title: 'Subscription Renews in 7 Days',
+      body: `Your ${planName} plan renews on ${renewDate} for ${currency} ${amount.toLocaleString()}${card}.`,
+      type: NotificationType.SUBSCRIPTION,
+      source_id: subscriptionId,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private async handleSubscriptionPaymentFailed(
+    job: Job<SubscriptionPaymentFailedEventDto>,
+  ) {
+    const {
+      userId,
+      subscriptionId,
+      planName,
+      amount,
+      currency,
+      attempt,
+      maxAttempts,
+      graceUntil,
+      reason,
+    } = job.data;
+    const userAuth = await this.dispatchService.resolveUserAuth(userId);
+    const graceDate = DispatchProcessor.formatDate(graceUntil);
+
+    await this.emailService.subscriptionPaymentFailedEmail(
+      userAuth.email,
+      userAuth.fullName,
+      planName,
+      amount,
+      currency,
+      attempt,
+      maxAttempts,
+      graceDate,
+      reason,
+    );
+
+    await this.notifyUser(PUSH_ALL_ENABLED, {
+      user_id: userId,
+      title: 'Subscription Payment Failed',
+      body: `We could not charge ${currency} ${amount.toLocaleString()} for your ${planName} plan (attempt ${attempt} of ${maxAttempts}). Update your card before ${graceDate} to keep your plan.`,
+      type: NotificationType.SUBSCRIPTION,
+      source_id: subscriptionId,
+      channel: NotificationChannel.IN_APP,
+    });
+  }
+
+  private async handleSubscriptionDowngraded(
+    job: Job<SubscriptionDowngradedEventDto>,
+  ) {
+    const { userId, subscriptionId, previousPlanName, reason } = job.data;
+    const userAuth = await this.dispatchService.resolveUserAuth(userId);
+    const paymentFailed = reason === SubscriptionDowngradeReason.PAYMENT_FAILED;
+
+    await this.emailService.subscriptionDowngradedEmail(
+      userAuth.email,
+      userAuth.fullName,
+      previousPlanName,
+      paymentFailed,
+    );
+
+    await this.notifyUser(PUSH_ALL_ENABLED, {
+      user_id: userId,
+      title: 'Plan Changed to Free',
+      body: paymentFailed
+        ? `Your ${previousPlanName} plan was moved to Free because we could not collect payment. Resubscribe any time.`
+        : `Your ${previousPlanName} plan has ended and you are now on the Free plan.`,
+      type: NotificationType.SUBSCRIPTION,
+      source_id: subscriptionId,
       channel: NotificationChannel.IN_APP,
     });
   }
